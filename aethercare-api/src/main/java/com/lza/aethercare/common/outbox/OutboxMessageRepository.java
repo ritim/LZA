@@ -49,4 +49,22 @@ public interface OutboxMessageRepository extends JpaRepository<OutboxMessage, Lo
          WHERE id = :id AND status = 'PENDING'
         """, nativeQuery = true)
     int markDeadLetter(@Param("id") Long id, @Param("error") String error);
+
+    /**
+     * 批次刪除 PUBLISHED 且 sent_at 早於 cutoff 的訊息；DEAD_LETTER 不刪。
+     * PG 不支援 DELETE LIMIT，改用子查詢限制每次最多 :batchSize 筆，避免長鎖表。
+     */
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = """
+        DELETE FROM outbox_message
+         WHERE id IN (
+            SELECT id FROM outbox_message
+             WHERE status = 'PUBLISHED'
+               AND sent_at < :cutoff
+             ORDER BY sent_at ASC
+             LIMIT :batchSize
+         )
+        """, nativeQuery = true)
+    int deletePublishedBefore(@Param("cutoff") OffsetDateTime cutoff,
+                              @Param("batchSize") int batchSize);
 }

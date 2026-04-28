@@ -84,6 +84,14 @@ aethercare:
     batch-size: 50
     max-attempts: 10
     backoff-base-seconds: 5
+    cleanup:
+      enabled: true
+      retention-days: 7
+      # 每次跑最多 max-batches-per-run × batch-size 筆，避免單次過長
+      batch-size: 1000
+      max-batches-per-run: 50
+      # cron: 秒 分 時 日 月 週（Spring 6 cron），UTC 時區
+      cron: "0 15 3 * * *"
   redis:
     workflow-lock-ttl-seconds: 300
     elder-status-ttl-seconds: 3600
