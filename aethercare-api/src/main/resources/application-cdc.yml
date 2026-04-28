@@ -1,0 +1,9 @@
+# CDC profile：由 Debezium 接管 outbox publish，關閉 application 內 polling
+aethercare:
+  outbox:
+    publisher:
+      enabled: false
+
+logging:
+  level:
+    com.lza.aethercare.common.outbox.OutboxPublisher: WARN

@@ -103,11 +103,24 @@ curl http://localhost:8080/api/v1/workflows/1/audit-logs
 | `test`          | Testcontainers 整合測試 |
 | `vault`         | 從 HashiCorp Vault 讀 secret（疊在 local 上） |
 | `tls`           | 啟用 TLS 連線（PG/Redis/Kafka + HTTPS）|
+| `cdc`           | 由 Debezium CDC 接管 outbox publish（關閉 polling） |
 | 環境變數覆蓋    | `AETHERCARE_DB_URL`、`AETHERCARE_REDIS_HOST`、`AETHERCARE_KAFKA_BOOTSTRAP` |
 
 ## Production secrets / TLS
 
 詳見 [`../docs/deployment/tls-secrets-runbook.md`](../docs/deployment/tls-secrets-runbook.md)。
+
+## Debezium CDC（替代 polling）
+
+詳見 [`../docs/deployment/cdc-debezium-runbook.md`](../docs/deployment/cdc-debezium-runbook.md)。
+
+快速試 CDC：
+
+```bash
+docker compose up -d
+./scripts/register-debezium-connector.sh
+SPRING_PROFILES_ACTIVE=local,cdc ./gradlew bootRun
+```
 
 快速啟動 Vault dev mode：
 

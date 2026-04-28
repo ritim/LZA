@@ -42,14 +42,26 @@
   "hotPaths": [
     {
       "path": "aethercare-api/src/main/resources/application.yml",
-      "accessCount": 23,
-      "lastAccessed": 1777358837937,
+      "accessCount": 24,
+      "lastAccessed": 1777359217912,
       "type": "file"
     },
     {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/common/error/GlobalExceptionHandler.java",
       "accessCount": 10,
       "lastAccessed": 1777356008878,
+      "type": "file"
+    },
+    {
+      "path": "docker-compose.yml",
+      "accessCount": 10,
+      "lastAccessed": 1777359287661,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/README.md",
+      "accessCount": 9,
+      "lastAccessed": 1777359404434,
       "type": "file"
     },
     {
@@ -77,12 +89,6 @@
       "type": "file"
     },
     {
-      "path": "aethercare-api/README.md",
-      "accessCount": 7,
-      "lastAccessed": 1777357980019,
-      "type": "file"
-    },
-    {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/event/enums/CareEventType.java",
       "accessCount": 6,
       "lastAccessed": 1777290651505,
@@ -104,12 +110,6 @@
       "path": "aethercare-api/src/main/resources/application-test.yml",
       "accessCount": 6,
       "lastAccessed": 1777356004267,
-      "type": "file"
-    },
-    {
-      "path": "docker-compose.yml",
-      "accessCount": 6,
-      "lastAccessed": 1777357827834,
       "type": "file"
     },
     {

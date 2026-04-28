@@ -4,14 +4,20 @@ import com.lza.aethercare.common.time.Clock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /** Outbox scheduler：定期撈出 PENDING 訊息委派給 handler 逐筆 publish。
- *  拆 scheduler / handler 兩 bean 是為了讓 @Transactional 在 handler.publishOne 真正生效（避免 self-invocation）。 */
+ *  拆 scheduler / handler 兩 bean 是為了讓 @Transactional 在 handler.publishOne 真正生效（避免 self-invocation）。
+ *  CDC profile 啟用時可透過 aethercare.outbox.publisher.enabled=false 關閉，由 Debezium 接管。 */
 @Component
+@ConditionalOnProperty(
+    name = "aethercare.outbox.publisher.enabled",
+    havingValue = "true",
+    matchIfMissing = true)
 @RequiredArgsConstructor
 @Slf4j
 public class OutboxPublisher {

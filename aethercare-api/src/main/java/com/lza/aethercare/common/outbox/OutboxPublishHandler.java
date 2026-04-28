@@ -7,6 +7,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,8 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.OffsetDateTime;
 
 /** Outbox publish handler：對單一 outbox 訊息執行 send、根據結果標記 PUBLISHED / 重試 / DEAD_LETTER。
- *  獨立 bean 以確保 @Transactional 經由 Spring proxy 生效。 */
+ *  獨立 bean 以確保 @Transactional 經由 Spring proxy 生效。
+ *  與 OutboxPublisher 同進退：CDC profile 下不需此 bean。 */
 @Component
+@ConditionalOnProperty(
+    name = "aethercare.outbox.publisher.enabled",
+    havingValue = "true",
+    matchIfMissing = true)
 @RequiredArgsConstructor
 @Slf4j
 public class OutboxPublishHandler {
