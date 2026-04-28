@@ -1,0 +1,90 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0002-create-care-workflow-instance
+      author: autopilot
+      changes:
+        - createTable:
+            tableName: care_workflow_instance
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: event_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_workflow_event
+                    referencedTableName: care_event
+                    referencedColumnNames: id
+              - column:
+                  name: elder_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: workflow_type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: risk_level
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: current_level
+                  type: INT
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+              - column:
+                  name: started_at
+                  type: TIMESTAMPTZ
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_at
+                  type: TIMESTAMPTZ
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version
+                  type: INT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: care_workflow_instance
+            indexName: idx_workflow_event
+            columns:
+              - column:
+                  name: event_id
+        - createIndex:
+            tableName: care_workflow_instance
+            indexName: idx_workflow_elder_status
+            columns:
+              - column:
+                  name: elder_id
+              - column:
+                  name: status

@@ -1,0 +1,82 @@
+spring:
+  application:
+    name: aethercare-api
+  profiles:
+    default: local
+  datasource:
+    url: ${AETHERCARE_DB_URL:jdbc:postgresql://localhost:5432/aethercare}
+    username: ${AETHERCARE_DB_USER:aethercare}
+    password: ${AETHERCARE_DB_PASSWORD:aethercare}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Taipei
+        format_sql: false
+    open-in-view: false
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+  data:
+    redis:
+      host: ${AETHERCARE_REDIS_HOST:localhost}
+      port: ${AETHERCARE_REDIS_PORT:6379}
+      timeout: 2s
+  kafka:
+    bootstrap-servers: ${AETHERCARE_KAFKA_BOOTSTRAP:localhost:9092}
+    consumer:
+      group-id: aethercare-api
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+
+server:
+  port: ${SERVER_PORT:8080}
+  forward-headers-strategy: framework
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when-authorized
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
+aethercare:
+  kafka:
+    topics:
+      event-created: care.event.created
+      workflow-started: care.workflow.started
+      task-created: care.task.created
+      notification-sent: care.notification.sent
+      action-received: care.action.received
+      audit-created: care.audit.created
+  scheduler:
+    timeout-scan-fixed-delay: 5000
+  redis:
+    workflow-lock-ttl-seconds: 300
+    elder-status-ttl-seconds: 3600
+
+logging:
+  level:
+    root: INFO
+    com.lza.aethercare: DEBUG

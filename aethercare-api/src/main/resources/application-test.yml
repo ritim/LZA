@@ -1,0 +1,15 @@
+spring:
+  jpa:
+    show-sql: false
+  liquibase:
+    enabled: true
+
+aethercare:
+  scheduler:
+    timeout-scan-fixed-delay: 200
+
+logging:
+  level:
+    com.lza.aethercare: INFO
+    org.testcontainers: INFO
+    org.hibernate.SQL: WARN

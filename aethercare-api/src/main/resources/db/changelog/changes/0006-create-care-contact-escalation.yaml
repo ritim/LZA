@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0006-create-care-contact-escalation
+      author: autopilot
+      changes:
+        - createTable:
+            tableName: care_contact_escalation
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: elder_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: contact_user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: level
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: channel
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sla_seconds
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: care_contact_escalation
+            constraintName: uq_escalation_elder_level
+            columnNames: elder_id, level

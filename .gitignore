@@ -1,0 +1,33 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# OMC 執行期狀態（plan/spec 保留）
+.omc/state/
+.omc/logs/
+.omc/notepad.md
+.omc/research/
+
+# 子專案內的 .omc/ 完全排除（OMC agent 在 sub-dir 跑時會建立）
+aethercare-api/.omc/
+
+# 環境變數本地檔
+.env
+.env.local
+
+# Docker volume mount cache
+.docker/

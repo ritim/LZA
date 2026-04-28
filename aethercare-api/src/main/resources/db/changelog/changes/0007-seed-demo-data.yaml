@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0007-seed-demo-data
+      author: autopilot
+      changes:
+        - insert:
+            tableName: care_contact_escalation
+            columns:
+              - column:
+                  name: elder_id
+                  valueNumeric: 1001
+              - column:
+                  name: contact_user_id
+                  valueNumeric: 2001
+              - column:
+                  name: level
+                  valueNumeric: 1
+              - column:
+                  name: channel
+                  value: LINE
+              - column:
+                  name: sla_seconds
+                  valueNumeric: 30
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: care_contact_escalation
+            columns:
+              - column:
+                  name: elder_id
+                  valueNumeric: 1001
+              - column:
+                  name: contact_user_id
+                  valueNumeric: 2002
+              - column:
+                  name: level
+                  valueNumeric: 2
+              - column:
+                  name: channel
+                  value: SMS
+              - column:
+                  name: sla_seconds
+                  valueNumeric: 60
+              - column:
+                  name: enabled
+                  valueBoolean: true

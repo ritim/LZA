@@ -1,0 +1,345 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1777286602012,
+  "projectRoot": "/Users/yao/0.Projects/LZA",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 0,
+      "lastAccessed": 1777286602003,
+      "keyFiles": []
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "aethercare-api/src/main/resources/application.yml",
+      "accessCount": 10,
+      "lastAccessed": 1777344395789,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/event/enums/CareEventType.java",
+      "accessCount": 6,
+      "lastAccessed": 1777290651505,
+      "type": "file"
+    },
+    {
+      "path": "docs/system_design/aethercare_codex_system_design.md",
+      "accessCount": 6,
+      "lastAccessed": 1777344349821,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/audit/enums/CareAuditAction.java",
+      "accessCount": 6,
+      "lastAccessed": 1777344353253,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/error/GlobalExceptionHandler.java",
+      "accessCount": 6,
+      "lastAccessed": 1777344417024,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/application-local.yml",
+      "accessCount": 5,
+      "lastAccessed": 1777344371796,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/userprofile/enums/NotificationChannel.java",
+      "accessCount": 5,
+      "lastAccessed": 1777344374254,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/application-test.yml",
+      "accessCount": 5,
+      "lastAccessed": 1777344376543,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/error/ErrorCode.java",
+      "accessCount": 5,
+      "lastAccessed": 1777344418120,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/workflow/enums/CareWorkflowType.java",
+      "accessCount": 4,
+      "lastAccessed": 1777289705764,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/event/enums/CareEventStatus.java",
+      "accessCount": 4,
+      "lastAccessed": 1777289710772,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/event/enums/RiskLevel.java",
+      "accessCount": 4,
+      "lastAccessed": 1777289711507,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/action/enums/CareActionType.java",
+      "accessCount": 4,
+      "lastAccessed": 1777289967913,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/db/changelog/changes/0007-seed-demo-data.yaml",
+      "accessCount": 4,
+      "lastAccessed": 1777344413051,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/error/BusinessException.java",
+      "accessCount": 4,
+      "lastAccessed": 1777344417337,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/event/PublishToKafka.java",
+      "accessCount": 4,
+      "lastAccessed": 1777344418883,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/kafka/KafkaPublishingListener.java",
+      "accessCount": 4,
+      "lastAccessed": 1777344419743,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/config/KafkaTopicConfig.java",
+      "accessCount": 4,
+      "lastAccessed": 1777344432094,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/AethercareApiApplication.java",
+      "accessCount": 4,
+      "lastAccessed": 1777344434381,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 4,
+      "lastAccessed": 1777344692290,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/task/enums/CareTaskStatus.java",
+      "accessCount": 3,
+      "lastAccessed": 1777289701996,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/task/enums/AssigneeType.java",
+      "accessCount": 3,
+      "lastAccessed": 1777289702892,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/workflow/enums/CareWorkflowStatus.java",
+      "accessCount": 3,
+      "lastAccessed": 1777289705033,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/event/enums/CareEventSource.java",
+      "accessCount": 3,
+      "lastAccessed": 1777289710314,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/README.md",
+      "accessCount": 3,
+      "lastAccessed": 1777290628998,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/time/Clock.java",
+      "accessCount": 3,
+      "lastAccessed": 1777344430748,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/config/JacksonConfig.java",
+      "accessCount": 3,
+      "lastAccessed": 1777344433635,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/db/changelog/db.changelog-master.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1777287685691,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/package-info.java",
+      "accessCount": 2,
+      "lastAccessed": 1777289283360,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/workflow/event/CareWorkflowStartedMessage.java",
+      "accessCount": 2,
+      "lastAccessed": 1777289706523,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/event/event/CareEventCreatedMessage.java",
+      "accessCount": 2,
+      "lastAccessed": 1777289712255,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/db/changelog/changes/0003-create-care-task.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1777344366941,
+      "type": "file"
+    },
+    {
+      "path": "docker-compose.yml",
+      "accessCount": 2,
+      "lastAccessed": 1777344367808,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/time/SystemClock.java",
+      "accessCount": 2,
+      "lastAccessed": 1777344430955,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/config/RedisConfig.java",
+      "accessCount": 2,
+      "lastAccessed": 1777344431777,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/config/SchedulingConfig.java",
+      "accessCount": 2,
+      "lastAccessed": 1777344432867,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/package-info.java",
+      "accessCount": 1,
+      "lastAccessed": 1777288133553,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/event/package-info.java",
+      "accessCount": 1,
+      "lastAccessed": 1777288135587,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/decision/package-info.java",
+      "accessCount": 1,
+      "lastAccessed": 1777288136622,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/workflow/package-info.java",
+      "accessCount": 1,
+      "lastAccessed": 1777288138292,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/task/package-info.java",
+      "accessCount": 1,
+      "lastAccessed": 1777288139295,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/notification/package-info.java",
+      "accessCount": 1,
+      "lastAccessed": 1777288140922,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/action/package-info.java",
+      "accessCount": 1,
+      "lastAccessed": 1777288142548,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/audit/package-info.java",
+      "accessCount": 1,
+      "lastAccessed": 1777288143715,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/userprofile/package-info.java",
+      "accessCount": 1,
+      "lastAccessed": 1777288144840,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/db/changelog/changes/0001-create-care-event.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1777288371275,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/db/changelog/changes/0002-create-care-workflow-instance.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1777288377656,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/db/changelog/changes/0004-create-care-action.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1777288388498,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/db/changelog/changes/0005-create-care-audit-log.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1777288391941,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/db/changelog/changes/0006-create-care-contact-escalation.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1777288396335,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

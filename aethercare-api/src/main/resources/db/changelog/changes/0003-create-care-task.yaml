@@ -1,0 +1,99 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0003-create-care-task
+      author: autopilot
+      changes:
+        - createTable:
+            tableName: care_task
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: workflow_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_task_workflow
+                    referencedTableName: care_workflow_instance
+                    referencedColumnNames: id
+              - column:
+                  name: event_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_task_event
+                    referencedTableName: care_event
+                    referencedColumnNames: id
+              - column:
+                  name: assignee_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: assignee_type
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: level
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: deadline_at
+                  type: TIMESTAMPTZ
+                  constraints:
+                    nullable: false
+              - column:
+                  name: acknowledged_at
+                  type: TIMESTAMPTZ
+                  constraints:
+                    nullable: true
+              - column:
+                  name: completed_at
+                  type: TIMESTAMPTZ
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version
+                  type: INT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: care_task
+            indexName: idx_task_pending_deadline
+            columns:
+              - column:
+                  name: status
+              - column:
+                  name: deadline_at
+        - createIndex:
+            tableName: care_task
+            indexName: idx_task_workflow_level
+            columns:
+              - column:
+                  name: workflow_id
+              - column:
+                  name: level
