@@ -1,9 +1,12 @@
 package com.lza.aethercare.common.error;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -40,6 +43,31 @@ public class GlobalExceptionHandler {
             fieldErrors.put(fe.getField(), fe.getDefaultMessage());
         }
         problem.setProperty("fieldErrors", fieldErrors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
+    }
+
+    /** PathVariable / RequestParam 驗證失敗（@Validated）。 */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ProblemDetail> handleConstraintViolation(ConstraintViolationException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle(ErrorCode.INVALID_REQUEST.getMessage());
+        problem.setDetail("請求參數驗證失敗");
+        problem.setProperty("code", ErrorCode.INVALID_REQUEST.name());
+        Map<String, String> violations = new LinkedHashMap<>();
+        for (ConstraintViolation<?> v : ex.getConstraintViolations()) {
+            violations.put(v.getPropertyPath().toString(), v.getMessage());
+        }
+        problem.setProperty("violations", violations);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
+    }
+
+    /** 請求 body 無法解析成 JSON。 */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ProblemDetail> handleNotReadable(HttpMessageNotReadableException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle(ErrorCode.INVALID_REQUEST.getMessage());
+        problem.setDetail("請求 JSON 格式錯誤");
+        problem.setProperty("code", ErrorCode.INVALID_REQUEST.name());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
     }
 

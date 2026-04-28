@@ -43,6 +43,9 @@ public class CareEventService {
     @Value("${aethercare.kafka.topics.event-created}")
     private String eventCreatedTopic;
 
+    /** metadata JSON 序列化後上限（8 KiB），防止過大 payload 壓垮 DB / Kafka。 */
+    private static final int METADATA_MAX_BYTES = 8 * 1024;
+
     @Transactional
     public CareEventResult createAndStartWorkflow(CreateCareEventRequest req) {
         OffsetDateTime now = clock.now();
@@ -52,6 +55,10 @@ public class CareEventService {
             metadataJson = req.getMetadata() == null ? null : objectMapper.writeValueAsString(req.getMetadata());
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.INVALID_REQUEST, "metadata 序列化失敗：" + e.getMessage());
+        }
+        if (metadataJson != null && metadataJson.length() > METADATA_MAX_BYTES) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST,
+                    "metadata 過大：" + metadataJson.length() + " bytes，上限 " + METADATA_MAX_BYTES);
         }
 
         CareEvent event = CareEvent.builder()

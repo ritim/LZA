@@ -106,9 +106,11 @@ public class CareWorkflowService {
 
     @Transactional
     public void resolve(Long workflowId, Long actorId) {
-        if (!lockService.acquire(workflowId)) {
+        Optional<String> tokenOpt = lockService.acquire(workflowId);
+        if (tokenOpt.isEmpty()) {
             throw new BusinessException(ErrorCode.INVALID_STATE_TRANSITION, "workflow 已在處理中");
         }
+        String token = tokenOpt.get();
         try {
             int updated = workflowRepo.markTerminalIfIn(workflowId,
                     CareWorkflowStatus.RESOLVED.name(),
@@ -127,7 +129,7 @@ public class CareWorkflowService {
                     CareAuditAction.WORKFLOW_RESOLVED, "已 resolved");
             lockService.cacheElderLatestStatus(wf.getElderId(), CareWorkflowStatus.RESOLVED);
         } finally {
-            lockService.release(workflowId);
+            lockService.release(workflowId, token);
         }
     }
 
@@ -154,10 +156,12 @@ public class CareWorkflowService {
     @Transactional
     public void escalate(CareTask timedOutTask, Long actorId) {
         Long workflowId = timedOutTask.getWorkflowId();
-        if (!lockService.acquire(workflowId)) {
+        Optional<String> tokenOpt = lockService.acquire(workflowId);
+        if (tokenOpt.isEmpty()) {
             log.warn("workflow={} 已在處理中，跳過 escalation", workflowId);
             return;
         }
+        String token = tokenOpt.get();
         try {
             CareWorkflowInstance wf = workflowRepo.findById(workflowId).orElseThrow();
             int nextLevel = timedOutTask.getLevel() + 1;
@@ -167,8 +171,10 @@ public class CareWorkflowService {
                 return;
             }
 
+            // 直接從 WAITING_RESPONSE / ACKNOWLEDGED 升級到 nextLevel 並維持 WAITING_RESPONSE。
+            // 不再引入 ESCALATED 中間態，避免兩段 update 競態時殘留錯誤狀態。
             int updated = workflowRepo.advanceLevel(workflowId, nextLevel,
-                    CareWorkflowStatus.ESCALATED.name(),
+                    CareWorkflowStatus.WAITING_RESPONSE.name(),
                     List.of(CareWorkflowStatus.WAITING_RESPONSE.name(),
                             CareWorkflowStatus.ACKNOWLEDGED.name()),
                     clock.now());
@@ -184,12 +190,6 @@ public class CareWorkflowService {
             CareTask nextTask = taskService.createTask(workflowId, wf.getEventId(),
                     nextContact.get().getContactUserId(), AssigneeType.FAMILY, nextLevel, deadline);
 
-            // 進回 WAITING_RESPONSE
-            workflowRepo.advanceLevel(workflowId, nextLevel,
-                    CareWorkflowStatus.WAITING_RESPONSE.name(),
-                    List.of(CareWorkflowStatus.ESCALATED.name()),
-                    clock.now());
-
             auditService.log(workflowId, wf.getEventId(), actorId,
                     CareAuditAction.TASK_ESCALATED,
                     "升級到 level=" + nextLevel + " 聯絡人=" + nextContact.get().getContactUserId());
@@ -197,7 +197,7 @@ public class CareWorkflowService {
             notificationService.notify(nextTask, wf.getElderId());
             lockService.cacheElderLatestStatus(wf.getElderId(), CareWorkflowStatus.WAITING_RESPONSE);
         } finally {
-            lockService.release(workflowId);
+            lockService.release(workflowId, token);
         }
     }
 

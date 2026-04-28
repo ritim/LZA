@@ -1,5 +1,7 @@
 package com.lza.aethercare.decision.service;
 
+import com.lza.aethercare.common.error.BusinessException;
+import com.lza.aethercare.common.error.ErrorCode;
 import com.lza.aethercare.event.enums.CareEventType;
 import com.lza.aethercare.event.enums.RiskLevel;
 import com.lza.aethercare.workflow.enums.CareWorkflowType;
@@ -30,8 +32,8 @@ public class RuleBasedRiskClassifier {
     public RiskLevel classifyRisk(CareEventType type) {
         RiskLevel level = RISK_MAP.get(type);
         if (level == null) {
-            log.warn("未對應的事件型別 type={} 預設為 LOW", type);
-            return RiskLevel.LOW;
+            log.warn("未對應的事件型別 type={}，拒絕分類以避免醫療場景誤判為 LOW", type);
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "未支援的事件類型: " + type);
         }
         return level;
     }
@@ -39,8 +41,8 @@ public class RuleBasedRiskClassifier {
     public CareWorkflowType resolveWorkflowType(CareEventType type) {
         CareWorkflowType workflowType = WORKFLOW_MAP.get(type);
         if (workflowType == null) {
-            log.warn("未對應的事件型別 type={} 預設為 REMINDER", type);
-            return CareWorkflowType.REMINDER;
+            log.warn("未對應的事件型別 type={}，拒絕解析 workflow", type);
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "未支援的事件類型: " + type);
         }
         return workflowType;
     }

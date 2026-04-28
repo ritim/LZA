@@ -17,7 +17,7 @@ spring:
     properties:
       hibernate:
         jdbc:
-          time_zone: Asia/Taipei
+          time_zone: UTC
         format_sql: false
     open-in-view: false
   liquibase:

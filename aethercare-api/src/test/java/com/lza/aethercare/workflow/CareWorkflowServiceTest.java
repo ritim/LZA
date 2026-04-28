@@ -108,7 +108,7 @@ class CareWorkflowServiceTest {
                 .version(0)
                 .build();
 
-        given(lockService.acquire(100L)).willReturn(true);
+        given(lockService.acquire(100L)).willReturn(Optional.of("token-100"));
         given(workflowRepo.findById(100L)).willReturn(Optional.of(wf));
         // level 3 不存在
         given(contactService.findContact(1001L, 3)).willReturn(Optional.empty());
@@ -147,7 +147,7 @@ class CareWorkflowServiceTest {
                 .version(1)
                 .build();
 
-        given(lockService.acquire(101L)).willReturn(false);
+        given(lockService.acquire(101L)).willReturn(Optional.empty());
 
         // when
         service.escalate(timedOutTask, null);

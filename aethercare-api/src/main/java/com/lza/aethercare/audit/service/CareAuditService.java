@@ -68,9 +68,9 @@ public class CareAuditService {
                     new CareAuditCreatedMessage(
                             saved.getId(), workflowId, eventId, action, message, saved.getCreatedAt())));
             return Optional.of(saved);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             writeFailureCounter.increment();
-            log.warn("audit log 寫入失敗 workflowId={} action={} reason={}", workflowId, action, e.getMessage());
+            log.warn("audit log 寫入失敗 workflowId={} action={}", workflowId, action, e);
             return Optional.empty();
         }
     }

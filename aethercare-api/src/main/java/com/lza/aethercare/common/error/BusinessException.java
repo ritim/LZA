@@ -7,13 +7,13 @@ public class BusinessException extends RuntimeException {
     private final String detail;
 
     public BusinessException(ErrorCode code, String detail) {
-        super(code.getMessage() + ": " + detail);
+        super(detail == null ? code.getMessage() : code.getMessage() + ": " + detail);
         this.code = code;
         this.detail = detail;
     }
 
     public BusinessException(ErrorCode code) {
-        this(code, code.getMessage());
+        this(code, null);
     }
 
     public ErrorCode getCode() {

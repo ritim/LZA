@@ -19,9 +19,4 @@ public class EscalationContactService {
     public Optional<CareContactEscalation> findContact(Long elderId, int level) {
         return repo.findByElderIdAndLevelAndEnabledTrue(elderId, level);
     }
-
-    @Transactional(readOnly = true)
-    public boolean hasNextLevel(Long elderId, int currentLevel) {
-        return repo.findByElderIdAndLevelAndEnabledTrue(elderId, currentLevel + 1).isPresent();
-    }
 }
