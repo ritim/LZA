@@ -39,7 +39,7 @@ public class CareActionService {
     private String actionReceivedTopic;
 
     @Transactional
-    public CareAction handle(Long taskId, CreateCareActionRequest req) {
+    public CareAction handle(Long taskId, Long actorId, CreateCareActionRequest req) {
         CareTask task = taskService.findById(taskId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "task=" + taskId));
 
@@ -48,34 +48,34 @@ public class CareActionService {
                 if (!taskService.completeIfActive(taskId)) {
                     throw new BusinessException(ErrorCode.TASK_ALREADY_FINALIZED, "task=" + taskId + " 已被處理");
                 }
-                CareAction action = persistAction(task, req);
-                auditService.log(task.getWorkflowId(), task.getEventId(), req.getActorId(),
+                CareAction action = persistAction(task, actorId, req);
+                auditService.log(task.getWorkflowId(), task.getEventId(), actorId,
                         CareAuditAction.TASK_COMPLETED, "CONFIRM_SAFE: " + safeNote(req));
-                workflowService.resolve(task.getWorkflowId(), req.getActorId());
-                publishKafka(action, req);
+                workflowService.resolve(task.getWorkflowId(), actorId);
+                publishKafka(action, actorId, req);
                 return action;
             }
             case NEED_HELP -> {
                 if (!taskService.completeIfActive(taskId)) {
                     throw new BusinessException(ErrorCode.TASK_ALREADY_FINALIZED, "task=" + taskId + " 已被處理");
                 }
-                CareAction action = persistAction(task, req);
-                auditService.log(task.getWorkflowId(), task.getEventId(), req.getActorId(),
+                CareAction action = persistAction(task, actorId, req);
+                auditService.log(task.getWorkflowId(), task.getEventId(), actorId,
                         CareAuditAction.TASK_COMPLETED, "NEED_HELP: " + safeNote(req));
-                auditService.log(task.getWorkflowId(), task.getEventId(), req.getActorId(),
+                auditService.log(task.getWorkflowId(), task.getEventId(), actorId,
                         CareAuditAction.ESCALATION_TRIGGERED, "user requested escalation");
-                workflowService.escalate(task, req.getActorId());
-                publishKafka(action, req);
+                workflowService.escalate(task, actorId);
+                publishKafka(action, actorId, req);
                 return action;
             }
             case ACKNOWLEDGE -> {
                 if (!taskService.acknowledgeIfPending(taskId)) {
                     throw new BusinessException(ErrorCode.TASK_ALREADY_FINALIZED, "task=" + taskId + " 已被處理");
                 }
-                CareAction action = persistAction(task, req);
-                auditService.log(task.getWorkflowId(), task.getEventId(), req.getActorId(),
+                CareAction action = persistAction(task, actorId, req);
+                auditService.log(task.getWorkflowId(), task.getEventId(), actorId,
                         CareAuditAction.TASK_ACKNOWLEDGED, "ACKNOWLEDGE: " + safeNote(req));
-                publishKafka(action, req);
+                publishKafka(action, actorId, req);
                 return action;
             }
             default -> throw new BusinessException(ErrorCode.INVALID_REQUEST, "未知 actionType");
@@ -86,11 +86,11 @@ public class CareActionService {
         return req.getNote() == null ? "" : req.getNote();
     }
 
-    private CareAction persistAction(CareTask task, CreateCareActionRequest req) {
+    private CareAction persistAction(CareTask task, Long actorId, CreateCareActionRequest req) {
         CareAction action = CareAction.builder()
                 .workflowId(task.getWorkflowId())
                 .taskId(task.getId())
-                .actorId(req.getActorId())
+                .actorId(actorId)
                 .actionType(req.getActionType())
                 .note(req.getNote())
                 .createdAt(clock.now())
@@ -98,12 +98,12 @@ public class CareActionService {
         return actionRepo.save(action);
     }
 
-    private void publishKafka(CareAction action, CreateCareActionRequest req) {
+    private void publishKafka(CareAction action, Long actorId, CreateCareActionRequest req) {
         publisher.publishEvent(new PublishToKafka(
                 actionReceivedTopic,
                 String.valueOf(action.getWorkflowId()),
                 new CareActionReceivedMessage(action.getId(), action.getWorkflowId(),
-                        action.getTaskId(), req.getActorId(), req.getActionType(), action.getCreatedAt())));
+                        action.getTaskId(), actorId, req.getActionType(), action.getCreatedAt())));
     }
 
     @Transactional(readOnly = true)

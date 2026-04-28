@@ -81,9 +81,10 @@ class CareActionServiceTest {
                 .build();
     }
 
+    private static final Long ACTOR_ID = 2001L;
+
     private CreateCareActionRequest confirmSafeReq() {
         return CreateCareActionRequest.builder()
-                .actorId(2001L)
                 .actionType(CareActionType.CONFIRM_SAFE)
                 .note("平安確認")
                 .build();
@@ -101,9 +102,9 @@ class CareActionServiceTest {
             return a;
         });
 
-        service.handle(1L, confirmSafeReq());
+        service.handle(1L, ACTOR_ID, confirmSafeReq());
 
-        then(workflowService).should().resolve(eq(task.getWorkflowId()), eq(2001L));
+        then(workflowService).should().resolve(eq(task.getWorkflowId()), eq(ACTOR_ID));
     }
 
     /** 驗證 completeIfActive 回 false 時，拋出 TASK_ALREADY_FINALIZED 例外。 */
@@ -113,7 +114,7 @@ class CareActionServiceTest {
         given(taskService.findById(1L)).willReturn(Optional.of(task));
         given(taskService.completeIfActive(1L)).willReturn(false);
 
-        assertThatThrownBy(() -> service.handle(1L, confirmSafeReq()))
+        assertThatThrownBy(() -> service.handle(1L, ACTOR_ID, confirmSafeReq()))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("code", ErrorCode.TASK_ALREADY_FINALIZED);
     }

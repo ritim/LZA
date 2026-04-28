@@ -4,11 +4,13 @@ import com.lza.aethercare.action.dto.CareActionResponse;
 import com.lza.aethercare.action.dto.CreateCareActionRequest;
 import com.lza.aethercare.action.entity.CareAction;
 import com.lza.aethercare.action.service.CareActionService;
+import com.lza.aethercare.common.security.AppUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,9 +38,11 @@ public class CareActionController {
     @PostMapping("/{taskId}/actions")
     public ResponseEntity<CareActionResponse> handleAction(
             @PathVariable Long taskId,
+            @AuthenticationPrincipal AppUserDetails currentUser,
             @Valid @RequestBody CreateCareActionRequest req) {
-        log.info("收到任務動作 taskId={} actionType={} actorId={}", taskId, req.getActionType(), req.getActorId());
-        CareAction action = careActionService.handle(taskId, req);
+        Long actorId = currentUser.getId();
+        log.info("收到任務動作 taskId={} actionType={} actorId={}", taskId, req.getActionType(), actorId);
+        CareAction action = careActionService.handle(taskId, actorId, req);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(action));
     }
 

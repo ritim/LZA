@@ -9,6 +9,8 @@ public enum ErrorCode {
     TASK_ALREADY_FINALIZED(HttpStatus.CONFLICT, "此任務已被處理"),
     ESCALATION_NOT_AVAILABLE(HttpStatus.CONFLICT, "已無下一順位聯絡人"),
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "請求格式錯誤"),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "未認證"),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "無權限"),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "系統錯誤");
 
     private final HttpStatus status;

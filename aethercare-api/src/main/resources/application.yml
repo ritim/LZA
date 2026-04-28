@@ -75,6 +75,14 @@ aethercare:
   redis:
     workflow-lock-ttl-seconds: 300
     elder-status-ttl-seconds: 3600
+  security:
+    jwt:
+      # MVP 用 dev secret（base64 編碼，至少 32 bytes for HS256）；production 必須以 env override
+      secret: ${AETHERCARE_JWT_SECRET:Y2hhbmdlLW1lLWluLXByb2R1Y3Rpb24tcGxlYXNlLW9yLXlvdS1nZXQtaGFja2VkLTIwMjY=}
+      expiry-seconds: 3600
+    cors:
+      allowed-origins: ${AETHERCARE_CORS_ORIGINS:http://localhost:3000,http://localhost:8080}
+    seed-demo-users: true
 
 logging:
   level:
