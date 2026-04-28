@@ -35,10 +35,11 @@ public class CareTaskService {
     private String taskCreatedTopic;
 
     @Transactional
-    public CareTask createTask(Long workflowId, Long eventId, Long assigneeId,
+    public CareTask createTask(Long tenantId, Long workflowId, Long eventId, Long assigneeId,
                                 AssigneeType assigneeType, int level, OffsetDateTime deadlineAt) {
         OffsetDateTime now = clock.now();
         CareTask task = CareTask.builder()
+                .tenantId(tenantId)
                 .workflowId(workflowId)
                 .eventId(eventId)
                 .assigneeId(assigneeId)

@@ -14,6 +14,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import org.hibernate.annotations.Filter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,6 +28,7 @@ import java.util.Objects;
 /** 照護流程實例：對應某個 care_event 的 workflow 狀態機與升級層級。 */
 @Entity
 @Table(name = "care_workflow_instance")
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 @Getter
 @Setter
 @Builder
@@ -43,6 +45,10 @@ public class CareWorkflowInstance {
 
     @Column(name = "elder_id", nullable = false)
     private Long elderId;
+
+    /** 所屬 tenant；start() 從 event.tenantId 帶入。 */
+    @Column(name = "tenant_id", nullable = false)
+    private Long tenantId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "workflow_type", nullable = false)

@@ -298,6 +298,39 @@ class FallDetectedEndToEndIT extends AbstractIntegrationTest {
      * ACKNOWLEDGE 路徑：使用者確認收到通知，但尚未處理（task 狀態 → ACKNOWLEDGED；
      * workflow 不 resolve 也不 escalate；後續仍可 CONFIRM_SAFE / NEED_HELP）。
      */
+    /**
+     * Multi-tenant 隔離（系統設計 §20 Phase 2）：
+     * default tenant 的 family01 建 workflow，premium tenant 的 premium-family01 不應看到。
+     * Hibernate {@code @Filter} + {@code TenantFilterAspect} 應在 query 階段過濾掉。
+     */
+    @Test
+    void should_isolate_workflows_across_tenants() {
+        // step 1: family01 (default tenant) 建事件並啟動 workflow
+        Map<String, Object> req = Map.of(
+                "elderId", 1001,
+                "source", "MOBILE_APP",
+                "eventType", "FALL_DETECTED",
+                "occurredAt", "2026-04-27T15:00:00+08:00");
+        ResponseEntity<Map> created1 = postJson("/api/v1/care-events", req, tokenFamily01, Map.class);
+        assertThat(created1.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        Number workflowId1 = (Number) created1.getBody().get("workflowId");
+        assertThat(workflowId1).isNotNull();
+
+        // step 2: family01 自己看得到（同 default tenant）
+        ResponseEntity<Map> ownerView = getJson("/api/v1/workflows/" + workflowId1, tokenFamily01, Map.class);
+        assertThat(ownerView.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        // step 3: premium-family01 (premium tenant) login
+        Tokens premium = login("premium-family01", "premium-family123");
+
+        // step 4: premium 試 GET workflow 1（屬 default tenant）→ filter 應過濾，service 視為 NOT_FOUND
+        ResponseEntity<Map> resp = getJson(
+                "/api/v1/workflows/" + workflowId1, premium.access(), Map.class);
+        assertThat(resp.getStatusCode())
+                .as("跨 tenant 不應看到對方資料；NOT_FOUND 或 FORBIDDEN 都接受")
+                .isIn(HttpStatus.NOT_FOUND, HttpStatus.FORBIDDEN);
+    }
+
     @Test
     void should_acknowledge_task_without_resolving_or_escalating_workflow() {
         // 加長 SLA 防止 ack 後又被 timeout scanner 升級（這個 test 不要 race）

@@ -18,14 +18,18 @@ public class AppUserDetails implements UserDetails {
     private final String passwordHash;
     private final boolean enabled;
     private final Set<String> roles;
+    private final Long tenantId;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public AppUserDetails(Long id, String username, String passwordHash, boolean enabled, Set<String> roles) {
+    public AppUserDetails(Long id, String username, String passwordHash, boolean enabled,
+                          Set<String> roles, Long tenantId) {
         this.id = id;
         this.username = username;
         this.passwordHash = passwordHash;
         this.enabled = enabled;
         this.roles = roles == null ? Set.of() : Set.copyOf(roles);
+        // null tenantId fallback to default tenant=1（向後相容舊 token）
+        this.tenantId = tenantId != null ? tenantId : 1L;
         this.authorities = this.roles.stream()
                 .map(r -> new SimpleGrantedAuthority("ROLE_" + r))
                 .collect(Collectors.toUnmodifiableSet());
@@ -38,12 +42,18 @@ public class AppUserDetails implements UserDetails {
                 user.getUsername(),
                 user.getPasswordHash(),
                 user.isEnabled(),
-                user.getRoles());
+                user.getRoles(),
+                user.getTenantId());
     }
 
     /** 從 JWT token claims 重建（無需查 DB）。 */
+    public static AppUserDetails fromToken(Long id, String username, Set<String> roles, Long tenantId) {
+        return new AppUserDetails(id, username, "", true, roles, tenantId);
+    }
+
+    /** Backward-compat overload：未帶 tenantId 視為 default tenant。給既有 unit test 用。 */
     public static AppUserDetails fromToken(Long id, String username, Set<String> roles) {
-        return new AppUserDetails(id, username, "", true, roles);
+        return fromToken(id, username, roles, 1L);
     }
 
     public Long getId() {
@@ -52,6 +62,10 @@ public class AppUserDetails implements UserDetails {
 
     public Set<String> getRoles() {
         return roles;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
     }
 
     @Override

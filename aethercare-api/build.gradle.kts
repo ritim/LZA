@@ -35,6 +35,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	// AOP：multi-tenant Hibernate filter aspect 用（tenant.aspect.TenantFilterAspect）
+	implementation("org.springframework.boot:spring-boot-starter-aop")
 	// Vault secrets management（透過 application-vault.yml 啟用，不啟用時不影響運作）
 	implementation("org.springframework.cloud:spring-cloud-starter-vault-config")
 	implementation("io.jsonwebtoken:jjwt-api:0.12.6")

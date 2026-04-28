@@ -1,5 +1,6 @@
 package com.lza.aethercare.common.security;
 
+import com.lza.aethercare.tenant.context.TenantContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,13 +35,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = header.substring(PREFIX.length()).trim();
             jwtService.parse(token).ifPresent(decoded -> {
                 AppUserDetails principal = AppUserDetails.fromToken(
-                        decoded.userId(), decoded.username(), decoded.roles());
+                        decoded.userId(), decoded.username(), decoded.roles(), decoded.tenantId());
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         principal, null, principal.getAuthorities());
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
+                // 設置 tenant context；下游 service 透過 TenantContext.get() 取值供 Hibernate filter 注入
+                TenantContext.set(decoded.tenantId());
             });
         }
-        chain.doFilter(request, response);
+        try {
+            chain.doFilter(request, response);
+        } finally {
+            // 確保 thread pool 不殘留 tenant id（避免下個 request 取到上一個 tenant）
+            TenantContext.clear();
+        }
     }
 }

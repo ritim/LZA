@@ -14,6 +14,7 @@ import com.lza.aethercare.event.enums.CareEventStatus;
 import com.lza.aethercare.event.enums.RiskLevel;
 import com.lza.aethercare.event.event.CareEventCreatedMessage;
 import com.lza.aethercare.event.repository.CareEventRepository;
+import com.lza.aethercare.tenant.context.TenantContext;
 import com.lza.aethercare.workflow.entity.CareWorkflowInstance;
 import com.lza.aethercare.workflow.service.CareWorkflowService;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +63,7 @@ public class CareEventService {
         }
 
         CareEvent event = CareEvent.builder()
+                .tenantId(TenantContext.getOrDefault())
                 .elderId(req.getElderId())
                 .source(req.getSource())
                 .eventType(req.getEventType())

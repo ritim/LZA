@@ -1,0 +1,144 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0015-add-tenant-id-app-user
+      author: autopilot
+      changes:
+        - addColumn:
+            tableName: app_user
+            columns:
+              - column:
+                  name: tenant_id
+                  type: BIGINT
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: app_user
+            baseColumnNames: tenant_id
+            constraintName: fk_app_user_tenant
+            referencedTableName: tenant
+            referencedColumnNames: id
+        - createIndex:
+            tableName: app_user
+            indexName: idx_app_user_tenant
+            columns:
+              - column:
+                  name: tenant_id
+      rollback:
+        - dropIndex:
+            tableName: app_user
+            indexName: idx_app_user_tenant
+        - dropForeignKeyConstraint:
+            baseTableName: app_user
+            constraintName: fk_app_user_tenant
+        - dropColumn:
+            tableName: app_user
+            columnName: tenant_id
+
+  - changeSet:
+      id: 0015-add-tenant-id-care-event
+      author: autopilot
+      changes:
+        - addColumn:
+            tableName: care_event
+            columns:
+              - column:
+                  name: tenant_id
+                  type: BIGINT
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: care_event
+            baseColumnNames: tenant_id
+            constraintName: fk_care_event_tenant
+            referencedTableName: tenant
+            referencedColumnNames: id
+        - createIndex:
+            tableName: care_event
+            indexName: idx_care_event_tenant
+            columns:
+              - column:
+                  name: tenant_id
+      rollback:
+        - dropIndex:
+            tableName: care_event
+            indexName: idx_care_event_tenant
+        - dropForeignKeyConstraint:
+            baseTableName: care_event
+            constraintName: fk_care_event_tenant
+        - dropColumn:
+            tableName: care_event
+            columnName: tenant_id
+
+  - changeSet:
+      id: 0015-add-tenant-id-care-workflow
+      author: autopilot
+      changes:
+        - addColumn:
+            tableName: care_workflow_instance
+            columns:
+              - column:
+                  name: tenant_id
+                  type: BIGINT
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: care_workflow_instance
+            baseColumnNames: tenant_id
+            constraintName: fk_care_workflow_tenant
+            referencedTableName: tenant
+            referencedColumnNames: id
+        - createIndex:
+            tableName: care_workflow_instance
+            indexName: idx_care_workflow_tenant
+            columns:
+              - column:
+                  name: tenant_id
+      rollback:
+        - dropIndex:
+            tableName: care_workflow_instance
+            indexName: idx_care_workflow_tenant
+        - dropForeignKeyConstraint:
+            baseTableName: care_workflow_instance
+            constraintName: fk_care_workflow_tenant
+        - dropColumn:
+            tableName: care_workflow_instance
+            columnName: tenant_id
+
+  - changeSet:
+      id: 0015-add-tenant-id-care-task
+      author: autopilot
+      changes:
+        - addColumn:
+            tableName: care_task
+            columns:
+              - column:
+                  name: tenant_id
+                  type: BIGINT
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: care_task
+            baseColumnNames: tenant_id
+            constraintName: fk_care_task_tenant
+            referencedTableName: tenant
+            referencedColumnNames: id
+        - createIndex:
+            tableName: care_task
+            indexName: idx_care_task_tenant
+            columns:
+              - column:
+                  name: tenant_id
+      rollback:
+        - dropIndex:
+            tableName: care_task
+            indexName: idx_care_task_tenant
+        - dropForeignKeyConstraint:
+            baseTableName: care_task
+            constraintName: fk_care_task_tenant
+        - dropColumn:
+            tableName: care_task
+            columnName: tenant_id

@@ -15,6 +15,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.ColumnTransformer;
+import org.hibernate.annotations.Filter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,9 +26,10 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Objects;
 
-/** 照護事件：sensor / app 上報的原始事件資料。 */
+/** 照護事件：sensor / app 上報的原始事件資料。tenant filter 由 {@code tenant.context} package-info 統一 FilterDef。 */
 @Entity
 @Table(name = "care_event")
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 @Getter
 @Setter
 @Builder
@@ -41,6 +43,10 @@ public class CareEvent {
 
     @Column(name = "elder_id", nullable = false)
     private Long elderId;
+
+    /** 所屬 tenant；service 層寫入時從 TenantContext 帶入。 */
+    @Column(name = "tenant_id", nullable = false)
+    private Long tenantId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "source", nullable = false)

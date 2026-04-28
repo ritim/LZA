@@ -13,6 +13,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import org.hibernate.annotations.Filter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +27,7 @@ import java.util.Objects;
 /** 照護任務：對應 workflow 內某層級派發的任務。 */
 @Entity
 @Table(name = "care_task")
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 @Getter
 @Setter
 @Builder
@@ -42,6 +44,10 @@ public class CareTask {
 
     @Column(name = "event_id", nullable = false)
     private Long eventId;
+
+    /** 所屬 tenant；createTask 從 workflow.tenantId 帶入。 */
+    @Column(name = "tenant_id", nullable = false)
+    private Long tenantId;
 
     @Column(name = "assignee_id", nullable = false)
     private Long assigneeId;

@@ -51,6 +51,11 @@ public class AppUser {
     @Builder.Default
     private boolean enabled = true;
 
+    /** 所屬 tenant id；既有 user 預設 1（default tenant），premium-family01 之類為 2。 */
+    @Column(name = "tenant_id", nullable = false)
+    @Builder.Default
+    private Long tenantId = 1L;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 

@@ -55,6 +55,7 @@ public class CareWorkflowService {
         CareWorkflowType type = decisionService.resolveWorkflowType(event.getEventType());
 
         CareWorkflowInstance wf = CareWorkflowInstance.builder()
+                .tenantId(event.getTenantId())
                 .eventId(event.getId())
                 .elderId(event.getElderId())
                 .workflowType(type)
@@ -80,7 +81,7 @@ public class CareWorkflowService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.ESCALATION_NOT_AVAILABLE,
                         "elder=" + event.getElderId() + " 沒有 level=1 聯絡人"));
         OffsetDateTime deadline = now.plusSeconds(contact.getSlaSeconds());
-        CareTask task = taskService.createTask(wf.getId(), event.getId(),
+        CareTask task = taskService.createTask(wf.getTenantId(), wf.getId(), event.getId(),
                 contact.getContactUserId(), AssigneeType.FAMILY, 1, deadline);
 
         // workflow 進入 WAITING_RESPONSE
@@ -187,7 +188,7 @@ public class CareWorkflowService {
 
             OffsetDateTime now = clock.now();
             OffsetDateTime deadline = now.plusSeconds(nextContact.get().getSlaSeconds());
-            CareTask nextTask = taskService.createTask(workflowId, wf.getEventId(),
+            CareTask nextTask = taskService.createTask(wf.getTenantId(), workflowId, wf.getEventId(),
                     nextContact.get().getContactUserId(), AssigneeType.FAMILY, nextLevel, deadline);
 
             auditService.log(workflowId, wf.getEventId(), actorId,
@@ -203,7 +204,13 @@ public class CareWorkflowService {
 
     @Transactional(readOnly = true)
     public CareWorkflowInstance findById(Long id) {
-        return workflowRepo.findById(id)
+        CareWorkflowInstance wf = workflowRepo.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "workflow=" + id));
+        // Multi-tenant 隔離：current tenant 與 entity tenant 不符 → 偽 NOT_FOUND（不洩漏存在）
+        Long ctxTenant = com.lza.aethercare.tenant.context.TenantContext.get();
+        if (ctxTenant != null && wf.getTenantId() != null && !ctxTenant.equals(wf.getTenantId())) {
+            throw new BusinessException(ErrorCode.NOT_FOUND, "workflow=" + id);
+        }
+        return wf;
     }
 }

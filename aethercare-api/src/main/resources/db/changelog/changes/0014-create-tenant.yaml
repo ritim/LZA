@@ -1,0 +1,75 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0014-create-tenant
+      author: autopilot
+      changes:
+        - createTable:
+            tableName: tenant
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_tenant_code
+              - column:
+                  name: display_name
+                  type: VARCHAR(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+        - insert:
+            tableName: tenant
+            columns:
+              - column:
+                  name: id
+                  valueNumeric: 1
+              - column:
+                  name: code
+                  value: default
+              - column:
+                  name: display_name
+                  value: "Default Tenant"
+        - insert:
+            tableName: tenant
+            columns:
+              - column:
+                  name: id
+                  valueNumeric: 2
+              - column:
+                  name: code
+                  value: premium
+              - column:
+                  name: display_name
+                  value: "Premium Tenant"
+        # Postgres BIGSERIAL 用 sequence；手動 insert 後需要把 sequence advance 過已用 id，避免後續 insert PK 衝突
+        - sql:
+            dbms: postgresql
+            sql: SELECT setval(pg_get_serial_sequence('tenant', 'id'), (SELECT COALESCE(MAX(id), 1) FROM tenant))
+      rollback:
+        - dropTable:
+            tableName: tenant

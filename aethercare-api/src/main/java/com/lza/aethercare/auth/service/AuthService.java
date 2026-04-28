@@ -36,19 +36,22 @@ public class AuthService {
         AppUserDetails user = (AppUserDetails) auth.getPrincipal();
         String accessToken = jwtService.generate(user);
         IssuedToken refresh = refreshTokenService.issueFor(user.getId(), userAgent, ipAddress);
-        log.info("使用者登入成功 username={} roles={}",
-                PiiMasker.maskUsername(user.getUsername()), user.getRoles());
-        return buildResponse(user.getId(), user.getUsername(), user.getRoles(), accessToken, refresh);
+        log.info("使用者登入成功 username={} roles={} tenantId={}",
+                PiiMasker.maskUsername(user.getUsername()), user.getRoles(), user.getTenantId());
+        return buildResponse(user.getId(), user.getUsername(), user.getRoles(),
+                user.getTenantId(), accessToken, refresh);
     }
 
     /** Refresh：驗證 refresh token → rotate → 簽新 access；若已 revoked 觸發 reuse detection。 */
     public LoginResponse refresh(String rawRefreshToken, String userAgent, String ipAddress) {
         RotationResult result = refreshTokenService.rotate(rawRefreshToken, userAgent, ipAddress);
         AppUser user = result.user();
-        AppUserDetails details = AppUserDetails.fromToken(user.getId(), user.getUsername(), user.getRoles());
+        AppUserDetails details = AppUserDetails.fromToken(
+                user.getId(), user.getUsername(), user.getRoles(), user.getTenantId());
         String accessToken = jwtService.generate(details);
         log.info("refresh token 輪轉成功 userId={}", PiiMasker.maskId(user.getId()));
-        return buildResponse(user.getId(), user.getUsername(), user.getRoles(), accessToken, result.newToken());
+        return buildResponse(user.getId(), user.getUsername(), user.getRoles(),
+                user.getTenantId(), accessToken, result.newToken());
     }
 
     /** Logout：撤銷單一 refresh token；找不到視為 idempotent 成功。 */
@@ -57,7 +60,7 @@ public class AuthService {
     }
 
     private LoginResponse buildResponse(Long userId, String username, java.util.Set<String> roles,
-                                        String accessToken, IssuedToken refresh) {
+                                        Long tenantId, String accessToken, IssuedToken refresh) {
         long refreshExpiresIn = Math.max(0,
                 Duration.between(clock.now(), refresh.expiresAt()).toSeconds());
         return new LoginResponse(
@@ -67,6 +70,7 @@ public class AuthService {
                 refreshExpiresIn,
                 userId,
                 username,
-                roles);
+                roles,
+                tenantId);
     }
 }

@@ -43,7 +43,7 @@ public class JwtService {
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /** 簽發 token：sub=userId，並帶 username / roles / exp。 */
+    /** 簽發 token：sub=userId，並帶 username / roles / tenantId / exp。 */
     public String generate(AppUserDetails user) {
         Instant now = Instant.now();
         Instant exp = now.plusSeconds(expirySeconds);
@@ -53,6 +53,7 @@ public class JwtService {
                 .subject(String.valueOf(user.getId()))
                 .claim("username", user.getUsername())
                 .claim("roles", user.getRoles())
+                .claim("tenantId", user.getTenantId())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(exp))
                 .signWith(signingKey, Jwts.SIG.HS256)
@@ -70,8 +71,9 @@ public class JwtService {
             Long userId = Long.parseLong(claims.getSubject());
             String username = claims.get("username", String.class);
             Set<String> roles = extractRoles(claims.get("roles"));
+            Long tenantId = extractTenantId(claims.get("tenantId"));
             Instant exp = claims.getExpiration().toInstant();
-            return Optional.of(new DecodedJwt(userId, username, roles, exp));
+            return Optional.of(new DecodedJwt(userId, username, roles, tenantId, exp));
         } catch (JwtException | IllegalArgumentException ex) {
             log.debug("JWT parse failed: {}", ex.getMessage());
             return Optional.empty();
@@ -94,8 +96,23 @@ public class JwtService {
         return Set.of();
     }
 
+    /** tenantId claim 解析；舊 token 缺少時回 default tenant id=1（向後相容）。 */
+    private Long extractTenantId(Object raw) {
+        if (raw == null) {
+            return 1L;
+        }
+        if (raw instanceof Number n) {
+            return n.longValue();
+        }
+        try {
+            return Long.parseLong(String.valueOf(raw));
+        } catch (NumberFormatException ex) {
+            return 1L;
+        }
+    }
+
     /** 解析後的 token 內容。 */
-    public record DecodedJwt(Long userId, String username, Set<String> roles, Instant expiresAt) {
+    public record DecodedJwt(Long userId, String username, Set<String> roles, Long tenantId, Instant expiresAt) {
         public List<String> rolesAsList() {
             return List.copyOf(roles);
         }

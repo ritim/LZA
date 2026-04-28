@@ -126,7 +126,8 @@ class CareWorkflowServiceTest {
         then(auditService).should().log(eq(100L), any(), isNull(),
                 eq(CareAuditAction.WORKFLOW_UNRESOLVED), anyString());
         // 不應建立新 task（注意 level 為 int，要用 anyInt() 避免 unboxing NPE）
-        then(taskService).should(never()).createTask(anyLong(), anyLong(), anyLong(),
+        // 簽名：tenantId, workflowId, eventId, assigneeId, assigneeType, level, deadlineAt
+        then(taskService).should(never()).createTask(anyLong(), anyLong(), anyLong(), anyLong(),
                 any(), anyInt(), any());
     }
 

@@ -132,6 +132,10 @@ aethercare:
     baseline:
       lookback-days: 14
       min-samples: 3
+  # Multi-tenant SaaS framework（系統設計 §20 Phase 2）
+  tenant:
+    default-id: 1
+    default-code: default
 
 logging:
   level:
