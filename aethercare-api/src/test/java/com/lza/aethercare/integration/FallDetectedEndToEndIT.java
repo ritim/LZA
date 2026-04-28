@@ -39,6 +39,8 @@ class FallDetectedEndToEndIT extends AbstractIntegrationTest {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
+    private Tokens family01;
+    private Tokens family02;
     private String tokenFamily01;
     private String tokenFamily02;
 
@@ -47,16 +49,23 @@ class FallDetectedEndToEndIT extends AbstractIntegrationTest {
     void setUp() {
         jdbcTemplate.update("UPDATE care_contact_escalation SET sla_seconds = 2 WHERE level = 1");
         jdbcTemplate.update("UPDATE care_contact_escalation SET sla_seconds = 5 WHERE level = 2");
-        tokenFamily01 = login("family01", "family123");
-        tokenFamily02 = login("family02", "family123");
+        family01 = login("family01", "family123");
+        family02 = login("family02", "family123");
+        tokenFamily01 = family01.access();
+        tokenFamily02 = family02.access();
     }
 
-    private String login(String username, String password) {
+    private Tokens login(String username, String password) {
         Map<String, Object> body = Map.of("username", username, "password", password);
         ResponseEntity<Map> resp = restTemplate.postForEntity("/api/v1/auth/login", body, Map.class);
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
-        return (String) resp.getBody().get("token");
+        return new Tokens(
+                (String) resp.getBody().get("accessToken"),
+                (String) resp.getBody().get("refreshToken"));
     }
+
+    /** access + refresh token 對。 */
+    private record Tokens(String access, String refresh) {}
 
     private HttpHeaders authHeaders(String token) {
         HttpHeaders h = new HttpHeaders();
@@ -191,5 +200,42 @@ class FallDetectedEndToEndIT extends AbstractIntegrationTest {
                 "occurredAt", "2026-04-27T13:00:00+08:00");
         ResponseEntity<Map> resp = restTemplate.postForEntity("/api/v1/care-events", req, Map.class);
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    void should_rotate_refresh_token_and_issue_new_access_token() {
+        // 用 family01 的 refresh token 換新組
+        Map<String, Object> body = Map.of("refreshToken", family01.refresh());
+        ResponseEntity<Map> resp = restTemplate.postForEntity("/api/v1/auth/refresh", body, Map.class);
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        String newAccess = (String) resp.getBody().get("accessToken");
+        String newRefresh = (String) resp.getBody().get("refreshToken");
+        assertThat(newAccess).isNotBlank().isNotEqualTo(family01.access());
+        assertThat(newRefresh).isNotBlank().isNotEqualTo(family01.refresh());
+
+        // 用新 access 應能 call 受保護資源
+        ResponseEntity<List> audits = getJson(
+                "/api/v1/workflows/0/audit-logs", newAccess, List.class);
+        // workflowId=0 不存在但通過 auth → 應為 200 with empty list 或 4xx，不應 401/403
+        assertThat(audits.getStatusCode().value()).isNotIn(401, 403);
+    }
+
+    @Test
+    void should_detect_refresh_token_reuse_and_revoke_all_sessions() {
+        // step 1: rotate family02 → 拿新 token
+        Map<String, Object> body1 = Map.of("refreshToken", family02.refresh());
+        ResponseEntity<Map> resp1 = restTemplate.postForEntity("/api/v1/auth/refresh", body1, Map.class);
+        assertThat(resp1.getStatusCode()).isEqualTo(HttpStatus.OK);
+        String refresh2 = (String) resp1.getBody().get("refreshToken");
+
+        // step 2: reuse 舊 refresh token（已 revoked）→ 應 401，且觸發 reuse detection
+        ResponseEntity<Map> resp2 = restTemplate.postForEntity("/api/v1/auth/refresh", body1, Map.class);
+        assertThat(resp2.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+
+        // step 3: refresh2（也應因 reuse detection 一併被撤）→ 401
+        Map<String, Object> body3 = Map.of("refreshToken", refresh2);
+        ResponseEntity<Map> resp3 = restTemplate.postForEntity("/api/v1/auth/refresh", body3, Map.class);
+        assertThat(resp3.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 }

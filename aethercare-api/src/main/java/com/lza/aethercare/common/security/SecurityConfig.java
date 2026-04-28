@@ -59,7 +59,10 @@ public class SecurityConfig {
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
-                        .requestMatchers("/api/v1/auth/**", "/api/v1/ping",
+                        // logout 需登入態，必須擺在 /auth/** permitAll 之前
+                        .requestMatchers("/api/v1/auth/logout").hasRole("USER")
+                        .requestMatchers("/api/v1/auth/login", "/api/v1/auth/refresh",
+                                "/api/v1/ping",
                                 "/actuator/health/**", "/actuator/info").permitAll()
                         .requestMatchers("/api/v1/care-**", "/api/v1/care-**/**", "/api/v1/workflows/**").hasRole("USER")
                         .requestMatchers("/actuator/**").hasRole("ADMIN")

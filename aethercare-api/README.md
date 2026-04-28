@@ -88,6 +88,14 @@ curl -X POST http://localhost:8080/api/v1/care-tasks/2/actions \
 curl http://localhost:8080/api/v1/workflows/1/audit-logs
 ```
 
+## 認證流程
+
+- `POST /api/v1/auth/login` → 拿 `accessToken`（1h, JWT HS256）+ `refreshToken`（30d, opaque Base64URL，DB 存 SHA-256 hash）
+- access 過期 → `POST /api/v1/auth/refresh {refreshToken}` 換新組（每次強制 rotation：簽新 + revoke 舊 + 串 `replaced_by_id`）
+- `POST /api/v1/auth/logout {refreshToken}` 撤銷單一 session（需帶 access bearer header）
+- 若 refresh token 被重複使用（reuse detection）→ 整 user 所有 active session 立即撤銷，回 401 `refresh token reuse detected, all sessions revoked`
+- 過期或 revoked > 7 天的 token 由 `RefreshTokenCleanupScheduler` 每日 03:30 UTC 批次刪除
+
 ## 測試
 
 ```bash

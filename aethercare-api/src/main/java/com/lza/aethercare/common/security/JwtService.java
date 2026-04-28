@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 /** JWT 簽發 / 解析（HS256）。Token 內含 userId(sub) / username / roles / iat / exp。 */
 @Service
@@ -47,6 +48,8 @@ public class JwtService {
         Instant now = Instant.now();
         Instant exp = now.plusSeconds(expirySeconds);
         return Jwts.builder()
+                // jti 確保同 user 同秒簽出的 token 也不同（避免 access token rotation 後相同）
+                .id(UUID.randomUUID().toString())
                 .subject(String.valueOf(user.getId()))
                 .claim("username", user.getUsername())
                 .claim("roles", user.getRoles())

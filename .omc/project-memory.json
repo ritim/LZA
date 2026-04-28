@@ -42,14 +42,20 @@
   "hotPaths": [
     {
       "path": "aethercare-api/src/main/resources/application.yml",
-      "accessCount": 25,
-      "lastAccessed": 1777360569752,
+      "accessCount": 27,
+      "lastAccessed": 1777361019132,
       "type": "file"
     },
     {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/common/error/GlobalExceptionHandler.java",
-      "accessCount": 10,
-      "lastAccessed": 1777356008878,
+      "accessCount": 11,
+      "lastAccessed": 1777360863814,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/README.md",
+      "accessCount": 11,
+      "lastAccessed": 1777361114294,
       "type": "file"
     },
     {
@@ -59,15 +65,9 @@
       "type": "file"
     },
     {
-      "path": "aethercare-api/README.md",
-      "accessCount": 9,
-      "lastAccessed": 1777359404434,
-      "type": "file"
-    },
-    {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/common/error/ErrorCode.java",
-      "accessCount": 8,
-      "lastAccessed": 1777356946965,
+      "accessCount": 9,
+      "lastAccessed": 1777360851638,
       "type": "file"
     },
     {
@@ -78,14 +78,20 @@
     },
     {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/common/error/BusinessException.java",
-      "accessCount": 7,
-      "lastAccessed": 1777356009136,
+      "accessCount": 8,
+      "lastAccessed": 1777360850854,
       "type": "file"
     },
     {
       "path": "aethercare-api/src/main/resources/application-local.yml",
       "accessCount": 7,
       "lastAccessed": 1777357738045,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/application-test.yml",
+      "accessCount": 7,
+      "lastAccessed": 1777360863963,
       "type": "file"
     },
     {
@@ -107,9 +113,9 @@
       "type": "file"
     },
     {
-      "path": "aethercare-api/src/main/resources/application-test.yml",
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/time/SystemClock.java",
       "accessCount": 6,
-      "lastAccessed": 1777356004267,
+      "lastAccessed": 1777361166134,
       "type": "file"
     },
     {
@@ -137,15 +143,21 @@
       "type": "file"
     },
     {
-      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/time/SystemClock.java",
-      "accessCount": 5,
-      "lastAccessed": 1777358748416,
-      "type": "file"
-    },
-    {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/common/config/KafkaTopicConfig.java",
       "accessCount": 5,
       "lastAccessed": 1777358762726,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/db/changelog/db.changelog-master.yaml",
+      "accessCount": 5,
+      "lastAccessed": 1777360855027,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/time/Clock.java",
+      "accessCount": 5,
+      "lastAccessed": 1777360865413,
       "type": "file"
     },
     {
@@ -176,18 +188,6 @@
       "path": "README.md",
       "accessCount": 4,
       "lastAccessed": 1777344692290,
-      "type": "file"
-    },
-    {
-      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/time/Clock.java",
-      "accessCount": 4,
-      "lastAccessed": 1777358748049,
-      "type": "file"
-    },
-    {
-      "path": "aethercare-api/src/main/resources/db/changelog/db.changelog-master.yaml",
-      "accessCount": 4,
-      "lastAccessed": 1777358749884,
       "type": "file"
     },
     {

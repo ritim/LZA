@@ -100,6 +100,16 @@ aethercare:
       # MVP 用 dev secret（base64 編碼，至少 32 bytes for HS256）；production 必須以 env override
       secret: ${AETHERCARE_JWT_SECRET:Y2hhbmdlLW1lLWluLXByb2R1Y3Rpb24tcGxlYXNlLW9yLXlvdS1nZXQtaGFja2VkLTIwMjY=}
       expiry-seconds: 3600
+      refresh:
+        # refresh token 30 天；rotation + reuse detection
+        expiry-days: 30
+        cleanup:
+          enabled: true
+          revoked-retention-days: 7
+          batch-size: 1000
+          max-batches-per-run: 50
+          # cron: 秒 分 時 日 月 週（Spring 6 cron），UTC 時區；錯開 outbox cleanup 03:15
+          cron: "0 30 3 * * *"
     cors:
       allowed-origins: ${AETHERCARE_CORS_ORIGINS:http://localhost:3000,http://localhost:8080}
     seed-demo-users: true
