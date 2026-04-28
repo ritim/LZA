@@ -42,8 +42,8 @@
   "hotPaths": [
     {
       "path": "aethercare-api/src/main/resources/application.yml",
-      "accessCount": 12,
-      "lastAccessed": 1777345388241,
+      "accessCount": 14,
+      "lastAccessed": 1777355174289,
       "type": "file"
     },
     {
@@ -167,6 +167,18 @@
       "type": "file"
     },
     {
+      "path": "docker-compose.yml",
+      "accessCount": 4,
+      "lastAccessed": 1777355163650,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/README.md",
+      "accessCount": 4,
+      "lastAccessed": 1777355179592,
+      "type": "file"
+    },
+    {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/task/enums/CareTaskStatus.java",
       "accessCount": 3,
       "lastAccessed": 1777289701996,
@@ -188,12 +200,6 @@
       "path": "aethercare-api/src/main/java/com/lza/aethercare/event/enums/CareEventSource.java",
       "accessCount": 3,
       "lastAccessed": 1777289710314,
-      "type": "file"
-    },
-    {
-      "path": "aethercare-api/README.md",
-      "accessCount": 3,
-      "lastAccessed": 1777290628998,
       "type": "file"
     },
     {
@@ -242,12 +248,6 @@
       "path": "aethercare-api/src/main/resources/db/changelog/changes/0003-create-care-task.yaml",
       "accessCount": 2,
       "lastAccessed": 1777344366941,
-      "type": "file"
-    },
-    {
-      "path": "docker-compose.yml",
-      "accessCount": 2,
-      "lastAccessed": 1777344367808,
       "type": "file"
     },
     {

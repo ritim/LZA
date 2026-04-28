@@ -4,7 +4,7 @@ spring:
   profiles:
     default: local
   datasource:
-    url: ${AETHERCARE_DB_URL:jdbc:postgresql://localhost:5432/aethercare}
+    url: ${AETHERCARE_DB_URL:jdbc:postgresql://localhost:15432/aethercare}
     username: ${AETHERCARE_DB_USER:aethercare}
     password: ${AETHERCARE_DB_PASSWORD:aethercare}
     driver-class-name: org.postgresql.Driver
@@ -26,7 +26,7 @@ spring:
   data:
     redis:
       host: ${AETHERCARE_REDIS_HOST:localhost}
-      port: ${AETHERCARE_REDIS_PORT:6379}
+      port: ${AETHERCARE_REDIS_PORT:16379}
       timeout: 2s
   kafka:
     bootstrap-servers: ${AETHERCARE_KAFKA_BOOTSTRAP:localhost:9092}

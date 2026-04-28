@@ -38,6 +38,11 @@ com.lza.aethercare
 docker compose up -d
 ```
 
+預設 host port：
+- PostgreSQL `localhost:15432`（避開本機 brew postgresql@18）
+- Redis `localhost:16379`（避開本機 brew redis）
+- Kafka `localhost:9092`
+
 執行 application：
 
 ```bash
