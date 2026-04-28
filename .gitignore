@@ -24,6 +24,7 @@ logs/
 
 # 子專案內的 .omc/ 完全排除（OMC agent 在 sub-dir 跑時會建立）
 aethercare-api/.omc/
+aethercare-web/.omc/
 
 # 環境變數本地檔
 .env
