@@ -5,5 +5,6 @@ public enum CareEventType {
     FALL_DETECTED,
     NO_ACTIVITY,
     DAILY_REMINDER,
-    SOS
+    SOS,
+    ACTIVITY_ANOMALY
 }

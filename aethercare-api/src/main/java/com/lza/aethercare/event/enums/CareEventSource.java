@@ -5,5 +5,6 @@ public enum CareEventSource {
     MOBILE_APP,
     WEARABLE,
     IOT_SENSOR,
-    EDGE_GATEWAY
+    EDGE_GATEWAY,
+    ANOMALY_DETECTOR
 }

@@ -124,6 +124,14 @@ aethercare:
       # production 必須以 env 覆蓋；dev 預設 password 啟動時會有 WARN log
       username: ${AETHERCARE_ACTUATOR_USERNAME:actuator}
       password: ${AETHERCARE_ACTUATOR_PASSWORD:actuator-dev-pass}
+  anomaly:
+    z-score-threshold: 3.0
+    scheduler:
+      enabled: true
+      fixed-delay: 300000   # 5 min
+    baseline:
+      lookback-days: 14
+      min-samples: 3
 
 logging:
   level:

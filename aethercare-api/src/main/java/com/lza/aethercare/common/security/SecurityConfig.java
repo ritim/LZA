@@ -119,7 +119,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/logout").hasRole("USER")
                         .requestMatchers("/api/v1/auth/login", "/api/v1/auth/refresh",
                                 "/api/v1/ping").permitAll()
-                        .requestMatchers("/api/v1/care-**", "/api/v1/care-**/**", "/api/v1/workflows/**").hasRole("USER")
+                        .requestMatchers("/api/v1/care-**", "/api/v1/care-**/**", "/api/v1/workflows/**", "/api/v1/elders/**").hasRole("USER")
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(unauthorizedEntryPoint())

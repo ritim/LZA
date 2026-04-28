@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0012-create-elder-activity-event
+      author: autopilot
+      changes:
+        - createTable:
+            tableName: elder_activity_event
+            columns:
+              - column: { name: id, type: BIGSERIAL, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: elder_id, type: BIGINT, constraints: { nullable: false } }
+              - column: { name: activity_type, type: VARCHAR(50), constraints: { nullable: false } }
+              - column: { name: occurred_at, type: TIMESTAMPTZ, constraints: { nullable: false } }
+              - column: { name: duration_seconds, type: INT, constraints: { nullable: true } }
+              - column: { name: metadata, type: JSONB, constraints: { nullable: true } }
+              - column: { name: created_at, type: TIMESTAMPTZ, defaultValueComputed: NOW(), constraints: { nullable: false } }
+        - createIndex:
+            tableName: elder_activity_event
+            indexName: idx_activity_elder_type_time
+            columns:
+              - column: { name: elder_id }
+              - column: { name: activity_type }
+              - column: { name: occurred_at }
+      rollback:
+        - dropTable: { tableName: elder_activity_event }
+
+  - changeSet:
+      id: 0012-create-elder-activity-baseline
+      author: autopilot
+      changes:
+        - createTable:
+            tableName: elder_activity_baseline
+            columns:
+              - column: { name: id, type: BIGSERIAL, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: elder_id, type: BIGINT, constraints: { nullable: false } }
+              - column: { name: activity_type, type: VARCHAR(50), constraints: { nullable: false } }
+              - column: { name: hour_of_day, type: INT, constraints: { nullable: false } }
+              - column: { name: expected_count_mean, type: DOUBLE PRECISION, constraints: { nullable: false } }
+              - column: { name: expected_count_stddev, type: DOUBLE PRECISION, constraints: { nullable: false } }
+              - column: { name: sample_count, type: INT, constraints: { nullable: false } }
+              - column: { name: updated_at, type: TIMESTAMPTZ, defaultValueComputed: NOW(), constraints: { nullable: false } }
+        - addUniqueConstraint:
+            tableName: elder_activity_baseline
+            columnNames: elder_id, activity_type, hour_of_day
+            constraintName: uq_baseline_elder_activity_hour
+      rollback:
+        - dropTable: { tableName: elder_activity_baseline }

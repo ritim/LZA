@@ -19,14 +19,16 @@ public class RuleBasedRiskClassifier {
             CareEventType.FALL_DETECTED, RiskLevel.HIGH,
             CareEventType.SOS, RiskLevel.HIGH,
             CareEventType.NO_ACTIVITY, RiskLevel.MEDIUM,
-            CareEventType.DAILY_REMINDER, RiskLevel.LOW
+            CareEventType.DAILY_REMINDER, RiskLevel.LOW,
+            CareEventType.ACTIVITY_ANOMALY, RiskLevel.MEDIUM
     );
 
     private static final Map<CareEventType, CareWorkflowType> WORKFLOW_MAP = Map.of(
             CareEventType.FALL_DETECTED, CareWorkflowType.FALL_RESPONSE,
             CareEventType.SOS, CareWorkflowType.FALL_RESPONSE,
             CareEventType.NO_ACTIVITY, CareWorkflowType.INACTIVITY_CHECK,
-            CareEventType.DAILY_REMINDER, CareWorkflowType.REMINDER
+            CareEventType.DAILY_REMINDER, CareWorkflowType.REMINDER,
+            CareEventType.ACTIVITY_ANOMALY, CareWorkflowType.INACTIVITY_CHECK
     );
 
     public RiskLevel classifyRisk(CareEventType type) {
