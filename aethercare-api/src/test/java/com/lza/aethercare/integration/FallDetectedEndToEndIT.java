@@ -238,4 +238,114 @@ class FallDetectedEndToEndIT extends AbstractIntegrationTest {
         ResponseEntity<Map> resp3 = restTemplate.postForEntity("/api/v1/auth/refresh", body3, Map.class);
         assertThat(resp3.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
+
+    /**
+     * NEED_HELP 路徑（系統設計 §11 / §12）：使用者主動請求升級。
+     * 預期：level1 task 完成 → workflow escalate 到 level2 → audit 含 ESCALATION_TRIGGERED。
+     */
+    @Test
+    void should_escalate_workflow_when_NEED_HELP_submitted() {
+        // step 1: 建事件
+        Map<String, Object> req = Map.of(
+                "elderId", 1001,
+                "source", "MOBILE_APP",
+                "eventType", "FALL_DETECTED",
+                "occurredAt", "2026-04-27T14:00:00+08:00");
+        ResponseEntity<Map> created = postJson("/api/v1/care-events", req, tokenFamily01, Map.class);
+        assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        Number workflowId = (Number) created.getBody().get("workflowId");
+
+        // step 2: 取 level1 taskId
+        ResponseEntity<Map> wf = getJson("/api/v1/workflows/" + workflowId, tokenFamily01, Map.class);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> tasks = (List<Map<String, Object>>) wf.getBody().get("tasks");
+        Number level1TaskId = (Number) tasks.get(0).get("taskId");
+
+        // step 3: family01 (level1 contact) 主動 NEED_HELP
+        Map<String, Object> action = Map.of(
+                "actionType", "NEED_HELP",
+                "note", "我無法處理，需要協助");
+        ResponseEntity<Map> actionResp = postJson(
+                "/api/v1/care-tasks/" + level1TaskId + "/actions", action, tokenFamily01, Map.class);
+        assertThat(actionResp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        // step 4: 等到 escalation 完成（workflow currentLevel=2 + level2 task 出現）
+        await().atMost(8, SECONDS).pollInterval(200, MILLISECONDS).untilAsserted(() -> {
+            ResponseEntity<Map> after = getJson("/api/v1/workflows/" + workflowId, tokenFamily01, Map.class);
+            assertThat(((Number) after.getBody().get("currentLevel")).intValue()).isEqualTo(2);
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> tasksAfter = (List<Map<String, Object>>) after.getBody().get("tasks");
+            assertThat(tasksAfter).anySatisfy(t ->
+                    assertThat(((Number) t.get("level")).intValue()).isEqualTo(2));
+        });
+
+        // step 5: audit 應含 NEED_HELP path 的關鍵 action
+        ResponseEntity<List> audits = getJson(
+                "/api/v1/workflows/" + workflowId + "/audit-logs", tokenFamily01, List.class);
+        @SuppressWarnings("unchecked")
+        List<String> actions = ((List<Map<String, Object>>) audits.getBody()).stream()
+                .map(o -> (String) o.get("action"))
+                .toList();
+        assertThat(actions).contains(
+                "TASK_COMPLETED",          // level1 由 NEED_HELP 完成
+                "ESCALATION_TRIGGERED",    // user-driven escalation 標記
+                "TASK_ESCALATED",          // workflow 升級
+                "TASK_CREATED",            // level2 task 建立
+                "NOTIFICATION_SENT");      // level2 通知
+    }
+
+    /**
+     * ACKNOWLEDGE 路徑：使用者確認收到通知，但尚未處理（task 狀態 → ACKNOWLEDGED；
+     * workflow 不 resolve 也不 escalate；後續仍可 CONFIRM_SAFE / NEED_HELP）。
+     */
+    @Test
+    void should_acknowledge_task_without_resolving_or_escalating_workflow() {
+        // 加長 SLA 防止 ack 後又被 timeout scanner 升級（這個 test 不要 race）
+        jdbcTemplate.update("UPDATE care_contact_escalation SET sla_seconds = 60 WHERE level = 1");
+
+        Map<String, Object> req = Map.of(
+                "elderId", 1001,
+                "source", "MOBILE_APP",
+                "eventType", "FALL_DETECTED",
+                "occurredAt", "2026-04-27T14:30:00+08:00");
+        ResponseEntity<Map> created = postJson("/api/v1/care-events", req, tokenFamily01, Map.class);
+        Number workflowId = (Number) created.getBody().get("workflowId");
+
+        ResponseEntity<Map> wf = getJson("/api/v1/workflows/" + workflowId, tokenFamily01, Map.class);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> tasks = (List<Map<String, Object>>) wf.getBody().get("tasks");
+        Number taskId = (Number) tasks.get(0).get("taskId");
+
+        // ACKNOWLEDGE
+        Map<String, Object> action = Map.of("actionType", "ACKNOWLEDGE", "note", "收到，正在處理");
+        ResponseEntity<Map> ackResp = postJson(
+                "/api/v1/care-tasks/" + taskId + "/actions", action, tokenFamily01, Map.class);
+        assertThat(ackResp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        // workflow 仍 WAITING_RESPONSE（不 resolve / 不 escalate）
+        ResponseEntity<Map> after = getJson("/api/v1/workflows/" + workflowId, tokenFamily01, Map.class);
+        assertThat(after.getBody().get("status")).isEqualTo("WAITING_RESPONSE");
+        assertThat(after.getBody().get("completedAt")).isNull();
+        assertThat(((Number) after.getBody().get("currentLevel")).intValue()).isEqualTo(1);
+
+        // task status 變 ACKNOWLEDGED
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> tasksAfter = (List<Map<String, Object>>) after.getBody().get("tasks");
+        Map<String, Object> ackTask = tasksAfter.stream()
+                .filter(t -> taskId.equals((Number) t.get("taskId")))
+                .findFirst().orElseThrow();
+        assertThat(ackTask.get("status")).isEqualTo("ACKNOWLEDGED");
+        assertThat(ackTask.get("acknowledgedAt")).isNotNull();
+
+        // audit 含 TASK_ACKNOWLEDGED 但不含 WORKFLOW_RESOLVED / TASK_ESCALATED
+        ResponseEntity<List> audits = getJson(
+                "/api/v1/workflows/" + workflowId + "/audit-logs", tokenFamily01, List.class);
+        @SuppressWarnings("unchecked")
+        List<String> actions = ((List<Map<String, Object>>) audits.getBody()).stream()
+                .map(o -> (String) o.get("action"))
+                .toList();
+        assertThat(actions)
+                .contains("TASK_ACKNOWLEDGED")
+                .doesNotContain("WORKFLOW_RESOLVED", "TASK_ESCALATED");
+    }
 }
