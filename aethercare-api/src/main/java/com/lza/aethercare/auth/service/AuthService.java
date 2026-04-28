@@ -4,6 +4,7 @@ import com.lza.aethercare.auth.dto.LoginRequest;
 import com.lza.aethercare.auth.dto.LoginResponse;
 import com.lza.aethercare.common.security.AppUserDetails;
 import com.lza.aethercare.common.security.JwtService;
+import com.lza.aethercare.common.util.PiiMasker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,7 +26,8 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword()));
         AppUserDetails user = (AppUserDetails) auth.getPrincipal();
         String token = jwtService.generate(user);
-        log.info("使用者登入成功 username={} roles={}", user.getUsername(), user.getRoles());
+        log.info("使用者登入成功 username={} roles={}",
+                PiiMasker.maskUsername(user.getUsername()), user.getRoles());
         return new LoginResponse(
                 token,
                 jwtService.getExpirySeconds(),

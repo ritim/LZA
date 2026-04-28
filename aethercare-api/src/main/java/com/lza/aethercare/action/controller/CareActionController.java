@@ -41,7 +41,9 @@ public class CareActionController {
             @AuthenticationPrincipal AppUserDetails currentUser,
             @Valid @RequestBody CreateCareActionRequest req) {
         Long actorId = currentUser.getId();
-        log.info("收到任務動作 taskId={} actionType={} actorId={}", taskId, req.getActionType(), actorId);
+        log.info("收到任務動作 taskId={} actionType={} actorId={}",
+                taskId, req.getActionType(),
+                com.lza.aethercare.common.util.PiiMasker.maskId(actorId));
         CareAction action = careActionService.handle(taskId, actorId, req);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(action));
     }

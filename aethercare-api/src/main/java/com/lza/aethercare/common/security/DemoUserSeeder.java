@@ -1,5 +1,6 @@
 package com.lza.aethercare.common.security;
 
+import com.lza.aethercare.common.util.PiiMasker;
 import com.lza.aethercare.userprofile.entity.AppUser;
 import com.lza.aethercare.userprofile.repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class DemoUserSeeder {
 
     private void upsert(String username, String rawPassword, String displayName, Set<String> roles) {
         if (appUserRepository.existsByUsername(username)) {
-            log.debug("demo user 已存在，略過 seed: {}", username);
+            log.debug("demo user 已存在，略過 seed: {}", PiiMasker.maskUsername(username));
             return;
         }
         AppUser user = AppUser.builder()
@@ -48,6 +49,6 @@ public class DemoUserSeeder {
                 .roles(new HashSet<>(roles))
                 .build();
         appUserRepository.save(user);
-        log.info("已建立 demo 使用者: username={} roles={}", username, roles);
+        log.info("已建立 demo 使用者: username={} roles={}", PiiMasker.maskUsername(username), roles);
     }
 }

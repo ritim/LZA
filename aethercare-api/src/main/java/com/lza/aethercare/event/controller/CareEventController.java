@@ -1,5 +1,6 @@
 package com.lza.aethercare.event.controller;
 
+import com.lza.aethercare.common.util.PiiMasker;
 import com.lza.aethercare.event.dto.CareEventResponse;
 import com.lza.aethercare.event.dto.CreateCareEventRequest;
 import com.lza.aethercare.event.service.CareEventService;
@@ -34,7 +35,8 @@ public class CareEventController {
     @PostMapping
     public ResponseEntity<CareEventResponse> createCareEvent(
             @Valid @RequestBody CreateCareEventRequest req) {
-        log.info("收到照護事件請求 elderId={} eventType={}", req.getElderId(), req.getEventType());
+        log.info("收到照護事件請求 elderId={} eventType={}",
+                PiiMasker.maskId(req.getElderId()), req.getEventType());
         CareEventResult result = careEventService.createAndStartWorkflow(req);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(result));
     }
