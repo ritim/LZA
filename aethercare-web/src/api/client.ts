@@ -7,7 +7,8 @@ import axios, {
 } from 'axios';
 import { useAuthStore } from '../stores/auth';
 
-const BASE_URL = 'http://localhost:8080';
+// 空字串 = 同源；dev 時走 vite proxy 到 :8080，prod / tunnel 時用同 host。
+const BASE_URL = '';
 
 interface RetryConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
