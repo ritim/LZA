@@ -15,9 +15,17 @@ java {
 }
 
 extra["lombok.version"] = "1.18.36"
+// Spring Cloud BOM：2025.0.0 對應 Spring Boot 3.5（spring-cloud-vault-config 4.2.x）
+extra["springCloudVersion"] = "2025.0.0"
 
 repositories {
 	mavenCentral()
+}
+
+dependencyManagement {
+	imports {
+		mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
+	}
 }
 
 dependencies {
@@ -27,6 +35,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	// Vault secrets management（透過 application-vault.yml 啟用，不啟用時不影響運作）
+	implementation("org.springframework.cloud:spring-cloud-starter-vault-config")
 	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
 	implementation("org.liquibase:liquibase-core")
 	implementation("org.springframework.kafka:spring-kafka")

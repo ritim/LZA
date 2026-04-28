@@ -101,4 +101,26 @@ curl http://localhost:8080/api/v1/workflows/1/audit-logs
 |---|---|
 | `local`（預設） | 本機開發，連 docker-compose |
 | `test`          | Testcontainers 整合測試 |
+| `vault`         | 從 HashiCorp Vault 讀 secret（疊在 local 上） |
+| `tls`           | 啟用 TLS 連線（PG/Redis/Kafka + HTTPS）|
 | 環境變數覆蓋    | `AETHERCARE_DB_URL`、`AETHERCARE_REDIS_HOST`、`AETHERCARE_KAFKA_BOOTSTRAP` |
+
+## Production secrets / TLS
+
+詳見 [`../docs/deployment/tls-secrets-runbook.md`](../docs/deployment/tls-secrets-runbook.md)。
+
+快速啟動 Vault dev mode：
+
+```bash
+docker compose up -d vault
+./scripts/seed-vault-secrets.sh
+SPRING_PROFILES_ACTIVE=local,vault ./gradlew bootRun
+```
+
+快速試 TLS（mkcert + docker-compose override）：
+
+```bash
+./scripts/gen-dev-certs.sh
+docker compose -f docker-compose.yml -f docker-compose.tls.yml up -d
+SPRING_PROFILES_ACTIVE=local,tls ./gradlew bootRun
+```

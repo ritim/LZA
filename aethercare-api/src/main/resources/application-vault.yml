@@ -1,0 +1,55 @@
+# ============================================================================
+# Vault profile：啟動時加上 --spring.profiles.active=local,vault 才會生效
+# ----------------------------------------------------------------------------
+# 不啟用此 profile 時，application.yml 的 default 設定（env var 或 hard-coded
+# dev secret）仍可用，因此本機開發者不會被強制依賴 Vault。
+#
+# 預期 Vault 內容（kv v2 backend, mount=secret）：
+#   vault kv put secret/aethercare \
+#     spring.datasource.password=<db-password> \
+#     aethercare.security.jwt.secret=<base64-jwt-secret> \
+#     aethercare.kafka.sasl.password=<kafka-password>
+#
+# Vault 取回的 key 會直接作為 Spring property 注入，
+# 因此 key 名稱必須與 application.yml 內的屬性路徑一致。
+# ============================================================================
+
+spring:
+  config:
+    # optional: 前綴讓 Vault 不可達時不 fail-fast，方便 CI / local 測試
+    import: "optional:vault://"
+  cloud:
+    vault:
+      enabled: true
+      uri: ${AETHERCARE_VAULT_URI:http://localhost:8200}
+      token: ${AETHERCARE_VAULT_TOKEN:dev-only-root-token}
+      # fail-fast=false：Vault 掛掉時 fallback 到 application.yml default
+      fail-fast: false
+      # connection-timeout / read-timeout 預設已足夠，不額外設
+      authentication: TOKEN
+      kv:
+        enabled: true
+        backend: secret
+        application-name: aethercare
+        default-context: aethercare
+        profile-separator: "/"
+      generic:
+        enabled: false
+
+management:
+  health:
+    vault:
+      # 啟用 Vault profile 時也啟用 health indicator
+      enabled: true
+
+# ----------------------------------------------------------------------------
+# Production 提示：
+# 1. token 不要寫死，改用 AppRole / Kubernetes auth：
+#      spring.cloud.vault.authentication=APPROLE
+#      spring.cloud.vault.app-role.role-id=${VAULT_ROLE_ID}
+#      spring.cloud.vault.app-role.secret-id=${VAULT_SECRET_ID}
+# 2. 啟用 lease renewal：
+#      spring.cloud.vault.config.lifecycle.enabled=true
+# 3. 配合 spring-cloud-context 的 @RefreshScope 與 actuator /refresh，
+#    可在不重啟下熱更新 secret（rotation 用）。
+# ----------------------------------------------------------------------------

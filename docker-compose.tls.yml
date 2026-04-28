@@ -1,0 +1,86 @@
+# ============================================================================
+# docker-compose.tls.yml
+# ----------------------------------------------------------------------------
+# Override file，演示 PG / Redis / Kafka 帶 self-signed TLS 啟動。
+# 用法（與 base compose 疊加）：
+#   ./scripts/gen-dev-certs.sh                # 先產生 cert
+#   docker compose -f docker-compose.yml -f docker-compose.tls.yml up -d
+#
+# Spring Boot 端配合：
+#   SPRING_PROFILES_ACTIVE=local,tls ./gradlew bootRun
+#
+# 注意：此 override 改了 port mapping（Kafka 9092 → 9093 SSL），
+# 因此啟動時 plaintext 9092 不會 expose；要兩種同時請改 listener config。
+# ============================================================================
+services:
+  postgres:
+    # 把 cert mount 進去，覆蓋 command 啟用 SSL
+    volumes:
+      - aethercare-pgdata:/var/lib/postgresql/data
+      - ./scripts/dev-certs/aethercare.crt:/var/lib/postgresql/server.crt:ro
+      - ./scripts/dev-certs/aethercare.key:/var/lib/postgresql/server.key:ro
+    command:
+      - "postgres"
+      - "-c"
+      - "ssl=on"
+      - "-c"
+      - "ssl_cert_file=/var/lib/postgresql/server.crt"
+      - "-c"
+      - "ssl_key_file=/var/lib/postgresql/server.key"
+
+  redis:
+    ports:
+      # TLS 走 host 16380，避免 collision 與保留 plaintext 16379
+      - "16380:6379"
+    volumes:
+      - aethercare-redisdata:/data
+      - ./scripts/dev-certs:/tls:ro
+    command:
+      - "redis-server"
+      - "--appendonly"
+      - "yes"
+      - "--port"
+      - "0"
+      - "--tls-port"
+      - "6379"
+      - "--tls-cert-file"
+      - "/tls/aethercare.crt"
+      - "--tls-key-file"
+      - "/tls/aethercare.key"
+      - "--tls-ca-cert-file"
+      - "/tls/aethercare.crt"
+      - "--tls-auth-clients"
+      - "no"
+
+  kafka:
+    ports:
+      - "9093:9093"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9094"
+      KAFKA_LISTENERS: "SSL://0.0.0.0:9093,CONTROLLER://0.0.0.0:9094"
+      KAFKA_ADVERTISED_LISTENERS: "SSL://localhost:9093"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "SSL"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "SSL:SSL,CONTROLLER:PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      CLUSTER_ID: "aethercare-kraft-cluster-1"
+      # PKCS12 truststore / keystore（由 gen-dev-certs.sh 產生）
+      KAFKA_SSL_TRUSTSTORE_LOCATION: /tls/truststore.p12
+      KAFKA_SSL_TRUSTSTORE_PASSWORD: changeit
+      KAFKA_SSL_TRUSTSTORE_TYPE: PKCS12
+      KAFKA_SSL_KEYSTORE_LOCATION: /tls/keystore.p12
+      KAFKA_SSL_KEYSTORE_PASSWORD: changeit
+      KAFKA_SSL_KEYSTORE_TYPE: PKCS12
+      KAFKA_SSL_KEY_PASSWORD: changeit
+      KAFKA_SSL_CLIENT_AUTH: none
+      KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: ""
+    volumes:
+      - aethercare-kafkadata:/var/lib/kafka/data
+      - ./scripts/dev-certs:/tls:ro
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9093 --command-config /dev/null --list || exit 1"]

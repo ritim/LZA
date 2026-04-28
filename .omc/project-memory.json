@@ -42,8 +42,8 @@
   "hotPaths": [
     {
       "path": "aethercare-api/src/main/resources/application.yml",
-      "accessCount": 16,
-      "lastAccessed": 1777356046606,
+      "accessCount": 21,
+      "lastAccessed": 1777358197287,
       "type": "file"
     },
     {
@@ -62,6 +62,18 @@
       "path": "aethercare-api/src/main/java/com/lza/aethercare/common/error/BusinessException.java",
       "accessCount": 7,
       "lastAccessed": 1777356009136,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/application-local.yml",
+      "accessCount": 7,
+      "lastAccessed": 1777357738045,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/README.md",
+      "accessCount": 7,
+      "lastAccessed": 1777357980019,
       "type": "file"
     },
     {
@@ -95,21 +107,15 @@
       "type": "file"
     },
     {
-      "path": "aethercare-api/src/main/resources/application-local.yml",
+      "path": "docker-compose.yml",
       "accessCount": 6,
-      "lastAccessed": 1777356004569,
+      "lastAccessed": 1777357827834,
       "type": "file"
     },
     {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/userprofile/enums/NotificationChannel.java",
       "accessCount": 5,
       "lastAccessed": 1777344374254,
-      "type": "file"
-    },
-    {
-      "path": "aethercare-api/README.md",
-      "accessCount": 5,
-      "lastAccessed": 1777356012226,
       "type": "file"
     },
     {
@@ -170,12 +176,6 @@
       "path": "aethercare-api/src/main/java/com/lza/aethercare/common/time/SystemClock.java",
       "accessCount": 4,
       "lastAccessed": 1777345378605,
-      "type": "file"
-    },
-    {
-      "path": "docker-compose.yml",
-      "accessCount": 4,
-      "lastAccessed": 1777355163650,
       "type": "file"
     },
     {

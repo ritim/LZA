@@ -3,6 +3,10 @@ spring:
     name: aethercare-api
   profiles:
     default: local
+  cloud:
+    vault:
+      # 預設關閉 Vault auto-config；application-vault.yml 才打開
+      enabled: false
   datasource:
     url: ${AETHERCARE_DB_URL:jdbc:postgresql://localhost:15432/aethercare}
     username: ${AETHERCARE_DB_USER:aethercare}
@@ -56,6 +60,9 @@ management:
         enabled: true
       show-details: when-authorized
   health:
+    # Vault health indicator 與 vault enabled 分離；預設關閉避免 boot 時連 vault
+    vault:
+      enabled: false
     livenessstate:
       enabled: true
     readinessstate:

@@ -1,0 +1,89 @@
+# ============================================================================
+# TLS profile：示範 production-grade TLS 設定
+# ----------------------------------------------------------------------------
+# 此 profile 預設不啟用，啟動時加 --spring.profiles.active=local,tls 才會套用。
+# 對應的 cert / key / truststore 由 scripts/gen-dev-certs.sh 產生，並透過
+# docker-compose.tls.yml 啟動帶 TLS 的 PG / Redis / Kafka。
+#
+# 路徑慣例：
+#   ./scripts/dev-certs/aethercare.crt
+#   ./scripts/dev-certs/aethercare.key
+#   ./scripts/dev-certs/truststore.p12       (PKCS12, password=changeit)
+#   ./scripts/dev-certs/keystore.p12         (optional，client-cert 用)
+# ============================================================================
+
+aethercare:
+  tls:
+    cert-dir: ${AETHERCARE_TLS_CERT_DIR:./scripts/dev-certs}
+    truststore-password: ${AETHERCARE_TRUSTSTORE_PASSWORD:changeit}
+    keystore-password: ${AETHERCARE_KEYSTORE_PASSWORD:changeit}
+
+spring:
+  # --------------------------------------------------------------------------
+  # PostgreSQL：JDBC URL 帶 sslmode=require + sslrootcert 指向 CA
+  # --------------------------------------------------------------------------
+  datasource:
+    url: ${AETHERCARE_DB_URL:jdbc:postgresql://localhost:15432/aethercare?sslmode=verify-full&sslrootcert=${aethercare.tls.cert-dir}/aethercare.crt}
+
+  # --------------------------------------------------------------------------
+  # Redis：開啟 SSL（Spring Boot 3.x 內建 Lettuce SSL 支援）
+  # --------------------------------------------------------------------------
+  data:
+    redis:
+      ssl:
+        enabled: true
+        bundle: aethercare-tls
+
+  # --------------------------------------------------------------------------
+  # Kafka：SSL listener
+  # 對應 docker-compose.tls.yml 的 KAFKA_LISTENERS=SSL://0.0.0.0:9093
+  # --------------------------------------------------------------------------
+  kafka:
+    bootstrap-servers: ${AETHERCARE_KAFKA_BOOTSTRAP:localhost:9093}
+    security:
+      protocol: SSL
+    ssl:
+      trust-store-location: file:${aethercare.tls.cert-dir}/truststore.p12
+      trust-store-password: ${aethercare.tls.truststore-password}
+      trust-store-type: PKCS12
+      key-store-location: file:${aethercare.tls.cert-dir}/keystore.p12
+      key-store-password: ${aethercare.tls.keystore-password}
+      key-store-type: PKCS12
+      protocol: TLSv1.3
+
+  # --------------------------------------------------------------------------
+  # SSL Bundles（Spring Boot 3.1+ 統一管理 cert）：
+  # 用 bundle 比散落各處的 location/password 易維護，也支援 hot reload。
+  # --------------------------------------------------------------------------
+  ssl:
+    bundle:
+      pem:
+        aethercare-tls:
+          truststore:
+            certificate: file:${aethercare.tls.cert-dir}/aethercare.crt
+          keystore:
+            certificate: file:${aethercare.tls.cert-dir}/aethercare.crt
+            private-key: file:${aethercare.tls.cert-dir}/aethercare.key
+
+# ----------------------------------------------------------------------------
+# Tomcat HTTPS（讓 app 自身 expose HTTPS）
+# Production 通常會把 TLS 終結在 ingress / ALB / nginx，app 內部仍可走明文。
+# 若要 end-to-end TLS，啟用以下：
+# ----------------------------------------------------------------------------
+server:
+  port: ${SERVER_PORT:8443}
+  ssl:
+    enabled: true
+    bundle: aethercare-tls
+    client-auth: none      # 內部 mTLS 改 need / want
+    protocol: TLS
+    enabled-protocols: TLSv1.3,TLSv1.2
+
+# ----------------------------------------------------------------------------
+# Production 提示：
+# 1. 真實 CA：Let's Encrypt（公開 endpoint）+ 私有 CA（internal mesh）
+# 2. Cert rotation：mount cert 為 k8s Secret，配合 reloader / spring SSL bundle
+#    的 reload-on-update（Spring Boot 3.2+）即可零停機更換。
+# 3. 強制 HTTPS：可加 server.compression.enabled=true 與 HSTS header
+#    （透過 SecurityConfig 的 http.headers().httpStrictTransportSecurity()）。
+# ----------------------------------------------------------------------------
