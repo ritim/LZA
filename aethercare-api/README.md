@@ -55,7 +55,12 @@ docker compose up -d
 
 ```bash
 curl http://localhost:8080/api/v1/ping
-curl http://localhost:8080/actuator/health
+# Actuator 跑在獨立 management port 9001（公開 endpoints）
+curl http://localhost:9001/actuator/health
+curl http://localhost:9001/actuator/info
+# 受保護 endpoints 需要 HTTP Basic auth（actuator / actuator-dev-pass）
+curl -u actuator:actuator-dev-pass http://localhost:9001/actuator/prometheus
+curl -u actuator:actuator-dev-pass http://localhost:9001/actuator/metrics
 ```
 
 ## Demo 流程（對應系統設計第 18.1 節）
@@ -113,6 +118,34 @@ curl http://localhost:8080/api/v1/workflows/1/audit-logs
 | `tls`           | 啟用 TLS 連線（PG/Redis/Kafka + HTTPS）|
 | `cdc`           | 由 Debezium CDC 接管 outbox publish（關閉 polling） |
 | 環境變數覆蓋    | `AETHERCARE_DB_URL`、`AETHERCARE_REDIS_HOST`、`AETHERCARE_KAFKA_BOOTSTRAP` |
+
+## Actuator / Monitoring
+
+Actuator 跑在獨立 management port（預設 `9001`，可由 `MANAGEMENT_SERVER_PORT` 覆蓋）：
+
+| Endpoint | 認證 | 用途 |
+|---|---|---|
+| `GET /actuator/health` | 公開 | k8s liveness/readiness probe |
+| `GET /actuator/info` | 公開 | build / git / app info |
+| `GET /actuator/prometheus` | Basic auth (`actuator` role) | Prometheus scrape |
+| `GET /actuator/metrics` | Basic auth (`actuator` role) | 細部 metrics |
+
+Prometheus scrape 設定範例（`prometheus.yml`）：
+```yaml
+scrape_configs:
+  - job_name: aethercare-api
+    metrics_path: /actuator/prometheus
+    basic_auth:
+      username: ${AETHERCARE_ACTUATOR_USERNAME}
+      password: ${AETHERCARE_ACTUATOR_PASSWORD}
+    static_configs:
+      - targets: ['aethercare-api:9001']
+```
+
+Production 部署建議：
+- `MANAGEMENT_SERVER_ADDRESS=127.0.0.1` 或 private subnet 限本機 / 內網
+- k8s `NetworkPolicy` 只允許 monitoring namespace 連 9001
+- `AETHERCARE_ACTUATOR_PASSWORD` 用 secrets manager（Vault / AWS Secrets Manager）
 
 ## Production secrets / TLS
 

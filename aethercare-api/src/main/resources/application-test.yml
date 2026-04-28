@@ -4,6 +4,11 @@ spring:
   liquibase:
     enabled: true
 
+# Test profile 把 management server 關閉，避免 IT 多 context 啟動時 9001 port 衝突
+management:
+  server:
+    port: -1
+
 aethercare:
   scheduler:
     timeout-scan-fixed-delay: 200

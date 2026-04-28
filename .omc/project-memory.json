@@ -42,20 +42,20 @@
   "hotPaths": [
     {
       "path": "aethercare-api/src/main/resources/application.yml",
-      "accessCount": 27,
-      "lastAccessed": 1777361019132,
+      "accessCount": 29,
+      "lastAccessed": 1777361809876,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/README.md",
+      "accessCount": 14,
+      "lastAccessed": 1777361938650,
       "type": "file"
     },
     {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/common/error/GlobalExceptionHandler.java",
       "accessCount": 11,
       "lastAccessed": 1777360863814,
-      "type": "file"
-    },
-    {
-      "path": "aethercare-api/README.md",
-      "accessCount": 11,
-      "lastAccessed": 1777361114294,
       "type": "file"
     },
     {
@@ -83,15 +83,15 @@
       "type": "file"
     },
     {
-      "path": "aethercare-api/src/main/resources/application-local.yml",
-      "accessCount": 7,
-      "lastAccessed": 1777357738045,
+      "path": "aethercare-api/src/main/resources/application-test.yml",
+      "accessCount": 8,
+      "lastAccessed": 1777361815185,
       "type": "file"
     },
     {
-      "path": "aethercare-api/src/main/resources/application-test.yml",
+      "path": "aethercare-api/src/main/resources/application-local.yml",
       "accessCount": 7,
-      "lastAccessed": 1777360863963,
+      "lastAccessed": 1777357738045,
       "type": "file"
     },
     {

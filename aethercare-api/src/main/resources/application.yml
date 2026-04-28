@@ -50,6 +50,12 @@ server:
   shutdown: graceful
 
 management:
+  server:
+    # actuator 跑獨立 port，避免與 API 同 port 暴露 metrics / prometheus
+    # production 建議由 Network ACL / k8s NetworkPolicy 限制此 port 只給內網
+    port: ${MANAGEMENT_SERVER_PORT:9001}
+    # 預設 listen 全 interface；production 可用 127.0.0.1 限本機，由 sidecar 轉送
+    address: ${MANAGEMENT_SERVER_ADDRESS:0.0.0.0}
   endpoints:
     web:
       exposure:
@@ -113,6 +119,11 @@ aethercare:
     cors:
       allowed-origins: ${AETHERCARE_CORS_ORIGINS:http://localhost:3000,http://localhost:8080}
     seed-demo-users: true
+    actuator:
+      # actuator HTTP Basic auth 帳號（給 Prometheus / Grafana scrape 用）
+      # production 必須以 env 覆蓋；dev 預設 password 啟動時會有 WARN log
+      username: ${AETHERCARE_ACTUATOR_USERNAME:actuator}
+      password: ${AETHERCARE_ACTUATOR_PASSWORD:actuator-dev-pass}
 
 logging:
   level:
