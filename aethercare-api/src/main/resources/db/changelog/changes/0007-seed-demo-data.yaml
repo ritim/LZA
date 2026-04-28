@@ -45,3 +45,7 @@ databaseChangeLog:
               - column:
                   name: enabled
                   valueBoolean: true
+      rollback:
+        - delete:
+            tableName: care_contact_escalation
+            where: "elder_id = 1001 AND contact_user_id IN (2001, 2002)"

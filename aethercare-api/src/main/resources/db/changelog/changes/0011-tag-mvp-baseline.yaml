@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0011-tag-mvp-baseline
+      author: autopilot
+      comment: "標記 MVP baseline；之後可用 liquibase rollback-to-tag mvp-baseline 回到此點"
+      changes:
+        - tagDatabase:
+            tag: mvp-baseline
+      rollback:
+        # tagDatabase 本身不需 rollback；保留空段避免 Liquibase 視為 auto-derive 失敗
+        - empty
