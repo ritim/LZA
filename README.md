@@ -7,6 +7,7 @@
 | 路徑 | 內容 |
 |---|---|
 | [`aethercare-api/`](aethercare-api/) | Home Care Copilot 後端（Spring Boot 3.5 / Java 21） |
+| [`aethercare-web/`](aethercare-web/) | Vue 3 dashboard，demo flow UI |
 | [`docs/`](docs/) | 系統設計、Codex prompt、規劃文件 |
 
 ## 主要設計文件
@@ -29,4 +30,14 @@ cd aethercare-api
 ./gradlew bootRun
 ```
 
-詳見 [`aethercare-api/README.md`](aethercare-api/README.md)。
+啟動前端 dashboard（另開一個終端機）：
+
+```bash
+cd aethercare-web
+npm install
+npm run dev
+```
+
+預設打開 http://localhost:5173 ，demo 帳號：`family01 / family123`、`admin / admin123`。
+
+詳見 [`aethercare-api/README.md`](aethercare-api/README.md)、[`aethercare-web/README.md`](aethercare-web/README.md)。
