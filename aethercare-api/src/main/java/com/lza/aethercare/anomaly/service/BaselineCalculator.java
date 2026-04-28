@@ -5,6 +5,7 @@ import com.lza.aethercare.anomaly.enums.ActivityType;
 import com.lza.aethercare.anomaly.repository.ElderActivityBaselineRepository;
 import com.lza.aethercare.anomaly.repository.ElderActivityEventRepository;
 import com.lza.aethercare.common.time.Clock;
+import com.lza.aethercare.tenant.context.TenantContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -89,6 +90,7 @@ public class BaselineCalculator {
                             baselineRepo.save(existing);
                         },
                         () -> baselineRepo.save(ElderActivityBaseline.builder()
+                                .tenantId(TenantContext.getOrDefault())
                                 .elderId(elderId)
                                 .activityType(type)
                                 .hourOfDay(hour)

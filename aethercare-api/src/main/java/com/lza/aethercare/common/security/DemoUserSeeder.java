@@ -20,7 +20,7 @@ import java.util.Set;
  * 使用 PasswordEncoder.encode 即時計算 BCrypt hash，避免 hardcode。
  */
 @Component
-@ConditionalOnProperty(name = "aethercare.security.seed-demo-users", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "aethercare.security.seed-demo-users", havingValue = "true", matchIfMissing = false)
 @RequiredArgsConstructor
 @Slf4j
 public class DemoUserSeeder {

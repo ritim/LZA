@@ -32,7 +32,11 @@ public class TenantFilterAspect {
 
     @Around("execution(* com.lza.aethercare.event.service..*(..))"
             + " || execution(* com.lza.aethercare.workflow.service..*(..))"
-            + " || execution(* com.lza.aethercare.task.service..*(..))")
+            + " || execution(* com.lza.aethercare.task.service..*(..))"
+            + " || execution(* com.lza.aethercare.action.service..*(..))"
+            + " || execution(* com.lza.aethercare.audit.service..*(..))"
+            + " || execution(* com.lza.aethercare.anomaly.service..*(..))"
+            + " || execution(* com.lza.aethercare.insurance.service..*(..))")
     public Object enableTenantFilter(ProceedingJoinPoint pjp) throws Throwable {
         Long tenantId = TenantContext.get();
         if (tenantId == null) {

@@ -42,8 +42,8 @@
   "hotPaths": [
     {
       "path": "aethercare-api/src/main/resources/application.yml",
-      "accessCount": 35,
-      "lastAccessed": 1777369354060,
+      "accessCount": 37,
+      "lastAccessed": 1777371932258,
       "type": "file"
     },
     {
@@ -60,14 +60,14 @@
     },
     {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/common/error/GlobalExceptionHandler.java",
-      "accessCount": 11,
-      "lastAccessed": 1777360863814,
+      "accessCount": 12,
+      "lastAccessed": 1777371163239,
       "type": "file"
     },
     {
       "path": "docker-compose.yml",
-      "accessCount": 10,
-      "lastAccessed": 1777359287661,
+      "accessCount": 11,
+      "lastAccessed": 1777371097107,
       "type": "file"
     },
     {
@@ -83,6 +83,12 @@
       "type": "file"
     },
     {
+      "path": "aethercare-api/src/main/resources/application-test.yml",
+      "accessCount": 10,
+      "lastAccessed": 1777371955609,
+      "type": "file"
+    },
+    {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/audit/enums/CareAuditAction.java",
       "accessCount": 9,
       "lastAccessed": 1777365198740,
@@ -90,26 +96,20 @@
     },
     {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/common/kafka/KafkaPublishingListener.java",
-      "accessCount": 8,
-      "lastAccessed": 1777358814153,
+      "accessCount": 9,
+      "lastAccessed": 1777371166379,
       "type": "file"
     },
     {
-      "path": "aethercare-api/src/main/resources/application-test.yml",
-      "accessCount": 8,
-      "lastAccessed": 1777361815185,
+      "path": "aethercare-api/src/main/resources/application-local.yml",
+      "accessCount": 9,
+      "lastAccessed": 1777371950316,
       "type": "file"
     },
     {
       "path": "aethercare-api/src/main/resources/db/changelog/db.changelog-master.yaml",
       "accessCount": 8,
       "lastAccessed": 1777369002961,
-      "type": "file"
-    },
-    {
-      "path": "aethercare-api/src/main/resources/application-local.yml",
-      "accessCount": 7,
-      "lastAccessed": 1777357738045,
       "type": "file"
     },
     {
@@ -138,8 +138,8 @@
     },
     {
       "path": "docs/system_design/aethercare_codex_system_design.md",
-      "accessCount": 6,
-      "lastAccessed": 1777344349821,
+      "accessCount": 7,
+      "lastAccessed": 1777371022172,
       "type": "file"
     },
     {

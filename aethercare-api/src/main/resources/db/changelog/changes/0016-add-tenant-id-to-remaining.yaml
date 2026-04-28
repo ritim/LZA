@@ -1,0 +1,158 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0016-add-tenant-id-elder-activity-event
+      author: autopilot
+      changes:
+        - addColumn:
+            tableName: elder_activity_event
+            columns:
+              - column:
+                  name: tenant_id
+                  type: BIGINT
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: elder_activity_event
+            baseColumnNames: tenant_id
+            constraintName: fk_elder_activity_event_tenant
+            referencedTableName: tenant
+            referencedColumnNames: id
+        - createIndex:
+            tableName: elder_activity_event
+            indexName: idx_elder_activity_event_tenant
+            columns:
+              - column:
+                  name: tenant_id
+      rollback:
+        - dropIndex:
+            tableName: elder_activity_event
+            indexName: idx_elder_activity_event_tenant
+        - dropForeignKeyConstraint:
+            baseTableName: elder_activity_event
+            constraintName: fk_elder_activity_event_tenant
+        - dropColumn:
+            tableName: elder_activity_event
+            columnName: tenant_id
+
+  - changeSet:
+      id: 0016-add-tenant-id-elder-activity-baseline
+      author: autopilot
+      changes:
+        - addColumn:
+            tableName: elder_activity_baseline
+            columns:
+              - column:
+                  name: tenant_id
+                  type: BIGINT
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: elder_activity_baseline
+            baseColumnNames: tenant_id
+            constraintName: fk_elder_activity_baseline_tenant
+            referencedTableName: tenant
+            referencedColumnNames: id
+        - dropUniqueConstraint:
+            tableName: elder_activity_baseline
+            constraintName: uq_baseline_elder_activity_hour
+        - addUniqueConstraint:
+            tableName: elder_activity_baseline
+            constraintName: uq_baseline_tenant_elder_activity_hour
+            columnNames: tenant_id, elder_id, activity_type, hour_of_day
+        - createIndex:
+            tableName: elder_activity_baseline
+            indexName: idx_elder_activity_baseline_tenant
+            columns:
+              - column:
+                  name: tenant_id
+      rollback:
+        - dropIndex:
+            tableName: elder_activity_baseline
+            indexName: idx_elder_activity_baseline_tenant
+        - dropUniqueConstraint:
+            tableName: elder_activity_baseline
+            constraintName: uq_baseline_tenant_elder_activity_hour
+        - addUniqueConstraint:
+            tableName: elder_activity_baseline
+            constraintName: uq_baseline_elder_activity_hour
+            columnNames: elder_id, activity_type, hour_of_day
+        - dropForeignKeyConstraint:
+            baseTableName: elder_activity_baseline
+            constraintName: fk_elder_activity_baseline_tenant
+        - dropColumn:
+            tableName: elder_activity_baseline
+            columnName: tenant_id
+
+  - changeSet:
+      id: 0016-add-tenant-id-care-action
+      author: autopilot
+      changes:
+        - addColumn:
+            tableName: care_action
+            columns:
+              - column:
+                  name: tenant_id
+                  type: BIGINT
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: care_action
+            baseColumnNames: tenant_id
+            constraintName: fk_care_action_tenant
+            referencedTableName: tenant
+            referencedColumnNames: id
+        - createIndex:
+            tableName: care_action
+            indexName: idx_care_action_tenant
+            columns:
+              - column:
+                  name: tenant_id
+      rollback:
+        - dropIndex:
+            tableName: care_action
+            indexName: idx_care_action_tenant
+        - dropForeignKeyConstraint:
+            baseTableName: care_action
+            constraintName: fk_care_action_tenant
+        - dropColumn:
+            tableName: care_action
+            columnName: tenant_id
+
+  - changeSet:
+      id: 0016-add-tenant-id-care-audit-log
+      author: autopilot
+      changes:
+        - addColumn:
+            tableName: care_audit_log
+            columns:
+              - column:
+                  name: tenant_id
+                  type: BIGINT
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: care_audit_log
+            baseColumnNames: tenant_id
+            constraintName: fk_care_audit_log_tenant
+            referencedTableName: tenant
+            referencedColumnNames: id
+        - createIndex:
+            tableName: care_audit_log
+            indexName: idx_care_audit_log_tenant
+            columns:
+              - column:
+                  name: tenant_id
+      rollback:
+        - dropIndex:
+            tableName: care_audit_log
+            indexName: idx_care_audit_log_tenant
+        - dropForeignKeyConstraint:
+            baseTableName: care_audit_log
+            constraintName: fk_care_audit_log_tenant
+        - dropColumn:
+            tableName: care_audit_log
+            columnName: tenant_id

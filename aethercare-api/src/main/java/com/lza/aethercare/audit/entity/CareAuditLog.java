@@ -15,6 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Filter;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -23,6 +24,7 @@ import java.util.Objects;
 /** 系統 audit log：append-only 完整時序記錄。 */
 @Entity
 @Table(name = "care_audit_log")
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 @Getter
 @Setter
 @Builder
@@ -33,6 +35,10 @@ public class CareAuditLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /** 所屬 tenant；service 層寫入時從 TenantContext 帶入。 */
+    @Column(name = "tenant_id", nullable = false)
+    private Long tenantId;
 
     @Column(name = "workflow_id")
     private Long workflowId;

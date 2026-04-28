@@ -96,10 +96,13 @@ public class JwtService {
         return Set.of();
     }
 
-    /** tenantId claim 解析；舊 token 缺少時回 default tenant id=1（向後相容）。 */
+    /**
+     * tenantId claim 解析；missing / 格式錯誤 → 拋 {@link IllegalArgumentException} 由 {@link #parse}
+     * catch 後回 Optional.empty，視為 invalid token（fail-fast，避免 IDOR）。
+     */
     private Long extractTenantId(Object raw) {
         if (raw == null) {
-            return 1L;
+            throw new IllegalArgumentException("JWT missing tenantId claim");
         }
         if (raw instanceof Number n) {
             return n.longValue();
@@ -107,7 +110,7 @@ public class JwtService {
         try {
             return Long.parseLong(String.valueOf(raw));
         } catch (NumberFormatException ex) {
-            return 1L;
+            throw new IllegalArgumentException("JWT tenantId claim invalid: " + raw);
         }
     }
 

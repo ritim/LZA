@@ -5,6 +5,12 @@ spring:
       hibernate:
         format_sql: true
 
+aethercare:
+  security:
+    # local profile 才 seed demo users（admin / family / insurer / premium-family）；
+    # production 預設 false，由 ops 手動建立帳號
+    seed-demo-users: true
+
 logging:
   level:
     org.hibernate.SQL: DEBUG

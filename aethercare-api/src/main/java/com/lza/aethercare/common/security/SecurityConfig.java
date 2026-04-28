@@ -2,6 +2,7 @@ package com.lza.aethercare.common.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lza.aethercare.common.error.ErrorCode;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +59,8 @@ import java.util.List;
 public class SecurityConfig {
 
     private static final String DEV_DEFAULT_ACTUATOR_PASSWORD = "actuator-dev-pass";
+    private static final String DEV_DEFAULT_JWT_SECRET =
+            "Y2hhbmdlLW1lLWluLXByb2R1Y3Rpb24tcGxlYXNlLW9yLXlvdS1nZXQtaGFja2VkLTIwMjY=";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ObjectMapper objectMapper;
@@ -70,6 +73,40 @@ public class SecurityConfig {
 
     @Value("${aethercare.security.actuator.password:" + DEV_DEFAULT_ACTUATOR_PASSWORD + "}")
     private String actuatorPassword;
+
+    @Value("${aethercare.security.jwt.secret:}")
+    private String jwtSecret;
+
+    @Value("${spring.profiles.active:local}")
+    private String activeProfiles;
+
+    /**
+     * production profile 啟動時驗證敏感設定都已被 env 覆蓋（actuator password + JWT secret）；
+     * 若仍為 dev 預設值則 fail-fast 拒絕啟動，避免被部署到 prod 後成為攻擊面。
+     */
+    @PostConstruct
+    public void validateSecrets() {
+        boolean isProd = activeProfiles != null && activeProfiles.contains("prod");
+        if (isProd) {
+            if (DEV_DEFAULT_ACTUATOR_PASSWORD.equals(actuatorPassword)) {
+                throw new IllegalStateException(
+                        "production profile 啟動但 actuator password 仍為 dev 預設；"
+                                + "請設 AETHERCARE_ACTUATOR_PASSWORD env");
+            }
+            if (DEV_DEFAULT_JWT_SECRET.equals(jwtSecret)) {
+                throw new IllegalStateException(
+                        "production profile 啟動但 JWT secret 仍為 dev 預設；"
+                                + "請設 AETHERCARE_JWT_SECRET env");
+            }
+        } else {
+            if (DEV_DEFAULT_ACTUATOR_PASSWORD.equals(actuatorPassword)) {
+                log.warn("⚠️ actuator dev 預設密碼，production 必須以 AETHERCARE_ACTUATOR_PASSWORD 覆蓋");
+            }
+            if (DEV_DEFAULT_JWT_SECRET.equals(jwtSecret)) {
+                log.warn("⚠️ JWT 用 dev 預設 secret，production 必須以 AETHERCARE_JWT_SECRET 覆蓋");
+            }
+        }
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -88,10 +125,7 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain managementSecurityFilterChain(HttpSecurity http) throws Exception {
-        if (DEV_DEFAULT_ACTUATOR_PASSWORD.equals(actuatorPassword)) {
-            log.warn("⚠️ 使用 actuator dev 預設密碼，production 請以 AETHERCARE_ACTUATOR_PASSWORD 覆蓋");
-        }
-
+        // dev 預設值警告已移到 validateSecrets() 集中處理
         http
                 .securityMatcher(EndpointRequest.toAnyEndpoint())
                 .csrf(csrf -> csrf.disable())

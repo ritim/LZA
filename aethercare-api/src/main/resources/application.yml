@@ -118,7 +118,7 @@ aethercare:
           cron: "0 30 3 * * *"
     cors:
       allowed-origins: ${AETHERCARE_CORS_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:8080}
-    seed-demo-users: true
+    seed-demo-users: ${AETHERCARE_SEED_DEMO_USERS:false}
     actuator:
       # actuator HTTP Basic auth 帳號（給 Prometheus / Grafana scrape 用）
       # production 必須以 env 覆蓋；dev 預設 password 啟動時會有 WARN log

@@ -157,8 +157,4 @@ public class InsuranceEvidenceService {
             throw new BusinessException(ErrorCode.INVALID_REQUEST, "from 必須早於 to");
         }
     }
-
-    /** 顯式宣告 unused import 不會被 IDE 移除（CareTask / CareAction 用於 JPQL entity ref）。 */
-    @SuppressWarnings("unused")
-    private static final Class<?>[] JPQL_ENTITY_REFS = { CareTask.class, CareAction.class };
 }

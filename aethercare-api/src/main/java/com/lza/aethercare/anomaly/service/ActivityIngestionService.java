@@ -7,6 +7,7 @@ import com.lza.aethercare.anomaly.repository.ElderActivityEventRepository;
 import com.lza.aethercare.common.error.BusinessException;
 import com.lza.aethercare.common.error.ErrorCode;
 import com.lza.aethercare.common.time.Clock;
+import com.lza.aethercare.tenant.context.TenantContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ public class ActivityIngestionService {
             throw new BusinessException(ErrorCode.INVALID_REQUEST, "metadata 序列化失敗：" + e.getMessage());
         }
         ElderActivityEvent event = ElderActivityEvent.builder()
+                .tenantId(TenantContext.getOrDefault())
                 .elderId(elderId)
                 .activityType(req.getActivityType())
                 .occurredAt(req.getOccurredAt() != null ? req.getOccurredAt() : clock.now())

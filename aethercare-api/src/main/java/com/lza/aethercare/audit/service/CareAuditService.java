@@ -6,6 +6,7 @@ import com.lza.aethercare.audit.event.CareAuditCreatedMessage;
 import com.lza.aethercare.audit.repository.CareAuditLogRepository;
 import com.lza.aethercare.common.event.PublishToKafka;
 import com.lza.aethercare.common.time.Clock;
+import com.lza.aethercare.tenant.context.TenantContext;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
@@ -54,6 +55,7 @@ public class CareAuditService {
                                       CareAuditAction action, String message) {
         try {
             CareAuditLog logEntry = CareAuditLog.builder()
+                    .tenantId(TenantContext.getOrDefault())
                     .workflowId(workflowId)
                     .eventId(eventId)
                     .actorId(actorId)

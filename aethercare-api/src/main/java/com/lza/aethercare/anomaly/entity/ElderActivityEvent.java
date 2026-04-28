@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnTransformer;
+import org.hibernate.annotations.Filter;
 
 import java.time.OffsetDateTime;
 import java.util.Objects;
@@ -22,6 +23,7 @@ import java.util.Objects;
 /** 長者活動事件：sensor / app 上報的單筆活動樣本，作為 baseline 統計與異常偵測來源。 */
 @Entity
 @Table(name = "elder_activity_event")
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 @Getter
 @Setter
 @Builder
@@ -35,6 +37,10 @@ public class ElderActivityEvent {
 
     @Column(name = "elder_id", nullable = false)
     private Long elderId;
+
+    /** 所屬 tenant；service 層寫入時從 TenantContext 帶入。 */
+    @Column(name = "tenant_id", nullable = false)
+    private Long tenantId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "activity_type", nullable = false)

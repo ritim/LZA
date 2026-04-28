@@ -12,6 +12,12 @@ management:
 aethercare:
   scheduler:
     timeout-scan-fixed-delay: 200
+    timeout-scan:
+      # IT 需要 scanner 觸發 escalation 路徑；顯式打開避免 production 預設值飄移
+      enabled: true
+  security:
+    # IT 需 demo users (family01 / insurer01 …) 登入
+    seed-demo-users: true
 
 logging:
   level:

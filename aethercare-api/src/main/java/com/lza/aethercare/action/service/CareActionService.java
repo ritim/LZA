@@ -10,6 +10,7 @@ import com.lza.aethercare.common.error.BusinessException;
 import com.lza.aethercare.common.error.ErrorCode;
 import com.lza.aethercare.common.event.PublishToKafka;
 import com.lza.aethercare.common.time.Clock;
+import com.lza.aethercare.tenant.context.TenantContext;
 import com.lza.aethercare.task.entity.CareTask;
 import com.lza.aethercare.task.service.CareTaskService;
 import com.lza.aethercare.workflow.service.CareWorkflowService;
@@ -88,6 +89,7 @@ public class CareActionService {
 
     private CareAction persistAction(CareTask task, Long actorId, CreateCareActionRequest req) {
         CareAction action = CareAction.builder()
+                .tenantId(TenantContext.getOrDefault())
                 .workflowId(task.getWorkflowId())
                 .taskId(task.getId())
                 .actorId(actorId)

@@ -15,6 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Filter;
 
 import java.time.OffsetDateTime;
 import java.util.Objects;
@@ -23,8 +24,9 @@ import java.util.Objects;
 @Entity
 @Table(name = "elder_activity_baseline",
         uniqueConstraints = @UniqueConstraint(
-                name = "uq_baseline_elder_activity_hour",
-                columnNames = {"elder_id", "activity_type", "hour_of_day"}))
+                name = "uq_baseline_tenant_elder_activity_hour",
+                columnNames = {"tenant_id", "elder_id", "activity_type", "hour_of_day"}))
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 @Getter
 @Setter
 @Builder
@@ -38,6 +40,10 @@ public class ElderActivityBaseline {
 
     @Column(name = "elder_id", nullable = false)
     private Long elderId;
+
+    /** 所屬 tenant；service 層寫入時從 TenantContext 帶入。 */
+    @Column(name = "tenant_id", nullable = false)
+    private Long tenantId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "activity_type", nullable = false)
