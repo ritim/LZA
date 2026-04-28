@@ -35,6 +35,7 @@ public class AnomalyDetector {
     private final ElderActivityEventRepository eventRepo;
     private final ElderActivityBaselineRepository baselineRepo;
     private final CareEventService careEventService;
+    private final MultiSignalFusionService fusionService;
     private final Clock clock;
 
     @Value("${aethercare.anomaly.z-score-threshold:3.0}")
@@ -57,22 +58,31 @@ public class AnomalyDetector {
             long actual = eventRepo.countInWindow(elderId, type.name(), windowStart, now);
             double zScore = (actual - b.getExpectedCountMean()) / b.getExpectedCountStddev();
             if (Math.abs(zScore) >= zScoreThreshold) {
+                // Multi-signal fusion 二次確認：confidence 不足則 suppress 觸發，降 false positive
+                MultiSignalFusionService.FusionResult fusion = fusionService.evaluate(elderId, windowStart, now);
+                if (!fusion.confident()) {
+                    log.info("anomaly z-score 過({}) 但 fusion confidence={} sources={} < threshold，suppress trigger",
+                            zScore, fusion.confidence(), fusion.sourceCount());
+                    continue;
+                }
                 DetectedAnomaly anomaly = new DetectedAnomaly(elderId, type, actual,
                         b.getExpectedCountMean(), b.getExpectedCountStddev(), zScore, now);
-                triggerCareEvent(anomaly);
+                triggerCareEvent(anomaly, fusion);
                 hits.add(anomaly);
             }
         }
         return hits;
     }
 
-    private void triggerCareEvent(DetectedAnomaly a) {
+    private void triggerCareEvent(DetectedAnomaly a, MultiSignalFusionService.FusionResult fusion) {
         Map<String, Object> metadata = new LinkedHashMap<>();
         metadata.put("activityType", a.activityType().name());
         metadata.put("actualCount", a.actualCount());
         metadata.put("expectedMean", a.expectedMean());
         metadata.put("expectedStddev", a.expectedStddev());
         metadata.put("zScore", a.zScore());
+        metadata.put("fusionConfidence", fusion.confidence());
+        metadata.put("fusionSourceCount", fusion.sourceCount());
 
         CreateCareEventRequest req = CreateCareEventRequest.builder()
                 .elderId(a.elderId())

@@ -116,6 +116,27 @@ curl -X POST localhost:8080/api/v1/elders/1001/anomaly/detect \
 # 4. 查 audit timeline 應有 ACTIVITY_ANOMALY → workflow 啟動
 ```
 
+## SLA Dashboard
+
+```
+GET /api/v1/sla/summary?from=ISO&to=ISO              # 工作流總覽（解決率、升級率、平均回應時間）
+GET /api/v1/sla/timeline?from=ISO&to=ISO&bucket=hour # 時序桶（hour|day）
+```
+
+需 USER role。預設視窗 `now-7d → now`。前端 dashboard 路徑 `/sla`。
+
+## Insurance Integration
+
+```
+GET /api/v1/insurance/evidence/{elderId}?from=ISO&to=ISO   # 保險業者照護證據
+```
+
+需 INSURANCE role（demo 帳號 `insurer01 / insurer123`）。詳見
+[`../docs/deployment/insurance-integration-runbook.md`](../docs/deployment/insurance-integration-runbook.md)。
+
+未來 Temporal 遷移：見
+[`../docs/deployment/temporal-migration-roadmap.md`](../docs/deployment/temporal-migration-roadmap.md)。
+
 ## 認證流程
 
 - `POST /api/v1/auth/login` → 拿 `accessToken`（1h, JWT HS256）+ `refreshToken`（30d, opaque Base64URL，DB 存 SHA-256 hash）

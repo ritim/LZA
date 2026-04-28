@@ -49,6 +49,7 @@ async function triggerFallEvent() {
         <el-button type="primary" size="large" :loading="submitting" @click="triggerFallEvent">
           建立 FALL_DETECTED 事件
         </el-button>
+        <el-button size="large" @click="router.push('/sla')">SLA Dashboard</el-button>
         <p class="hero-note">建立後會自動跳到對應 workflow 詳情頁，並每 2 秒輪詢狀態。</p>
       </el-card>
 

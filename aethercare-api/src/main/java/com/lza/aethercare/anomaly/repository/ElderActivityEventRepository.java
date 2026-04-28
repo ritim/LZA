@@ -41,4 +41,14 @@ public interface ElderActivityEventRepository extends JpaRepository<ElderActivit
 
     @Query(value = "SELECT DISTINCT elder_id FROM elder_activity_event", nativeQuery = true)
     List<Long> findDistinctElderIds();
+
+    /** Multi-signal fusion 用：取窗口內某 elder 全部 activity events（含 metadata）。 */
+    @Query(value = """
+            SELECT * FROM elder_activity_event
+             WHERE elder_id = :elderId
+               AND occurred_at >= :from AND occurred_at < :to
+            """, nativeQuery = true)
+    List<ElderActivityEvent> findByElderIdAndOccurredAtBetween(@Param("elderId") Long elderId,
+                                                               @Param("from") OffsetDateTime from,
+                                                               @Param("to") OffsetDateTime to);
 }

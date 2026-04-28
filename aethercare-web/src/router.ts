@@ -22,6 +22,12 @@ const routes: RouteRecordRaw[] = [
     props: true,
     meta: { requiresAuth: true },
   },
+  {
+    path: '/sla',
+    name: 'sla-dashboard',
+    component: () => import('./views/SlaDashboardView.vue'),
+    meta: { requiresAuth: true },
+  },
   { path: '/:pathMatch(.*)*', redirect: '/dashboard' },
 ];
 

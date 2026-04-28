@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0013-make-audit-workflow-id-nullable
+      author: autopilot
+      comment: >-
+        Allow care_audit_log.workflow_id to be NULL for system-level audits
+        (e.g. INSURANCE_QUERY) that are not bound to a single workflow.
+        Existing rows are unaffected; future inserts may pass NULL.
+      changes:
+        - dropNotNullConstraint:
+            tableName: care_audit_log
+            columnName: workflow_id
+            columnDataType: BIGINT
+      rollback:
+        - addNotNullConstraint:
+            tableName: care_audit_log
+            columnName: workflow_id
+            columnDataType: BIGINT

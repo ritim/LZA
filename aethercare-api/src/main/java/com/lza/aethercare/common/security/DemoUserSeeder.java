@@ -34,6 +34,7 @@ public class DemoUserSeeder {
         upsert("admin", "admin123", "管理者", Set.of("USER", "ADMIN"));
         upsert("family01", "family123", "家屬一號（level 1）", Set.of("USER"));
         upsert("family02", "family123", "家屬二號（level 2）", Set.of("USER"));
+        upsert("insurer01", "insurer123", "保險業者代表", Set.of("INSURANCE"));
     }
 
     private void upsert(String username, String rawPassword, String displayName, Set<String> roles) {

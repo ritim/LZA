@@ -6,6 +6,8 @@ import com.lza.aethercare.anomaly.repository.ElderActivityBaselineRepository;
 import com.lza.aethercare.anomaly.repository.ElderActivityEventRepository;
 import com.lza.aethercare.anomaly.service.AnomalyDetector;
 import com.lza.aethercare.anomaly.service.AnomalyDetector.DetectedAnomaly;
+import com.lza.aethercare.anomaly.service.MultiSignalFusionService;
+import com.lza.aethercare.anomaly.service.MultiSignalFusionService.FusionResult;
 import com.lza.aethercare.common.time.Clock;
 import com.lza.aethercare.event.dto.CreateCareEventRequest;
 import com.lza.aethercare.event.enums.CareEventSource;
@@ -30,6 +32,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 
 /** AnomalyDetector 單元測試：z-score 觸發 / 未觸發行為。 */
@@ -43,6 +46,8 @@ class AnomalyDetectorTest {
     @Mock
     CareEventService careEventService;
     @Mock
+    MultiSignalFusionService fusionService;
+    @Mock
     Clock clock;
 
     AnomalyDetector detector;
@@ -51,12 +56,15 @@ class AnomalyDetectorTest {
 
     @BeforeEach
     void setUp() {
-        detector = new AnomalyDetector(eventRepo, baselineRepo, careEventService, clock);
+        detector = new AnomalyDetector(eventRepo, baselineRepo, careEventService, fusionService, clock);
         ReflectionTestUtils.setField(detector, "zScoreThreshold", 3.0);
         given(clock.now()).willReturn(now);
         // 預設沒 baseline
         given(baselineRepo.findByElderIdAndActivityTypeAndHourOfDay(any(), any(), anyInt()))
                 .willReturn(Optional.empty());
+        // 預設 fusion confident（讓既有 test 行為不變；suppress 場景另寫 test override）
+        lenient().when(fusionService.evaluate(any(), any(), any()))
+                .thenReturn(new FusionResult(0.8, 2, java.util.Map.of("WEARABLE", 1L), true));
     }
 
     private ElderActivityBaseline baseline(ActivityType type, double mean, double stddev) {
@@ -103,6 +111,23 @@ class AnomalyDetectorTest {
                 .willReturn(Optional.of(baseline(ActivityType.MOVE, 5.0, 2.0)));
         given(eventRepo.countInWindow(eq(1001L), eq(ActivityType.MOVE.name()), any(), any()))
                 .willReturn(4L);
+
+        List<DetectedAnomaly> hits = detector.detectForElder(1001L);
+
+        assertThat(hits).isEmpty();
+        then(careEventService).should(never()).createAndStartWorkflow(any());
+    }
+
+    /** 驗證 fusion confidence 不足時 z-score 過也不觸發（suppress false positive）。 */
+    @Test
+    void should_suppress_trigger_when_fusion_confidence_insufficient() {
+        given(baselineRepo.findByElderIdAndActivityTypeAndHourOfDay(1001L, ActivityType.MOVE, 9))
+                .willReturn(Optional.of(baseline(ActivityType.MOVE, 5.0, 0.5)));
+        given(eventRepo.countInWindow(eq(1001L), eq(ActivityType.MOVE.name()), any(), any()))
+                .willReturn(0L);
+        // 覆寫 default fusion = NOT confident
+        given(fusionService.evaluate(any(), any(), any()))
+                .willReturn(new FusionResult(0.2, 1, java.util.Map.of("MOBILE_APP", 1L), false));
 
         List<DetectedAnomaly> hits = detector.detectForElder(1001L);
 
