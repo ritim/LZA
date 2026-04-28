@@ -79,6 +79,11 @@ aethercare:
       audit-created: care.audit.created
   scheduler:
     timeout-scan-fixed-delay: 5000
+  outbox:
+    publish-fixed-delay: 2000   # ms
+    batch-size: 50
+    max-attempts: 10
+    backoff-base-seconds: 5
   redis:
     workflow-lock-ttl-seconds: 300
     elder-status-ttl-seconds: 3600
