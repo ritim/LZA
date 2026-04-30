@@ -7,11 +7,25 @@ import AppHeader from '../components/AppHeader.vue';
 import TaskCard from '../components/TaskCard.vue';
 import AuditTimeline from '../components/AuditTimeline.vue';
 import WorkflowStatusBadge from '../components/WorkflowStatusBadge.vue';
+import AiGuidanceCard from '../components/AiGuidanceCard.vue';
+import AssessmentQuestionCard from '../components/AssessmentQuestionCard.vue';
+import SuggestedActionBar from '../components/SuggestedActionBar.vue';
+import RiskReevaluationBanner from '../components/RiskReevaluationBanner.vue';
 import { getAuditLogs, getWorkflow, submitAction } from '../api/care';
+import {
+  getCareGuidance,
+  submitAssessmentAnswers,
+  type AssessmentAnswerItem,
+  type CareGuidance,
+  type RiskReevaluation,
+  type SuggestedActionType,
+} from '../api/ai';
 import type {
   ApiErrorBody,
   AuditLogResponse,
   CareActionType,
+  CareTaskSummary,
+  CareWorkflowStatus,
   WorkflowResponse,
 } from '../api/types';
 
@@ -24,11 +38,41 @@ const loading = ref<boolean>(false);
 const lastUpdated = ref<number | null>(null);
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
+// AI guidance state
+const guidance = ref<CareGuidance | null>(null);
+const guidanceLoading = ref<boolean>(false);
+const assessmentSubmitting = ref<boolean>(false);
+const assessmentAnswered = ref<boolean>(false);
+const reeval = ref<RiskReevaluation | null>(null);
+
 const workflowId = computed<number>(() => Number(props.id));
+
+const ACTIVE_STATUSES: CareWorkflowStatus[] = [
+  'NEW',
+  'ACTIVE',
+  'WAITING_RESPONSE',
+  'ACKNOWLEDGED',
+  'ESCALATED',
+];
+
+const isActive = computed<boolean>(() => {
+  if (!workflow.value) return false;
+  return ACTIVE_STATUSES.includes(workflow.value.status);
+});
 
 const sortedTasks = computed(() => {
   if (!workflow.value) return [];
   return [...workflow.value.tasks].sort((a, b) => a.level - b.level || a.taskId - b.taskId);
+});
+
+// 取「目前 active task」：優先 PENDING/ACKNOWLEDGED，其次 currentLevel 對應的 task。
+const activeTask = computed<CareTaskSummary | null>(() => {
+  if (!workflow.value) return null;
+  const tasks = sortedTasks.value;
+  const live = tasks.find((t) => t.status === 'PENDING' || t.status === 'ACKNOWLEDGED');
+  if (live) return live;
+  const byLevel = tasks.find((t) => t.level === workflow.value!.currentLevel);
+  return byLevel ?? null;
 });
 
 const startedAtText = computed<string>(() => {
@@ -70,6 +114,25 @@ async function refresh(showSpinner = false) {
   }
 }
 
+async function loadGuidance() {
+  if (!workflow.value) return;
+  if (!isActive.value) return;
+  if (guidance.value) return; // 已載入過就不重抓
+  guidanceLoading.value = true;
+  try {
+    guidance.value = await getCareGuidance(workflow.value.eventId, workflow.value.workflowId);
+  } catch (err) {
+    let msg = '載入 AI 建議失敗';
+    if (axios.isAxiosError(err)) {
+      const body = err.response?.data as ApiErrorBody | undefined;
+      msg = body?.message ?? body?.error ?? msg;
+    }
+    ElMessage.error(msg);
+  } finally {
+    guidanceLoading.value = false;
+  }
+}
+
 function startPolling() {
   stopPolling();
   pollTimer = setInterval(() => {
@@ -99,12 +162,58 @@ async function onTaskAction(taskId: number, actionType: CareActionType) {
   }
 }
 
+async function onAssessmentSubmit(answers: AssessmentAnswerItem[]) {
+  if (!workflow.value) return;
+  assessmentSubmitting.value = true;
+  try {
+    const result = await submitAssessmentAnswers(workflow.value.workflowId, {
+      eventId: workflow.value.eventId,
+      taskId: activeTask.value?.taskId ?? null,
+      answers,
+    });
+    reeval.value = result.riskReevaluation;
+    assessmentAnswered.value = true;
+    if (result.riskReevaluation.dangerDetected) {
+      ElMessage.warning('已偵測到危險徵象，請依建議動作處置');
+    } else {
+      ElMessage.success('評估已提交');
+    }
+    await refresh(false);
+  } catch (err) {
+    let msg = '提交評估失敗';
+    if (axios.isAxiosError(err)) {
+      const body = err.response?.data as ApiErrorBody | undefined;
+      msg = body?.message ?? body?.error ?? msg;
+    }
+    ElMessage.error(msg);
+  } finally {
+    assessmentSubmitting.value = false;
+  }
+}
+
+async function onSuggestedAction(actionType: SuggestedActionType) {
+  const task = activeTask.value;
+  if (!task) {
+    ElMessage.info('目前無可作用的任務');
+    return;
+  }
+  if (actionType === 'CONFIRM_SAFE') {
+    await onTaskAction(task.taskId, 'CONFIRM_SAFE');
+  } else if (actionType === 'ESCALATE') {
+    await onTaskAction(task.taskId, 'NEED_HELP');
+  } else if (actionType === 'CALL_EMERGENCY') {
+    // MVP：不真撥打，但同步紀錄一筆 NEED_HELP 給 audit
+    await onTaskAction(task.taskId, 'NEED_HELP');
+  }
+}
+
 function backToDashboard() {
   router.push('/dashboard');
 }
 
 onMounted(async () => {
   await refresh(true);
+  await loadGuidance();
   startPolling();
 });
 
@@ -113,10 +222,22 @@ onBeforeUnmount(() => stopPolling());
 watch(
   () => props.id,
   async () => {
+    // 切換到不同 workflow，要重置 AI state
+    guidance.value = null;
+    reeval.value = null;
+    assessmentAnswered.value = false;
     await refresh(true);
+    await loadGuidance();
     startPolling();
   },
 );
+
+// workflow 從非 active 變 active 時嘗試補載 guidance
+watch(isActive, async (active) => {
+  if (active && !guidance.value) {
+    await loadGuidance();
+  }
+});
 </script>
 
 <template>
@@ -165,6 +286,38 @@ watch(
 
       <el-row :gutter="16" class="grid">
         <el-col :xs="24" :md="14">
+          <!-- AI Guidance Section：只在 workflow active 時顯示 -->
+          <template v-if="workflow && isActive">
+            <h3 class="section-title">AI 照護輔助</h3>
+            <AiGuidanceCard :guidance="guidance" :loading="guidanceLoading" />
+
+            <RiskReevaluationBanner :reeval="reeval" />
+
+            <AssessmentQuestionCard
+              v-if="guidance && !assessmentAnswered"
+              :questions="guidance.questions"
+              :submitting="assessmentSubmitting"
+              @submit="onAssessmentSubmit"
+            />
+
+            <SuggestedActionBar
+              v-if="guidance && activeTask"
+              :actions="guidance.suggestedActions"
+              :disabled="false"
+              @select="onSuggestedAction"
+            />
+          </template>
+          <template v-else-if="workflow && !isActive">
+            <el-alert
+              type="info"
+              :closable="false"
+              show-icon
+              title="事件已結束"
+              description="此 workflow 已進入終態，AI 輔助功能不再啟用"
+              class="ended"
+            />
+          </template>
+
           <h3 class="section-title">任務列表</h3>
           <el-empty v-if="sortedTasks.length === 0" description="尚無任務" />
           <TaskCard
@@ -227,5 +380,9 @@ watch(
 
 .grid {
   margin-top: 4px;
+}
+
+.ended {
+  margin-bottom: 16px;
 }
 </style>
