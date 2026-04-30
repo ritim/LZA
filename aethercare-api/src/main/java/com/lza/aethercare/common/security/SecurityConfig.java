@@ -154,7 +154,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/login", "/api/v1/auth/refresh",
                                 "/api/v1/ping").permitAll()
                         .requestMatchers("/api/v1/care-**", "/api/v1/care-**/**", "/api/v1/workflows/**",
-                                "/api/v1/elders/**", "/api/v1/sla/**").hasRole("USER")
+                                "/api/v1/elders/**", "/api/v1/sla/**", "/api/v1/ai/**").hasRole("USER")
                         .requestMatchers("/api/v1/insurance/**").hasRole("INSURANCE")
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e

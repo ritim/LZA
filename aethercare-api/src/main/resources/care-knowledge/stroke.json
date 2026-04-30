@@ -1,0 +1,56 @@
+{
+  "eventType": "STROKE",
+  "riskLevel": "HIGH",
+  "summary": "疑似中風徵兆，時間就是大腦，請依 FAST 原則快速判斷並就醫。",
+  "guidance": [
+    "請使用 FAST 原則快速確認：Face（面部）、Arm（手臂）、Speech（言語）、Time（時間）。",
+    "若任一項異常，請立即撥打119送醫。",
+    "記錄症狀開始的時間，這對後續治療非常重要。",
+    "勿讓長者進食或飲水，避免嗆咳。"
+  ],
+  "questions": [
+    {
+      "id": "q_speech",
+      "question": "長者是否能正常說話、口齒清晰？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["否", "不確定"]
+    },
+    {
+      "id": "q_face",
+      "question": "長者面部是否對稱（嘴角是否歪斜）？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是（對稱）", "否（不對稱）", "不確定"],
+      "dangerAnswer": ["否（不對稱）", "不確定"]
+    },
+    {
+      "id": "q_arm",
+      "question": "長者雙手能同時平舉並維持嗎？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否（單側無力）", "不確定"],
+      "dangerAnswer": ["否（單側無力）", "不確定"]
+    }
+  ],
+  "dangerSigns": [
+    "面部不對稱、嘴角歪斜",
+    "單側肢體無力或麻木",
+    "突發性言語不清或無法理解他人說話",
+    "突然劇烈頭痛或暈眩",
+    "視野模糊或一側看不見"
+  ],
+  "suggestedActions": [
+    {
+      "type": "CALL_EMERGENCY",
+      "label": "立即撥打119",
+      "priority": "HIGH",
+      "confirmationRequired": true
+    },
+    {
+      "type": "RECORD_TIME",
+      "label": "記錄症狀開始時間",
+      "priority": "HIGH",
+      "confirmationRequired": false
+    }
+  ],
+  "disclaimer": "此建議不能取代醫療診斷，疑似中風請立即送醫。"
+}

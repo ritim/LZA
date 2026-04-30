@@ -36,7 +36,9 @@ public class TenantFilterAspect {
             + " || execution(* com.lza.aethercare.action.service..*(..))"
             + " || execution(* com.lza.aethercare.audit.service..*(..))"
             + " || execution(* com.lza.aethercare.anomaly.service..*(..))"
-            + " || execution(* com.lza.aethercare.insurance.service..*(..))")
+            + " || execution(* com.lza.aethercare.insurance.service..*(..))"
+            + " || execution(* com.lza.aethercare.ai.service..*(..))"
+            + " || execution(* com.lza.aethercare.assessment.service..*(..))")
     public Object enableTenantFilter(ProceedingJoinPoint pjp) throws Throwable {
         Long tenantId = TenantContext.get();
         if (tenantId == null) {

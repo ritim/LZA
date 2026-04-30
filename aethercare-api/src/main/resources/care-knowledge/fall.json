@@ -1,0 +1,69 @@
+{
+  "eventType": "FALL",
+  "riskLevel": "HIGH",
+  "summary": "偵測到長者疑似跌倒事件，請立即確認長者意識與外傷狀況。",
+  "guidance": [
+    "保持冷靜並儘快前往長者所在位置或撥打電話聯繫。",
+    "若長者意識清楚，請勿立即扶起，先確認是否有疼痛、出血或骨折跡象。",
+    "若長者意識不清、呼吸異常或大量出血，請立即撥打119。",
+    "在等待救援期間，協助長者保持溫暖並避免移動受傷部位。"
+  ],
+  "questions": [
+    {
+      "id": "q_consciousness",
+      "question": "長者目前是否意識清楚並能正常對話？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["否", "不確定"]
+    },
+    {
+      "id": "q_pain",
+      "question": "長者是否有明顯疼痛或無法移動的部位？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["是"]
+    },
+    {
+      "id": "q_bleeding",
+      "question": "是否有明顯外傷或出血？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["是"]
+    },
+    {
+      "id": "q_breathing",
+      "question": "長者呼吸是否平穩？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["否", "不確定"]
+    }
+  ],
+  "dangerSigns": [
+    "意識不清或無回應",
+    "呼吸急促、不規律或無呼吸",
+    "頭部撞擊或大量出血",
+    "肢體變形或無法活動",
+    "嘔吐或抽搐"
+  ],
+  "suggestedActions": [
+    {
+      "type": "CALL_EMERGENCY",
+      "label": "撥打119",
+      "priority": "HIGH",
+      "confirmationRequired": true
+    },
+    {
+      "type": "CONTACT_FAMILY",
+      "label": "通知其他家屬",
+      "priority": "MEDIUM",
+      "confirmationRequired": false
+    },
+    {
+      "type": "VISIT_NOW",
+      "label": "立即前往長者所在位置",
+      "priority": "HIGH",
+      "confirmationRequired": false
+    }
+  ],
+  "disclaimer": "此建議不能取代醫療診斷，僅供照護參考；緊急情況請以專業醫護判斷為準。"
+}

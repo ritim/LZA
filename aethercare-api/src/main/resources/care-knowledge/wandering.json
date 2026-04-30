@@ -1,0 +1,54 @@
+{
+  "eventType": "WANDERING",
+  "riskLevel": "HIGH",
+  "summary": "疑似長者走失或離開居住地，請儘速確認其位置與安全。",
+  "guidance": [
+    "先確認長者是否在家或鄰近環境（庭院、走廊、樓下）。",
+    "嘗試以電話聯繫長者本人或其常用聯絡人。",
+    "若有失智症病史，請立即啟動家屬與社區協尋。",
+    "準備長者近照與穿著資訊，以利報警協尋。"
+  ],
+  "questions": [
+    {
+      "id": "q_at_home",
+      "question": "長者目前是否確認在家中？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["否", "不確定"]
+    },
+    {
+      "id": "q_reachable",
+      "question": "您是否能聯絡到長者本人？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["否"]
+    }
+  ],
+  "dangerSigns": [
+    "長者有失智症或認知障礙病史",
+    "夜間或惡劣天氣下離家",
+    "離家超過 1 小時且無法聯絡",
+    "未攜帶手機或證件"
+  ],
+  "suggestedActions": [
+    {
+      "type": "CONTACT_ELDER",
+      "label": "嘗試聯絡長者",
+      "priority": "HIGH",
+      "confirmationRequired": false
+    },
+    {
+      "type": "REPORT_MISSING",
+      "label": "通報警方協尋",
+      "priority": "HIGH",
+      "confirmationRequired": true
+    },
+    {
+      "type": "CONTACT_FAMILY",
+      "label": "通知其他家屬協助",
+      "priority": "MEDIUM",
+      "confirmationRequired": false
+    }
+  ],
+  "disclaimer": "此建議不能取代醫療診斷，僅供照護參考。"
+}

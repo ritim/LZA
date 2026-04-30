@@ -1,0 +1,52 @@
+{
+  "eventType": "NO_ACTIVITY",
+  "riskLevel": "MEDIUM",
+  "summary": "長者長時間未偵測到活動，請確認其安全與健康狀態。",
+  "guidance": [
+    "先嘗試以電話或視訊聯繫長者確認狀況。",
+    "若無法聯繫，請就近確認或委託鄰居協助查看。",
+    "確認長者是否外出但忘記告知，或可能在睡眠中。"
+  ],
+  "questions": [
+    {
+      "id": "q_contact",
+      "question": "您是否能成功聯絡到長者？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["否"]
+    },
+    {
+      "id": "q_last_activity",
+      "question": "最後一次與長者聯繫或看到活動是什麼時候？",
+      "type": "TEXT",
+      "options": ["6小時內", "6至12小時", "12小時以上"],
+      "dangerAnswer": ["12小時以上"]
+    }
+  ],
+  "dangerSigns": [
+    "完全無法聯絡且超過 12 小時無活動",
+    "鄰居反映異常（聲響、燈光、氣味等）",
+    "長者本應在家但無回應"
+  ],
+  "suggestedActions": [
+    {
+      "type": "CONTACT_ELDER",
+      "label": "嘗試聯絡長者",
+      "priority": "HIGH",
+      "confirmationRequired": false
+    },
+    {
+      "type": "VISIT_NOW",
+      "label": "前往現場確認",
+      "priority": "MEDIUM",
+      "confirmationRequired": false
+    },
+    {
+      "type": "CALL_EMERGENCY",
+      "label": "聯絡警消協助破門",
+      "priority": "HIGH",
+      "confirmationRequired": true
+    }
+  ],
+  "disclaimer": "此建議不能取代醫療診斷，僅供照護參考。"
+}

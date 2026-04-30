@@ -42,8 +42,8 @@
   "hotPaths": [
     {
       "path": "aethercare-api/src/main/resources/application.yml",
-      "accessCount": 37,
-      "lastAccessed": 1777371932258,
+      "accessCount": 39,
+      "lastAccessed": 1777535868080,
       "type": "file"
     },
     {
@@ -60,8 +60,8 @@
     },
     {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/common/error/ErrorCode.java",
-      "accessCount": 12,
-      "lastAccessed": 1777365410830,
+      "accessCount": 13,
+      "lastAccessed": 1777535532252,
       "type": "file"
     },
     {
@@ -72,26 +72,26 @@
     },
     {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/event/enums/CareEventType.java",
-      "accessCount": 10,
-      "lastAccessed": 1777364498288,
+      "accessCount": 11,
+      "lastAccessed": 1777535522219,
       "type": "file"
     },
     {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/common/error/BusinessException.java",
-      "accessCount": 10,
-      "lastAccessed": 1777365447395,
+      "accessCount": 11,
+      "lastAccessed": 1777535532913,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/audit/enums/CareAuditAction.java",
+      "accessCount": 11,
+      "lastAccessed": 1777535647270,
       "type": "file"
     },
     {
       "path": "aethercare-api/src/main/resources/application-test.yml",
       "accessCount": 10,
       "lastAccessed": 1777371955609,
-      "type": "file"
-    },
-    {
-      "path": "aethercare-api/src/main/java/com/lza/aethercare/audit/enums/CareAuditAction.java",
-      "accessCount": 9,
-      "lastAccessed": 1777365198740,
       "type": "file"
     },
     {
@@ -108,8 +108,14 @@
     },
     {
       "path": "aethercare-api/src/main/resources/db/changelog/db.changelog-master.yaml",
+      "accessCount": 9,
+      "lastAccessed": 1777535527537,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/event/enums/CareEventSource.java",
       "accessCount": 8,
-      "lastAccessed": 1777369002961,
+      "lastAccessed": 1777535943802,
       "type": "file"
     },
     {
@@ -131,12 +137,6 @@
       "type": "file"
     },
     {
-      "path": "aethercare-api/src/main/java/com/lza/aethercare/event/enums/CareEventSource.java",
-      "accessCount": 7,
-      "lastAccessed": 1777364505836,
-      "type": "file"
-    },
-    {
       "path": "docs/system_design/aethercare_codex_system_design.md",
       "accessCount": 7,
       "lastAccessed": 1777371022172,
@@ -144,14 +144,20 @@
     },
     {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/common/time/Clock.java",
-      "accessCount": 6,
-      "lastAccessed": 1777363738248,
+      "accessCount": 7,
+      "lastAccessed": 1777535534792,
       "type": "file"
     },
     {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/workflow/enums/CareWorkflowType.java",
       "accessCount": 6,
       "lastAccessed": 1777363767609,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/event/enums/RiskLevel.java",
+      "accessCount": 6,
+      "lastAccessed": 1777535536785,
       "type": "file"
     },
     {
@@ -188,12 +194,6 @@
       "path": "aethercare-api/src/main/java/com/lza/aethercare/event/enums/CareEventStatus.java",
       "accessCount": 5,
       "lastAccessed": 1777363148743,
-      "type": "file"
-    },
-    {
-      "path": "aethercare-api/src/main/java/com/lza/aethercare/event/enums/RiskLevel.java",
-      "accessCount": 5,
-      "lastAccessed": 1777363149764,
       "type": "file"
     },
     {
@@ -287,6 +287,12 @@
       "type": "file"
     },
     {
+      "path": "aethercare-api/src/main/resources/db/changelog/changes/0005-create-care-audit-log.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1777535535613,
+      "type": "file"
+    },
+    {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/package-info.java",
       "accessCount": 1,
       "lastAccessed": 1777288133553,
@@ -326,12 +332,6 @@
       "path": "aethercare-api/src/main/resources/db/changelog/changes/0004-create-care-action.yaml",
       "accessCount": 1,
       "lastAccessed": 1777288388498,
-      "type": "file"
-    },
-    {
-      "path": "aethercare-api/src/main/resources/db/changelog/changes/0005-create-care-audit-log.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1777288391941,
       "type": "file"
     },
     {

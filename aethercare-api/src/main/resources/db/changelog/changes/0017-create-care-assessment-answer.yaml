@@ -1,0 +1,99 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0017-create-care-assessment-answer
+      author: autopilot
+      changes:
+        - createTable:
+            tableName: care_assessment_answer
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: tenant_id
+                  type: BIGINT
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+              - column:
+                  name: workflow_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: event_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: task_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: caregiver_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: question_id
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: question
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: answer
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: danger_detected
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: care_assessment_answer
+            baseColumnNames: tenant_id
+            constraintName: fk_assessment_answer_tenant
+            referencedTableName: tenant
+            referencedColumnNames: id
+        - createIndex:
+            tableName: care_assessment_answer
+            indexName: idx_assessment_workflow
+            columns:
+              - column:
+                  name: workflow_id
+              - column:
+                  name: created_at
+        - createIndex:
+            tableName: care_assessment_answer
+            indexName: idx_assessment_tenant
+            columns:
+              - column:
+                  name: tenant_id
+      rollback:
+        - dropIndex:
+            tableName: care_assessment_answer
+            indexName: idx_assessment_workflow
+        - dropIndex:
+            tableName: care_assessment_answer
+            indexName: idx_assessment_tenant
+        - dropForeignKeyConstraint:
+            baseTableName: care_assessment_answer
+            constraintName: fk_assessment_answer_tenant
+        - dropTable:
+            tableName: care_assessment_answer

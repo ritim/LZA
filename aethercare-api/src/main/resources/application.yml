@@ -136,6 +136,10 @@ aethercare:
   tenant:
     default-id: 1
     default-code: default
+  ai:
+    # AI provider 切換：static = MVP 由 CareKnowledgeBase 提供；
+    # 未來可加 openai / claude 等真 LLM impl，並以 @ConditionalOnProperty 切換。
+    provider: static
 
 logging:
   level:

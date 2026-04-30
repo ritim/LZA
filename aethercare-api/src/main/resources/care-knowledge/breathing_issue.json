@@ -1,0 +1,62 @@
+{
+  "eventType": "BREATHING_ISSUE",
+  "riskLevel": "HIGH",
+  "summary": "疑似呼吸困難或缺氧徵兆，請立即評估呼吸狀態並考慮緊急就醫。",
+  "guidance": [
+    "保持長者上半身坐起，協助維持呼吸道暢通。",
+    "若有家用血氧機，請量測 SpO2，低於 90% 屬危險。",
+    "若呼吸急促、嘴唇發紫或意識改變，請立即撥打119。",
+    "保持環境安靜並避免讓長者過度說話或活動。"
+  ],
+  "questions": [
+    {
+      "id": "q_rapid_breathing",
+      "question": "長者是否呼吸急促、喘不過氣？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["是"]
+    },
+    {
+      "id": "q_lip_color",
+      "question": "長者嘴唇或指甲顏色是否正常（沒有發紫）？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是（正常）", "否（發紫）", "不確定"],
+      "dangerAnswer": ["否（發紫）", "不確定"]
+    },
+    {
+      "id": "q_speak",
+      "question": "長者是否能完整說出一句話而不中斷喘氣？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["否", "不確定"]
+    }
+  ],
+  "dangerSigns": [
+    "嘴唇或指甲發紫（發紺）",
+    "無法說出完整句子",
+    "意識模糊或嗜睡",
+    "胸痛伴隨呼吸困難",
+    "SpO2 低於 90%"
+  ],
+  "suggestedActions": [
+    {
+      "type": "CALL_EMERGENCY",
+      "label": "立即撥打119",
+      "priority": "HIGH",
+      "confirmationRequired": true
+    },
+    {
+      "type": "POSITION_UPRIGHT",
+      "label": "協助長者採坐姿",
+      "priority": "HIGH",
+      "confirmationRequired": false
+    },
+    {
+      "type": "MEASURE_SPO2",
+      "label": "量測血氧（若可）",
+      "priority": "MEDIUM",
+      "confirmationRequired": false
+    }
+  ],
+  "disclaimer": "此建議不能取代醫療診斷，呼吸困難屬醫療緊急狀況。"
+}
