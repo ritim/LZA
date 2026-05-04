@@ -153,8 +153,14 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/logout").hasRole("USER")
                         .requestMatchers("/api/v1/auth/login", "/api/v1/auth/refresh",
                                 "/api/v1/ping").permitAll()
+                        // Spec § Master §0：被照顧者自助 endpoint 走 X-Care-Recipient-Id mock auth，
+                        // 不需 JWT；production 應改成 device-bound token / OTP。
+                        .requestMatchers("/api/v1/recipient/**").permitAll()
+                        // 註：legacy /api/v1/elders/** 已退役（spec § Master §0 canonical 為
+                        // /api/v1/care-recipients）；matcher 不再列入 /elders。
                         .requestMatchers("/api/v1/care-**", "/api/v1/care-**/**", "/api/v1/workflows/**",
-                                "/api/v1/elders/**", "/api/v1/sla/**", "/api/v1/ai/**").hasRole("USER")
+                                "/api/v1/sla/**", "/api/v1/ai/**",
+                                "/api/v1/caregiver/**").hasRole("USER")
                         .requestMatchers("/api/v1/insurance/**").hasRole("INSURANCE")
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e

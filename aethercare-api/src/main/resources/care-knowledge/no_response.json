@@ -1,0 +1,67 @@
+{
+  "eventType": "NO_RESPONSE",
+  "riskLevel": "MEDIUM",
+  "summary": "長者對通知或詢問沒有回應，請主動確認是否安全；沉默不是安全證明。",
+  "guidance": [
+    "先以多種方式（電話、視訊、訊息）嘗試聯繫長者本人。",
+    "若無回應，請立即聯絡第二位緊急聯絡人或就近鄰居協助。",
+    "若 PASSIVE 模式長者超過閾值仍無訊號，視為高風險。",
+    "AI 不會也不應將『無回應』判定為安全；workflow 必須持續到有人明確確認。"
+  ],
+  "questions": [
+    {
+      "id": "q_attempts",
+      "question": "您已嘗試幾種方式聯繫長者？",
+      "type": "TEXT",
+      "options": ["僅 1 種", "2-3 種", "已嘗試所有可用方式"],
+      "dangerAnswer": ["僅 1 種"]
+    },
+    {
+      "id": "q_reach_other",
+      "question": "是否能聯繫到長者身邊的人代為查看？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["否", "不確定"]
+    },
+    {
+      "id": "q_history",
+      "question": "長者過去是否曾有跌倒、昏厥或意識喪失病史？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["是", "不確定"]
+    }
+  ],
+  "dangerSigns": [
+    "完全無法聯絡且超過設定閾值",
+    "長者本應在家但無任何活動訊號",
+    "有跌倒或心血管病史且無回應",
+    "夜間時段長時間無活動且未回應"
+  ],
+  "suggestedActions": [
+    {
+      "type": "CALL_ELDER",
+      "label": "撥打長者電話",
+      "priority": "HIGH",
+      "confirmationRequired": false
+    },
+    {
+      "type": "CALL_SECOND_CONTACT",
+      "label": "通知第二聯絡人",
+      "priority": "HIGH",
+      "confirmationRequired": false
+    },
+    {
+      "type": "REQUEST_ON_SITE_CHECK",
+      "label": "請人到場確認",
+      "priority": "HIGH",
+      "confirmationRequired": false
+    },
+    {
+      "type": "CALL_EMERGENCY",
+      "label": "撥打119",
+      "priority": "HIGH",
+      "confirmationRequired": true
+    }
+  ],
+  "disclaimer": "此建議不能取代醫療診斷；無回應不可被視為安全，請持續追蹤直到有人明確確認長者狀況。"
+}

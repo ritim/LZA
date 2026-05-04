@@ -15,20 +15,32 @@ import java.util.Map;
 @Slf4j
 public class RuleBasedRiskClassifier {
 
-    private static final Map<CareEventType, RiskLevel> RISK_MAP = Map.of(
-            CareEventType.FALL_DETECTED, RiskLevel.HIGH,
-            CareEventType.SOS, RiskLevel.HIGH,
-            CareEventType.NO_ACTIVITY, RiskLevel.MEDIUM,
-            CareEventType.DAILY_REMINDER, RiskLevel.LOW,
-            CareEventType.ACTIVITY_ANOMALY, RiskLevel.MEDIUM
+    // Spec § Master §5 風險表 + §9 SLA 表：POSSIBLE_FALL / SOS / FALL_DETECTED 為 HIGH；
+    // MISSED_CHECK_IN / NO_RESPONSE / FEELING_UNWELL / NO_ACTIVITY 為 MEDIUM。
+    private static final Map<CareEventType, RiskLevel> RISK_MAP = Map.ofEntries(
+            Map.entry(CareEventType.FALL_DETECTED, RiskLevel.HIGH),
+            Map.entry(CareEventType.POSSIBLE_FALL, RiskLevel.HIGH),
+            Map.entry(CareEventType.SOS, RiskLevel.HIGH),
+            Map.entry(CareEventType.NO_ACTIVITY, RiskLevel.MEDIUM),
+            Map.entry(CareEventType.DAILY_REMINDER, RiskLevel.LOW),
+            Map.entry(CareEventType.ACTIVITY_ANOMALY, RiskLevel.MEDIUM),
+            Map.entry(CareEventType.MISSED_CHECK_IN, RiskLevel.MEDIUM),
+            Map.entry(CareEventType.NO_RESPONSE, RiskLevel.MEDIUM),
+            Map.entry(CareEventType.FEELING_UNWELL, RiskLevel.MEDIUM)
     );
 
-    private static final Map<CareEventType, CareWorkflowType> WORKFLOW_MAP = Map.of(
-            CareEventType.FALL_DETECTED, CareWorkflowType.FALL_RESPONSE,
-            CareEventType.SOS, CareWorkflowType.FALL_RESPONSE,
-            CareEventType.NO_ACTIVITY, CareWorkflowType.INACTIVITY_CHECK,
-            CareEventType.DAILY_REMINDER, CareWorkflowType.REMINDER,
-            CareEventType.ACTIVITY_ANOMALY, CareWorkflowType.INACTIVITY_CHECK
+    // FEELING_UNWELL / MISSED_CHECK_IN / NO_RESPONSE 沒有專屬 workflow template，
+    // 套用 INACTIVITY_CHECK 是現有最近語義（被動觀察 + 升級鏈）。POSSIBLE_FALL 走 FALL_RESPONSE。
+    private static final Map<CareEventType, CareWorkflowType> WORKFLOW_MAP = Map.ofEntries(
+            Map.entry(CareEventType.FALL_DETECTED, CareWorkflowType.FALL_RESPONSE),
+            Map.entry(CareEventType.POSSIBLE_FALL, CareWorkflowType.FALL_RESPONSE),
+            Map.entry(CareEventType.SOS, CareWorkflowType.FALL_RESPONSE),
+            Map.entry(CareEventType.NO_ACTIVITY, CareWorkflowType.INACTIVITY_CHECK),
+            Map.entry(CareEventType.DAILY_REMINDER, CareWorkflowType.REMINDER),
+            Map.entry(CareEventType.ACTIVITY_ANOMALY, CareWorkflowType.INACTIVITY_CHECK),
+            Map.entry(CareEventType.MISSED_CHECK_IN, CareWorkflowType.INACTIVITY_CHECK),
+            Map.entry(CareEventType.NO_RESPONSE, CareWorkflowType.INACTIVITY_CHECK),
+            Map.entry(CareEventType.FEELING_UNWELL, CareWorkflowType.INACTIVITY_CHECK)
     );
 
     public RiskLevel classifyRisk(CareEventType type) {

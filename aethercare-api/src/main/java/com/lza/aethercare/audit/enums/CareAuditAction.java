@@ -15,5 +15,10 @@ public enum CareAuditAction {
     STATE_CONFLICT_SKIPPED,
     ESCALATION_TRIGGERED,
     INSURANCE_QUERY,
-    ASSESSMENT_RECORDED
+    ASSESSMENT_RECORDED,
+    // Spec § AI_Care_Chat §9：AI Care Chat audit；不會自動改變 workflow state，
+    // 純粹記錄 AI 與 caregiver 對話的責任鏈。
+    AI_CHAT_STARTED,
+    AI_CHAT_MESSAGE_CREATED,
+    AI_CHAT_SUGGESTED_ACTIONS
 }

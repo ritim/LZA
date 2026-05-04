@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0021-align-contact-user-ids
+      author: autopilot
+      comment: |
+        修正 0007 demo seed 的 care_contact_escalation.contact_user_id 與 app_user.id 對應錯誤。
+        原 seed 直接寫 2001 / 2002 為 contact_user_id，但 DemoUserSeeder 用 BIGSERIAL 把
+        family01 / family02 分配到 id=2 / 3，造成 dashboard 查詢 caregiver=2 找不到任何
+        assignee_id=2001 的 task。
+
+        本 changeSet：
+        1) 把 care_contact_escalation 的 2001 → 2、2002 → 3
+        2) 把既有 care_task / care_action 中 assignee_id / actor_id 為 2001/2002 的 row
+           一併 back-fill，避免歷史 demo 資料 dashboard 仍看不到。
+      changes:
+        - sql:
+            comment: align care_contact_escalation
+            sql: |
+              UPDATE care_contact_escalation SET contact_user_id = 2 WHERE contact_user_id = 2001;
+              UPDATE care_contact_escalation SET contact_user_id = 3 WHERE contact_user_id = 2002;
+        - sql:
+            comment: back-fill historical care_task assignee
+            sql: |
+              UPDATE care_task SET assignee_id = 2 WHERE assignee_id = 2001;
+              UPDATE care_task SET assignee_id = 3 WHERE assignee_id = 2002;
+        - sql:
+            comment: back-fill historical care_action actor
+            sql: |
+              UPDATE care_action SET actor_id = 2 WHERE actor_id = 2001;
+              UPDATE care_action SET actor_id = 3 WHERE actor_id = 2002;
+      rollback:
+        - sql:
+            sql: |
+              UPDATE care_action SET actor_id = 2002 WHERE actor_id = 3;
+              UPDATE care_action SET actor_id = 2001 WHERE actor_id = 2;
+              UPDATE care_task SET assignee_id = 2002 WHERE assignee_id = 3;
+              UPDATE care_task SET assignee_id = 2001 WHERE assignee_id = 2;
+              UPDATE care_contact_escalation SET contact_user_id = 2002 WHERE contact_user_id = 3;
+              UPDATE care_contact_escalation SET contact_user_id = 2001 WHERE contact_user_id = 2;

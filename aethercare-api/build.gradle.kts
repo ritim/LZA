@@ -63,4 +63,8 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	// 強制 test JVM tz=UTC，避免 Hibernate 將 PostgreSQL TIME 欄位轉成 JVM 預設時區
+	// 造成 LocalTime 偏移（例：DB '00:00:00' 在 JVM=Asia/Taipei 預設下被讀為 LocalTime '08:00:00'）。
+	// production 用 timestamptz 不受影響；此設定限縮在 test classpath。
+	systemProperty("user.timezone", "UTC")
 }

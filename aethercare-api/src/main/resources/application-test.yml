@@ -1,6 +1,11 @@
 spring:
   jpa:
     show-sql: false
+    # 強制 Hibernate 用 UTC 解讀 DB TIME / TIMESTAMP 欄位，避免 LocalTime 被轉成 JVM tz。
+    # 例：DB '00:00:00' 在 JVM=Asia/Taipei 預設下會被 read as LocalTime '08:00:00'，導致
+    # MissedCheckInScanner 的 expectedCheckinTime 比預期晚 8 小時觸發。
+    properties:
+      hibernate.jdbc.time_zone: UTC
   liquibase:
     enabled: true
 

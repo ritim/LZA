@@ -9,7 +9,11 @@ package com.lza.aethercare.ai.enums;
  */
 public enum KnowledgeEventType {
     FALL,
+    POSSIBLE_FALL,
     NO_ACTIVITY,
+    MISSED_CHECK_IN,
+    NO_RESPONSE,
+    FEELING_UNWELL,
     STROKE,
     WANDERING,
     BREATHING_ISSUE,

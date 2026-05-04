@@ -33,7 +33,11 @@ public class CareKnowledgeBase {
     @PostConstruct
     public void loadAll() throws IOException {
         load(KnowledgeEventType.FALL, "care-knowledge/fall.json");
+        load(KnowledgeEventType.POSSIBLE_FALL, "care-knowledge/possible_fall.json");
         load(KnowledgeEventType.NO_ACTIVITY, "care-knowledge/no_activity.json");
+        load(KnowledgeEventType.MISSED_CHECK_IN, "care-knowledge/missed_check_in.json");
+        load(KnowledgeEventType.NO_RESPONSE, "care-knowledge/no_response.json");
+        load(KnowledgeEventType.FEELING_UNWELL, "care-knowledge/feeling_unwell.json");
         load(KnowledgeEventType.STROKE, "care-knowledge/stroke.json");
         load(KnowledgeEventType.WANDERING, "care-knowledge/wandering.json");
         load(KnowledgeEventType.BREATHING_ISSUE, "care-knowledge/breathing_issue.json");

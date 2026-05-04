@@ -7,7 +7,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /** 長者活動事件 repository。 */
 @Repository
@@ -51,4 +53,28 @@ public interface ElderActivityEventRepository extends JpaRepository<ElderActivit
     List<ElderActivityEvent> findByElderIdAndOccurredAtBetween(@Param("elderId") Long elderId,
                                                                @Param("from") OffsetDateTime from,
                                                                @Param("to") OffsetDateTime to);
+
+    /** No-activity scanner 用：取此 elder 最近一次活動，沒有任何上報則 empty。 */
+    Optional<ElderActivityEvent> findFirstByElderIdOrderByOccurredAtDesc(Long elderId);
+
+    /** Dashboard latestCheckInAt：在指定 elder 集合裡找最近一筆指定型別活動。 */
+    @Query(value = """
+        SELECT * FROM elder_activity_event
+         WHERE elder_id IN (:elderIds)
+           AND activity_type = :activityType
+         ORDER BY occurred_at DESC
+         LIMIT 1
+        """, nativeQuery = true)
+    Optional<ElderActivityEvent> findLatestByElderIdsAndType(
+            @Param("elderIds") Collection<Long> elderIds,
+            @Param("activityType") String activityType);
+
+    /** Dashboard latestActivityAt：在指定 elder 集合裡找最近一筆任意活動。 */
+    @Query(value = """
+        SELECT * FROM elder_activity_event
+         WHERE elder_id IN (:elderIds)
+         ORDER BY occurred_at DESC
+         LIMIT 1
+        """, nativeQuery = true)
+    Optional<ElderActivityEvent> findLatestByElderIds(@Param("elderIds") Collection<Long> elderIds);
 }

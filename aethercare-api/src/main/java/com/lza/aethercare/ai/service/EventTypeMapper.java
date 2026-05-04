@@ -27,7 +27,11 @@ public class EventTypeMapper {
         }
         return switch (type) {
             case FALL_DETECTED, SOS -> KnowledgeEventType.FALL;
+            case POSSIBLE_FALL -> KnowledgeEventType.POSSIBLE_FALL;
             case NO_ACTIVITY, ACTIVITY_ANOMALY -> KnowledgeEventType.NO_ACTIVITY;
+            case MISSED_CHECK_IN -> KnowledgeEventType.MISSED_CHECK_IN;
+            case NO_RESPONSE -> KnowledgeEventType.NO_RESPONSE;
+            case FEELING_UNWELL -> KnowledgeEventType.FEELING_UNWELL;
             case DAILY_REMINDER -> KnowledgeEventType.OTHER;
         };
     }

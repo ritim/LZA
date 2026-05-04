@@ -276,7 +276,7 @@ watch(isActive, async (active) => {
             L{{ workflow.currentLevel }}
           </el-descriptions-item>
           <el-descriptions-item label="Event ID">{{ workflow.eventId }}</el-descriptions-item>
-          <el-descriptions-item label="Elder ID">{{ workflow.elderId }}</el-descriptions-item>
+          <el-descriptions-item label="被照顧者 ID">{{ workflow.elderId }}</el-descriptions-item>
           <el-descriptions-item label="Tasks">{{ workflow.tasks.length }}</el-descriptions-item>
           <el-descriptions-item label="Started At">{{ startedAtText }}</el-descriptions-item>
           <el-descriptions-item label="Completed At">{{ completedAtText }}</el-descriptions-item>

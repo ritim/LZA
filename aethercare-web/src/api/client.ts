@@ -100,3 +100,12 @@ export async function postJson<T, B = unknown>(
   const resp = await httpClient.post<T>(url, body, config);
   return resp.data;
 }
+
+export async function putJson<T, B = unknown>(
+  url: string,
+  body?: B,
+  config?: AxiosRequestConfig,
+): Promise<T> {
+  const resp = await httpClient.put<T>(url, body, config);
+  return resp.data;
+}

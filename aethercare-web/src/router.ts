@@ -16,6 +16,36 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/caregiver/events/:eventId',
+    name: 'event-detail',
+    component: () => import('./views/EventDetailView.vue'),
+    props: true,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/caregiver/elders/:elderId',
+    name: 'care-profile',
+    component: () => import('./views/CareProfileView.vue'),
+    props: true,
+    meta: { requiresAuth: true },
+  },
+  {
+    // Spec § Required MVP Frontend Behavior：照顧者端 care-recipient 詳情路由
+    // alias 至既有 CareProfileView，將 careRecipientId 對映成 elderId prop。
+    path: '/caregiver/recipients/:careRecipientId',
+    name: 'care-recipient-profile',
+    component: () => import('./views/CareProfileView.vue'),
+    props: (route) => ({ elderId: route.params.careRecipientId }),
+    meta: { requiresAuth: true },
+  },
+  {
+    // Spec § Required MVP Frontend Behavior：被照顧者主畫面（4 大按鈕）
+    path: '/recipient',
+    name: 'recipient-home',
+    component: () => import('./views/RecipientView.vue'),
+    meta: { requiresAuth: false },
+  },
+  {
     path: '/workflows/:id',
     name: 'workflow-detail',
     component: () => import('./views/WorkflowDetailView.vue'),

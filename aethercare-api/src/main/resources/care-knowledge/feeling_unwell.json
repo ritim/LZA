@@ -1,0 +1,75 @@
+{
+  "eventType": "FEELING_UNWELL",
+  "riskLevel": "MEDIUM",
+  "summary": "長者主動回報身體不適，請了解症狀並評估是否需要就醫或緊急處置。",
+  "guidance": [
+    "請長者描述具體症狀（部位、開始時間、是否曾發生）。",
+    "若伴隨胸痛、呼吸困難、單側無力、口齒不清或意識改變，視為危急並立即撥打119。",
+    "確認長者是否有按時服藥，最近是否有跌倒、感冒或情緒變化。",
+    "若症狀輕微但持續超過數小時或反覆出現，建議就醫評估。"
+  ],
+  "questions": [
+    {
+      "id": "q_chest_pain",
+      "question": "長者是否有胸痛、心悸或呼吸困難？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["是", "不確定"]
+    },
+    {
+      "id": "q_neuro",
+      "question": "是否出現單側無力、口齒不清、臉部歪斜或視力模糊？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["是", "不確定"]
+    },
+    {
+      "id": "q_consciousness",
+      "question": "長者意識是否清楚並能正常對話？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["否", "不確定"]
+    },
+    {
+      "id": "q_duration",
+      "question": "症狀持續多久了？",
+      "type": "TEXT",
+      "options": ["剛開始（< 30 分鐘）", "30 分鐘至 2 小時", "已超過 2 小時"],
+      "dangerAnswer": ["已超過 2 小時"]
+    }
+  ],
+  "dangerSigns": [
+    "胸痛、胸悶或呼吸困難",
+    "單側肢體無力或口齒不清（疑似中風）",
+    "意識改變、嗜睡或無法叫醒",
+    "嚴重頭痛、暈眩伴隨嘔吐",
+    "高燒、寒顫且年長體弱"
+  ],
+  "suggestedActions": [
+    {
+      "type": "CALL_ELDER",
+      "label": "撥打電話詢問詳細症狀",
+      "priority": "HIGH",
+      "confirmationRequired": false
+    },
+    {
+      "type": "VISIT_NOW",
+      "label": "前往現場評估",
+      "priority": "MEDIUM",
+      "confirmationRequired": false
+    },
+    {
+      "type": "CALL_EMERGENCY",
+      "label": "立即撥打119",
+      "priority": "HIGH",
+      "confirmationRequired": true
+    },
+    {
+      "type": "REQUEST_ON_SITE_CHECK",
+      "label": "請第二聯絡人到場",
+      "priority": "MEDIUM",
+      "confirmationRequired": false
+    }
+  ],
+  "disclaimer": "此建議不能取代醫療診斷；若有任何危急徵兆，請以撥打119或立即就醫為優先。"
+}

@@ -2,6 +2,7 @@ package com.lza.aethercare.action.service;
 
 import com.lza.aethercare.action.dto.CreateCareActionRequest;
 import com.lza.aethercare.action.entity.CareAction;
+import com.lza.aethercare.action.enums.CareActionType;
 import com.lza.aethercare.action.event.CareActionReceivedMessage;
 import com.lza.aethercare.action.repository.CareActionRepository;
 import com.lza.aethercare.audit.enums.CareAuditAction;
@@ -23,7 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/** Action service：依 actionType 路由 task / workflow 狀態變更。 */
+/**
+ * Action service：依 actionType 路由 task / workflow 狀態變更。
+ *
+ * <p>Spec §6.7 要求 8 種 action type，本 service 收斂為 3 種內部語意（CONFIRM_SAFE / NEED_HELP /
+ * ACKNOWLEDGE），但 audit message + kafka payload 保留 caller 送出的原始 type，方便事後追溯。
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -44,14 +50,17 @@ public class CareActionService {
         CareTask task = taskService.findById(taskId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "task=" + taskId));
 
-        switch (req.getActionType()) {
+        CareActionType incoming = req.getActionType();
+        CareActionType internal = mapToInternal(incoming);
+
+        switch (internal) {
             case CONFIRM_SAFE -> {
                 if (!taskService.completeIfActive(taskId)) {
                     throw new BusinessException(ErrorCode.TASK_ALREADY_FINALIZED, "task=" + taskId + " 已被處理");
                 }
-                CareAction action = persistAction(task, actorId, req);
+                CareAction action = persistAction(task, actorId, incoming, req.getNote());
                 auditService.log(task.getWorkflowId(), task.getEventId(), actorId,
-                        CareAuditAction.TASK_COMPLETED, "CONFIRM_SAFE: " + safeNote(req));
+                        CareAuditAction.TASK_COMPLETED, incoming.name() + ": " + safeNote(req));
                 workflowService.resolve(task.getWorkflowId(), actorId);
                 publishKafka(action, actorId, req);
                 return action;
@@ -60,11 +69,12 @@ public class CareActionService {
                 if (!taskService.completeIfActive(taskId)) {
                     throw new BusinessException(ErrorCode.TASK_ALREADY_FINALIZED, "task=" + taskId + " 已被處理");
                 }
-                CareAction action = persistAction(task, actorId, req);
+                CareAction action = persistAction(task, actorId, incoming, req.getNote());
                 auditService.log(task.getWorkflowId(), task.getEventId(), actorId,
-                        CareAuditAction.TASK_COMPLETED, "NEED_HELP: " + safeNote(req));
+                        CareAuditAction.TASK_COMPLETED, incoming.name() + ": " + safeNote(req));
                 auditService.log(task.getWorkflowId(), task.getEventId(), actorId,
-                        CareAuditAction.ESCALATION_TRIGGERED, "user requested escalation");
+                        CareAuditAction.ESCALATION_TRIGGERED,
+                        "user requested escalation via " + incoming.name());
                 workflowService.escalate(task, actorId);
                 publishKafka(action, actorId, req);
                 return action;
@@ -73,9 +83,9 @@ public class CareActionService {
                 if (!taskService.acknowledgeIfPending(taskId)) {
                     throw new BusinessException(ErrorCode.TASK_ALREADY_FINALIZED, "task=" + taskId + " 已被處理");
                 }
-                CareAction action = persistAction(task, actorId, req);
+                CareAction action = persistAction(task, actorId, incoming, req.getNote());
                 auditService.log(task.getWorkflowId(), task.getEventId(), actorId,
-                        CareAuditAction.TASK_ACKNOWLEDGED, "ACKNOWLEDGE: " + safeNote(req));
+                        CareAuditAction.TASK_ACKNOWLEDGED, incoming.name() + ": " + safeNote(req));
                 publishKafka(action, actorId, req);
                 return action;
             }
@@ -83,18 +93,31 @@ public class CareActionService {
         }
     }
 
+    /** Spec §6.7：對外接受 8 種 action，收斂為 3 種內部語意。 */
+    private static CareActionType mapToInternal(CareActionType type) {
+        return switch (type) {
+            case CONFIRM_SAFE -> CareActionType.CONFIRM_SAFE;
+            case NEED_HELP, CALL_EMERGENCY, ESCALATE, CALL_SECOND_CONTACT,
+                    REQUEST_HELP -> CareActionType.NEED_HELP;
+            // Spec § Gap D：MARK_UNABLE_TO_CONFIRM 屬於「保留 workflow open」家族，
+            // 不可直接升級或結案；改 caregiver 透過 ESCALATE / REQUEST_HELP 主動推進。
+            case ACKNOWLEDGE, CALL_ELDER, ADD_NOTE, CALL_NO_ANSWER,
+                    MARK_UNABLE_TO_CONFIRM -> CareActionType.ACKNOWLEDGE;
+        };
+    }
+
     private String safeNote(CreateCareActionRequest req) {
         return req.getNote() == null ? "" : req.getNote();
     }
 
-    private CareAction persistAction(CareTask task, Long actorId, CreateCareActionRequest req) {
+    private CareAction persistAction(CareTask task, Long actorId, CareActionType actionType, String note) {
         CareAction action = CareAction.builder()
                 .tenantId(TenantContext.getOrDefault())
                 .workflowId(task.getWorkflowId())
                 .taskId(task.getId())
                 .actorId(actorId)
-                .actionType(req.getActionType())
-                .note(req.getNote())
+                .actionType(actionType)
+                .note(note)
                 .createdAt(clock.now())
                 .build();
         return actionRepo.save(action);

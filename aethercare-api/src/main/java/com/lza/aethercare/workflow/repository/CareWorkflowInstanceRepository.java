@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.Optional;
 
 /** 照護流程 repository：所有 conditional update 走 native SQL（plan §8.2）。 */
 @Repository
@@ -36,4 +37,14 @@ public interface CareWorkflowInstanceRepository extends JpaRepository<CareWorkfl
                      @Param("nextStatus") String nextStatus,
                      @Param("allowedStatuses") Collection<String> allowedStatuses,
                      @Param("now") OffsetDateTime now);
+
+    /** GET /api/v1/care-events/{id} 用：取對應最新一筆 workflow（單一事件預期僅一筆）。 */
+    Optional<CareWorkflowInstance> findFirstByEventIdOrderByIdDesc(Long eventId);
+
+    /** Dashboard 用：今日已結案 workflow 數量（spec § Gap H resolvedTodayCount）。 */
+    @Query(value = """
+        SELECT COUNT(*) FROM care_workflow_instance
+         WHERE status = 'RESOLVED' AND completed_at >= :startOfDay
+        """, nativeQuery = true)
+    long countResolvedSince(@Param("startOfDay") OffsetDateTime startOfDay);
 }

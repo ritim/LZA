@@ -6,7 +6,7 @@ const props = defineProps<{ logs: AuditLogResponse[] }>();
 
 type TimelineColor = 'primary' | 'success' | 'warning' | 'danger' | 'info';
 
-const colorMap: Record<CareAuditAction, TimelineColor> = {
+const colorMap: Partial<Record<CareAuditAction, TimelineColor>> = {
   EVENT_CREATED: 'primary',
   WORKFLOW_STARTED: 'primary',
   TASK_CREATED: 'info',
@@ -19,6 +19,8 @@ const colorMap: Record<CareAuditAction, TimelineColor> = {
   WORKFLOW_UNRESOLVED: 'danger',
   STATE_CONFLICT_SKIPPED: 'info',
   ESCALATION_TRIGGERED: 'warning',
+  INSURANCE_QUERY: 'info',
+  ASSESSMENT_RECORDED: 'info',
 };
 
 function maskActor(id: number | null): string {

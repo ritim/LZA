@@ -99,18 +99,18 @@ curl http://localhost:8080/api/v1/workflows/1/audit-logs
 # 1. ingest 一些 activity event 建立 baseline 樣本（demo: 平日 9 點每天 5 個 MOVE）
 for d in 1 2 3 4 5; do
   for i in 1 2 3 4 5; do
-    curl -X POST localhost:8080/api/v1/elders/1001/activities \
+    curl -X POST localhost:8080/api/v1/care-recipients/1001/activities \
       -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
       -d "{\"activityType\":\"MOVE\",\"occurredAt\":\"2026-04-2${d}T09:0${i}:00Z\"}"
   done
 done
 
 # 2. 重算 baseline
-curl -X POST localhost:8080/api/v1/elders/1001/baseline/recalculate \
+curl -X POST localhost:8080/api/v1/care-recipients/1001/baseline/recalculate \
   -H "Authorization: Bearer $TOKEN"
 
 # 3. 立即觸發 anomaly check（過去一小時 0 個 MOVE → z-score 爆掉）
-curl -X POST localhost:8080/api/v1/elders/1001/anomaly/detect \
+curl -X POST localhost:8080/api/v1/care-recipients/1001/anomaly/detect \
   -H "Authorization: Bearer $TOKEN"
 
 # 4. 查 audit timeline 應有 ACTIVITY_ANOMALY → workflow 啟動

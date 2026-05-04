@@ -1,0 +1,74 @@
+{
+  "eventType": "MISSED_CHECK_IN",
+  "riskLevel": "MEDIUM",
+  "summary": "長者今日尚未完成預期的 check-in，請盡快確認其狀況；未回報不等於安全。",
+  "guidance": [
+    "先撥打長者主要聯絡電話，可能是漏看提醒或睡過頭。",
+    "若無人接聽，再嘗試家中其他電話或視訊聯繫。",
+    "若仍無法聯絡，請就近確認或請第二照顧者協助查看。",
+    "在確認長者親口回報安全前，workflow 必須保持開啟。"
+  ],
+  "questions": [
+    {
+      "id": "q_called",
+      "question": "您是否已嘗試以電話或視訊聯繫長者？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["否"]
+    },
+    {
+      "id": "q_reachable",
+      "question": "長者是否親自接聽並回報安全？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["否", "不確定"]
+    },
+    {
+      "id": "q_routine",
+      "question": "長者今天是否原本就有外出或例行活動安排？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": []
+    },
+    {
+      "id": "q_on_site",
+      "question": "是否有人能在 30 分鐘內前往現場確認？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["否"]
+    }
+  ],
+  "dangerSigns": [
+    "完全無法聯絡且超過 grace period",
+    "電話打通但長者語氣異常、無法表達",
+    "長者本應在家但完全無回應",
+    "PASSIVE 模式長者超過 12 小時無任何訊號"
+  ],
+  "suggestedActions": [
+    {
+      "type": "CALL_ELDER",
+      "label": "撥打長者電話",
+      "priority": "HIGH",
+      "confirmationRequired": false
+    },
+    {
+      "type": "CALL_NO_ANSWER",
+      "label": "電話未接（保留事件開啟）",
+      "priority": "MEDIUM",
+      "confirmationRequired": false
+    },
+    {
+      "type": "REQUEST_ON_SITE_CHECK",
+      "label": "請第二照顧者或鄰居到場",
+      "priority": "MEDIUM",
+      "confirmationRequired": false
+    },
+    {
+      "type": "ESCALATE",
+      "label": "通知下一順位照顧者",
+      "priority": "MEDIUM",
+      "confirmationRequired": false
+    }
+  ],
+  "disclaimer": "此建議不能取代醫療診斷，僅供照護參考；未取得長者親口回報前不應視為安全。"
+}

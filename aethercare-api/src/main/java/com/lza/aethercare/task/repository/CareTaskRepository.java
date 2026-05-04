@@ -47,4 +47,13 @@ public interface CareTaskRepository extends JpaRepository<CareTask, Long> {
     int acknowledgeIfPending(@Param("id") Long id, @Param("now") OffsetDateTime now);
 
     List<CareTask> findByWorkflowIdOrderByLevelAscIdAsc(Long workflowId);
+
+    /** Dashboard 用：caregiver 名下尚未結案的任務（PENDING / ACKNOWLEDGED）。 */
+    @Query(value = """
+        SELECT * FROM care_task
+         WHERE assignee_id = :assigneeId
+           AND status IN ('PENDING','ACKNOWLEDGED')
+         ORDER BY deadline_at ASC
+        """, nativeQuery = true)
+    List<CareTask> findActiveByAssignee(@Param("assigneeId") Long assigneeId);
 }

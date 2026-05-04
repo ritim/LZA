@@ -11,7 +11,7 @@ import lombok.Setter;
 import java.time.OffsetDateTime;
 import java.util.Map;
 
-/** 上報長者活動 request：對應 POST /api/v1/elders/{elderId}/activities。 */
+/** 上報被照顧者活動 request：對應 POST /api/v1/care-recipients/{careRecipientId}/activities。 */
 @Getter
 @Setter
 @Builder

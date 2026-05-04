@@ -1,0 +1,68 @@
+{
+  "eventType": "POSSIBLE_FALL",
+  "riskLevel": "HIGH",
+  "summary": "感測訊號疑似跌倒但尚未確認，請立即聯繫並評估長者狀態，不要假設安全。",
+  "guidance": [
+    "先以電話或視訊聯繫長者，確認是否有意識並能回應。",
+    "若聯繫不上，請立即前往現場或請就近的人協助查看。",
+    "若長者已倒地不要立即扶起，先檢查疼痛、出血或意識狀態。",
+    "在無法確認安全前，workflow 必須維持開啟，不可以靜默結案。"
+  ],
+  "questions": [
+    {
+      "id": "q_contact",
+      "question": "您是否能聯絡上長者並確認意識清楚？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["否", "不確定"]
+    },
+    {
+      "id": "q_pain",
+      "question": "長者是否表示有任何部位疼痛或無法移動？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["是", "不確定"]
+    },
+    {
+      "id": "q_visit",
+      "question": "目前是否有人能立即前往現場確認？",
+      "type": "YES_NO_UNKNOWN",
+      "options": ["是", "否", "不確定"],
+      "dangerAnswer": ["否"]
+    }
+  ],
+  "dangerSigns": [
+    "無法以電話聯絡到長者",
+    "長者表示劇烈疼痛或肢體無法移動",
+    "撞擊頭部或大量出血",
+    "意識不清、回答異常或嗜睡",
+    "感測器回傳跌倒信心度高且無人在場"
+  ],
+  "suggestedActions": [
+    {
+      "type": "CALL_ELDER",
+      "label": "立即撥打電話確認",
+      "priority": "HIGH",
+      "confirmationRequired": false
+    },
+    {
+      "type": "VISIT_NOW",
+      "label": "立即前往現場",
+      "priority": "HIGH",
+      "confirmationRequired": false
+    },
+    {
+      "type": "REQUEST_ON_SITE_CHECK",
+      "label": "請鄰居或第二照顧者到場",
+      "priority": "MEDIUM",
+      "confirmationRequired": false
+    },
+    {
+      "type": "CALL_EMERGENCY",
+      "label": "撥打119",
+      "priority": "HIGH",
+      "confirmationRequired": true
+    }
+  ],
+  "disclaimer": "此建議不能取代醫療診斷；疑似跌倒一律以實地確認長者安全為準，未確認前不可結案。"
+}
