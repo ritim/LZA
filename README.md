@@ -21,7 +21,7 @@
 
 ## Canonical Product Statement
 
-> AetherCare 是一套讓被照顧者能被聽見、讓照顧者不再孤軍奮戰、讓每一次照護事件都被接住的 AI 居家照護系統。
+> AetherCare 是一套讓被照顧者能夠主動被察覺異狀，讓照顧者不再孤軍奮戰，背後有強力的奧援，讓每一次照護事件都被接住的 AI 居家照護系統。
 
 ## Canonical Terms
 
