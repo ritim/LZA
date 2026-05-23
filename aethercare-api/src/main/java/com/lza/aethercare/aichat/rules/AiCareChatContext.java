@@ -22,6 +22,14 @@ public record AiCareChatContext(
         /** 該 workflow 上既有的 caregiver action types（小寫字串清單，方便 contains 檢查）。 */
         List<String> priorActionTypes,
         /** Caregiver 輸入文字；可為 null（first-message 場景）。 */
-        String message
+        String message,
+        /** 被照顧者顯示名稱；缺值時模板回退為「長者」。 */
+        Optional<String> recipientName
 ) {
+    /** Legacy 6-arg constructor，預設 recipientName 為空。讓既有測試/呼叫端不必逐處改。 */
+    public AiCareChatContext(CareEvent event, CareWorkflowInstance workflow,
+                             Optional<CareTask> currentTask, Optional<CareKnowledge> knowledge,
+                             List<String> priorActionTypes, String message) {
+        this(event, workflow, currentTask, knowledge, priorActionTypes, message, Optional.empty());
+    }
 }

@@ -155,7 +155,38 @@ class AiCareChatRulesEngineTest {
 
         AiCareChatReply reply = engine.firstMessage(ctx);
 
-        assertThat(reply.reply()).isEqualTo("事件摘要");
+        // 模板會包含 summary（前後加上人性化開場/收尾），故用 contains 而非 equals。
+        assertThat(reply.reply()).contains("事件摘要");
         assertThat(reply.dangerSigns()).containsExactly("danger");
+    }
+
+    /** 人性化模板：recipientName 有值時應被插入 reply。 */
+    @Test
+    void recipient_name_is_interpolated_into_reply() {
+        org.mockito.Mockito.lenient().when(clock.now()).thenReturn(NOW);
+        AiCareChatContext ctx = new AiCareChatContext(
+                event(CareEventType.MISSED_CHECK_IN, RiskLevel.MEDIUM),
+                workflow(),
+                Optional.empty(),
+                Optional.empty(),
+                List.of(),
+                "打了三次都沒人接",
+                Optional.of("王美玉"));
+
+        AiCareChatReply reply = engine.evaluate(ctx);
+
+        assertThat(reply.reply()).contains("王美玉");
+    }
+
+    /** 句池輪替穩定性：相同 context 兩次 evaluate 必回相同 reply（deterministic）。 */
+    @Test
+    void same_context_produces_same_reply_for_deterministic_rotation() {
+        org.mockito.Mockito.lenient().when(clock.now()).thenReturn(NOW);
+        AiCareChatContext ctx = context("人很安全沒事了", RiskLevel.MEDIUM, null, List.of());
+
+        AiCareChatReply r1 = engine.evaluate(ctx);
+        AiCareChatReply r2 = engine.evaluate(ctx);
+
+        assertThat(r1.reply()).isEqualTo(r2.reply());
     }
 }

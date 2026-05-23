@@ -40,6 +40,10 @@ dependencies {
 	// Vault secrets management（透過 application-vault.yml 啟用，不啟用時不影響運作）
 	implementation("org.springframework.cloud:spring-cloud-starter-vault-config")
 	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
+	// Anthropic Claude API SDK — AI Care Chat 的 reply 文字生成（fallback 仍由 rule engine 提供）
+	implementation("com.anthropic:anthropic-java:2.27.0")
+	// OpenCC 純 Java 實作 — LLM 回覆強制簡轉繁（解 Qwen 偶爾簡繁混用）
+	implementation("com.github.houbb:opencc4j:1.8.0")
 	implementation("org.liquibase:liquibase-core")
 	implementation("org.springframework.kafka:spring-kafka")
 	compileOnly("org.projectlombok:lombok")

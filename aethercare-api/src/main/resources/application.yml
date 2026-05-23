@@ -140,6 +140,17 @@ aethercare:
     # AI provider 切換：static = MVP 由 CareKnowledgeBase 提供；
     # 未來可加 openai / claude 等真 LLM impl，並以 @ConditionalOnProperty 切換。
     provider: static
+    # AI Care Chat reply 文字生成設定。
+    # provider: none | anthropic | ollama；none 走 rules engine 模板池，無外部依賴。
+    chat:
+      provider: ${AETHERCARE_AI_CHAT_PROVIDER:none}
+      model: ${AETHERCARE_AI_CHAT_MODEL:claude-haiku-4-5}
+      max-tokens: 1024
+      timeout-ms: 8000
+      api-key: ${ANTHROPIC_API_KEY:}
+      ollama-base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      ollama-model: ${AETHERCARE_AI_CHAT_OLLAMA_MODEL:qwen2.5:7b}
+      history-limit: 12
 
 logging:
   level:

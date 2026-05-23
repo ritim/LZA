@@ -14,9 +14,12 @@ import com.lza.aethercare.aichat.entity.AiChatMessage;
 import com.lza.aethercare.aichat.enums.ChatRole;
 import com.lza.aethercare.aichat.enums.ChatSource;
 import com.lza.aethercare.aichat.repository.AiChatMessageRepository;
+import com.lza.aethercare.aichat.config.AiChatProperties;
 import com.lza.aethercare.aichat.rules.AiCareChatContext;
 import com.lza.aethercare.aichat.rules.AiCareChatReply;
 import com.lza.aethercare.aichat.rules.AiCareChatRulesEngine;
+import com.lza.aethercare.aichat.rules.LlmReplyGenerator;
+import com.lza.aethercare.aichat.rules.TaiwaneseTextNormalizer;
 import com.lza.aethercare.audit.enums.CareAuditAction;
 import com.lza.aethercare.audit.service.CareAuditService;
 import com.lza.aethercare.common.error.BusinessException;
@@ -27,6 +30,8 @@ import com.lza.aethercare.event.service.CareEventService;
 import com.lza.aethercare.tenant.context.TenantContext;
 import com.lza.aethercare.task.entity.CareTask;
 import com.lza.aethercare.task.repository.CareTaskRepository;
+import com.lza.aethercare.userprofile.entity.ElderProfile;
+import com.lza.aethercare.userprofile.repository.ElderProfileRepository;
 import com.lza.aethercare.workflow.entity.CareWorkflowInstance;
 import com.lza.aethercare.workflow.service.CareWorkflowService;
 import lombok.RequiredArgsConstructor;
@@ -72,6 +77,9 @@ public class AiCareChatService {
     private final CareAuditService auditService;
     private final ObjectMapper objectMapper;
     private final Clock clock;
+    private final ElderProfileRepository elderProfileRepo;
+    private final LlmReplyGenerator replyGenerator;
+    private final AiChatProperties aiChatProperties;
 
     @Transactional
     public AiCareChatResponse sendMessage(Long actorUserId, AiCareChatRequest req) {
@@ -89,14 +97,30 @@ public class AiCareChatService {
         AiChatMessage userMsg = persistMessage(workflow, event, req.getTaskId(), actorUserId,
                 ChatRole.USER, ChatSource.CAREGIVER_INPUT, req.getMessage(), null);
 
-        // 2) rules engine 產回覆
+        // 2) rules engine 產結構化回覆（actions / dangerSigns / SLA 由此決定，作為安全護欄）
         AiCareChatContext ctx = buildContext(event, workflow, req.getTaskId(), req.getMessage());
-        AiCareChatReply reply = rules.evaluate(ctx);
+        AiCareChatReply baseReply = rules.evaluate(ctx);
 
-        // 3) ASSISTANT 訊息入庫，structured_json 存 questions / suggestedActions / dangerSigns
+        // 3) reply 文字交給 generator（template 或 LLM）；生成失敗會退回 baseReply.reply()
+        boolean useLlm = aiChatProperties.provider() != null
+                && !"none".equalsIgnoreCase(aiChatProperties.provider());
+        List<LlmReplyGenerator.ChatTurn> history = useLlm
+                ? loadHistory(workflow.getId(), Math.max(aiChatProperties.historyLimit(), 1))
+                : List.of();
+        LlmReplyGenerator.Outcome outcome = replyGenerator.generate(ctx, baseReply, history);
+        String normalizedReply = TaiwaneseTextNormalizer.normalize(outcome.reply());
+
+        AiCareChatReply reply = new AiCareChatReply(
+                normalizedReply,
+                baseReply.questions(),
+                baseReply.suggestedActions(),
+                baseReply.dangerSigns(),
+                baseReply.disclaimer());
+
+        // 4) ASSISTANT 訊息入庫，structured_json 存 questions / suggestedActions / dangerSigns
         String structuredJson = serializeStructured(reply);
         AiChatMessage assistantMsg = persistMessage(workflow, event, req.getTaskId(), null,
-                ChatRole.ASSISTANT, ChatSource.RULE_ENGINE, reply.reply(), structuredJson);
+                ChatRole.ASSISTANT, outcome.source(), reply.reply(), structuredJson);
 
         // 4) audit
         auditService.log(workflow.getId(), event.getId(), actorUserId,
@@ -154,6 +178,16 @@ public class AiCareChatService {
                 CareAuditAction.AI_CHAT_STARTED, "firstMessageId=" + first.getId());
     }
 
+    private List<LlmReplyGenerator.ChatTurn> loadHistory(Long workflowId, int limit) {
+        List<AiChatMessage> all = chatRepo.findByWorkflowIdOrderByCreatedAtAsc(workflowId);
+        int start = Math.max(0, all.size() - limit);
+        return all.subList(start, all.size()).stream()
+                .map(m -> new LlmReplyGenerator.ChatTurn(
+                        m.getRole() == null ? "" : m.getRole().name(),
+                        m.getMessage() == null ? "" : m.getMessage()))
+                .toList();
+    }
+
     private AiCareChatContext buildContext(CareEvent event, CareWorkflowInstance workflow,
                                            Long taskId, String message) {
         Optional<CareTask> task = taskId == null ? Optional.empty() : taskRepo.findById(taskId);
@@ -161,7 +195,10 @@ public class AiCareChatService {
         List<String> priorActions = actionRepo.findByWorkflowIdOrderByCreatedAtAsc(workflow.getId()).stream()
                 .map(a -> a.getActionType() == null ? "" : a.getActionType().name())
                 .toList();
-        return new AiCareChatContext(event, workflow, task, knowledge, priorActions, message);
+        Optional<String> recipientName = Optional.ofNullable(event.getElderId())
+                .flatMap(elderProfileRepo::findById)
+                .map(ElderProfile::getName);
+        return new AiCareChatContext(event, workflow, task, knowledge, priorActions, message, recipientName);
     }
 
     private AiChatMessage persistMessage(CareWorkflowInstance workflow, CareEvent event, Long taskId,

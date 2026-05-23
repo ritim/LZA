@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1778174802346,
+  "lastScanned": 1779443758854,
   "projectRoot": "/Users/yao/0.Projects/LZA",
   "techStack": {
     "languages": [],
@@ -36,7 +36,7 @@
       "path": "aethercare-api",
       "purpose": null,
       "fileCount": 8,
-      "lastAccessed": 1778174802331,
+      "lastAccessed": 1779443758845,
       "keyFiles": [
         "README.md",
         "build.gradle.kts",
@@ -49,7 +49,7 @@
       "path": "aethercare-web",
       "purpose": null,
       "fileCount": 10,
-      "lastAccessed": 1778174802335,
+      "lastAccessed": 1779443758845,
       "keyFiles": [
         "MANUAL_ACCEPTANCE.md",
         "README.md",
@@ -62,7 +62,7 @@
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 4,
-      "lastAccessed": 1778174802335,
+      "lastAccessed": 1779443758845,
       "keyFiles": [
         "AetherCare_AI_Care_Chat_Spec.md",
         "AetherCare_MVP_Gap_Review.md",
@@ -74,7 +74,7 @@
       "path": "scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 5,
-      "lastAccessed": 1778174802336,
+      "lastAccessed": 1779443758845,
       "keyFiles": [
         "debezium-outbox-connector.json",
         "gen-dev-certs.sh",
@@ -87,7 +87,7 @@
       "path": "aethercare-api/build",
       "purpose": "Build output",
       "fileCount": 1,
-      "lastAccessed": 1778174802336,
+      "lastAccessed": 1779443758845,
       "keyFiles": [
         "resolvedMainClassName"
       ]
@@ -96,7 +96,7 @@
       "path": "aethercare-web/dist",
       "purpose": "Distribution/build output",
       "fileCount": 1,
-      "lastAccessed": 1778174802337,
+      "lastAccessed": 1779443758845,
       "keyFiles": [
         "index.html"
       ]
@@ -105,14 +105,14 @@
       "path": "aethercare-web/node_modules",
       "purpose": "Dependencies",
       "fileCount": 1,
-      "lastAccessed": 1778174802339,
+      "lastAccessed": 1779443758845,
       "keyFiles": []
     },
     "aethercare-web/src": {
       "path": "aethercare-web/src",
       "purpose": "Source code",
       "fileCount": 4,
-      "lastAccessed": 1778174802340,
+      "lastAccessed": 1779443758846,
       "keyFiles": [
         "App.vue",
         "env.d.ts",
@@ -120,6 +120,85 @@
       ]
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/rules/ClaudeLlmReplyGenerator.java",
+      "accessCount": 8,
+      "lastAccessed": 1779462386072,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/service/AiCareChatService.java",
+      "accessCount": 7,
+      "lastAccessed": 1779540557876,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/rules/TemplateLlmReplyGenerator.java",
+      "accessCount": 4,
+      "lastAccessed": 1779462303093,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/rules/LlmReplyGenerator.java",
+      "accessCount": 3,
+      "lastAccessed": 1779450817141,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/application.yml",
+      "accessCount": 3,
+      "lastAccessed": 1779462297792,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/enums/ChatSource.java",
+      "accessCount": 2,
+      "lastAccessed": 1779450805524,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/config/AiChatProperties.java",
+      "accessCount": 2,
+      "lastAccessed": 1779462292120,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/rules/ChatPromptBuilder.java",
+      "accessCount": 2,
+      "lastAccessed": 1779540356613,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/AethercareApiApplication.java",
+      "accessCount": 1,
+      "lastAccessed": 1779450539169,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/config/AiChatConfig.java",
+      "accessCount": 1,
+      "lastAccessed": 1779450564571,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/ai/dto/SuggestedActionDto.java",
+      "accessCount": 1,
+      "lastAccessed": 1779450669411,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/rules/OllamaLlmReplyGenerator.java",
+      "accessCount": 1,
+      "lastAccessed": 1779462424294,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/rules/TaiwaneseTextNormalizer.java",
+      "accessCount": 1,
+      "lastAccessed": 1779540543912,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }
