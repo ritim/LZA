@@ -200,6 +200,12 @@
       "type": "file"
     },
     {
+      "path": "aethercare-api/src/main/resources/secrets.yml",
+      "accessCount": 4,
+      "lastAccessed": 1779622697990,
+      "type": "file"
+    },
+    {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/rules/LlmReplyGenerator.java",
       "accessCount": 3,
       "lastAccessed": 1779450817141,
@@ -209,12 +215,6 @@
       "path": "aethercare-api/src/main/java/com/lza/aethercare/anomaly/repository/ElderActivityEventRepository.java",
       "accessCount": 3,
       "lastAccessed": 1779546559837,
-      "type": "file"
-    },
-    {
-      "path": "aethercare-api/src/main/resources/secrets.yml",
-      "accessCount": 3,
-      "lastAccessed": 1779552070966,
       "type": "file"
     },
     {
