@@ -30,5 +30,9 @@ aethercare-web/.omc/
 .env
 .env.local
 
+# 本機 secrets — 包含 API key、絕對不可進 git。生產環境用 Vault / k8s secret 管理。
+aethercare-api/src/main/resources/secrets.yml
+aethercare-api/src/main/resources/secrets-*.yml
+
 # Docker volume mount cache
 .docker/

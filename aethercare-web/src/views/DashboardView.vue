@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import AppHeader from '../components/AppHeader.vue';
 import ActiveEventCard from '../components/ActiveEventCard.vue';
+import LineBindingCard from '../components/LineBindingCard.vue';
 import { getDashboard } from '../api/caregiver';
 import { createCareEvent } from '../api/care';
 import type {
@@ -149,6 +150,8 @@ onBeforeUnmount(() => stopPolling());
           </el-card>
         </el-col>
       </el-row>
+
+      <LineBindingCard />
 
       <!-- Spec § Gap H：MVP dashboard 必要 metrics 卡片 -->
       <el-card shadow="never" class="metrics-card">

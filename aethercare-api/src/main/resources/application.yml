@@ -3,6 +3,9 @@ spring:
     name: aethercare-api
   profiles:
     default: local
+  config:
+    # optional: 缺檔不報錯。secrets.yml 已 gitignore，用於本機注入 ai.chat.api-key 等敏感值。
+    import: optional:classpath:secrets.yml
   cloud:
     vault:
       # 預設關閉 Vault auto-config；application-vault.yml 才打開

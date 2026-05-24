@@ -1,0 +1,91 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0023-create-caregiver-line-binding
+      author: autopilot
+      comment: |
+        Spec § Master §0：caregiver 綁定的 LINE userId 表。
+        一個 caregiver 只能綁一個 LINE userId、一個 LINE userId 只能綁一個 caregiver。
+        綁定碼（一次性、10 分鐘 TTL）存 Redis，不入庫。
+      changes:
+        - createTable:
+            tableName: caregiver_line_binding
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: tenant_id
+                  type: BIGINT
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+              - column:
+                  name: caregiver_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_caregiver_line_binding_caregiver
+              - column:
+                  name: line_user_id
+                  type: VARCHAR(64)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_caregiver_line_binding_line_user
+              - column:
+                  name: line_display_name
+                  type: VARCHAR(200)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bound_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: caregiver_line_binding
+            baseColumnNames: tenant_id
+            constraintName: fk_caregiver_line_binding_tenant
+            referencedTableName: tenant
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: caregiver_line_binding
+            baseColumnNames: caregiver_id
+            constraintName: fk_caregiver_line_binding_caregiver
+            referencedTableName: app_user
+            referencedColumnNames: id
+        - createIndex:
+            tableName: caregiver_line_binding
+            indexName: idx_caregiver_line_binding_tenant
+            columns:
+              - column:
+                  name: tenant_id
+      rollback:
+        - dropIndex:
+            tableName: caregiver_line_binding
+            indexName: idx_caregiver_line_binding_tenant
+        - dropForeignKeyConstraint:
+            baseTableName: caregiver_line_binding
+            constraintName: fk_caregiver_line_binding_caregiver
+        - dropForeignKeyConstraint:
+            baseTableName: caregiver_line_binding
+            constraintName: fk_caregiver_line_binding_tenant
+        - dropTable:
+            tableName: caregiver_line_binding

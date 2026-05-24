@@ -17,6 +17,7 @@ import com.lza.aethercare.event.repository.CareEventRepository;
 import com.lza.aethercare.event.service.CareEventService;
 import com.lza.aethercare.event.service.CareEventService.CareEventResult;
 import com.lza.aethercare.recipient.dto.RecipientCheckInRequest;
+import com.lza.aethercare.recipient.service.RecipientNotificationService;
 import com.lza.aethercare.recipient.dto.RecipientCheckInResponse;
 import com.lza.aethercare.recipient.dto.RecipientEventResponse;
 import com.lza.aethercare.recipient.dto.RecipientSosRequest;
@@ -62,6 +63,7 @@ public class RecipientSelfController {
     private final CareEventService careEventService;
     private final ElderActivityEventRepository activityRepo;
     private final CareEventRepository careEventRepo;
+    private final RecipientNotificationService notificationService;
     private final Clock clock;
 
     /** 我今天還好：寫 CHECK_IN activity，不啟動 workflow（spec §0 Required Backend Behavior）。 */
@@ -86,6 +88,9 @@ public class RecipientSelfController {
                 .build();
         ElderActivityEvent saved = activityIngestionService.ingest(recipientId, req);
         log.info("RecipientCheckIn recipientId={} activityId={}", recipientId, saved.getId());
+
+        // Step 2：簽到成功 → 推播家屬。stub gateway 不會阻塞 / 不會 throw；不啟動 workflow。
+        notificationService.notifyCheckInReceived(recipientId, saved.getOccurredAt());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 new RecipientCheckInResponse(saved.getId(), recipientId, saved.getOccurredAt()));

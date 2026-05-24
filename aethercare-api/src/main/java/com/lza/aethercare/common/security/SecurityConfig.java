@@ -156,6 +156,9 @@ public class SecurityConfig {
                         // Spec § Master §0：被照顧者自助 endpoint 走 X-Care-Recipient-Id mock auth，
                         // 不需 JWT；production 應改成 device-bound token / OTP。
                         .requestMatchers("/api/v1/recipient/**").permitAll()
+                        // LINE Messaging API webhook：由 LINE 平台 POST 進來，
+                        // 內部以 X-Line-Signature HMAC-SHA256 驗證真偽（見 LineWebhookController）。
+                        .requestMatchers("/api/v1/line/webhook").permitAll()
                         // 註：legacy /api/v1/elders/** 已退役（spec § Master §0 canonical 為
                         // /api/v1/care-recipients）；matcher 不再列入 /elders。
                         .requestMatchers("/api/v1/care-**", "/api/v1/care-**/**", "/api/v1/workflows/**",
