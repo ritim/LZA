@@ -1,11 +1,13 @@
 package com.lza.aethercare.userprofile.controller;
 
 import com.lza.aethercare.userprofile.dto.CareRecipientContactsResponse;
+import com.lza.aethercare.userprofile.dto.CheckInHistoryResponse;
 import com.lza.aethercare.userprofile.dto.ElderContactsResponse;
 import com.lza.aethercare.userprofile.dto.ElderEventItem;
 import com.lza.aethercare.userprofile.dto.ElderProfileResponse;
 import com.lza.aethercare.userprofile.dto.ObservationSettingsResponse;
 import com.lza.aethercare.userprofile.dto.UpdateObservationSettingsRequest;
+import com.lza.aethercare.userprofile.service.CheckInHistoryService;
 import com.lza.aethercare.userprofile.service.ElderProfileService;
 import com.lza.aethercare.userprofile.service.ObservationSettingsService;
 import jakarta.validation.Valid;
@@ -39,6 +41,7 @@ public class CareRecipientController {
 
     private final ElderProfileService service;
     private final ObservationSettingsService observationSettingsService;
+    private final CheckInHistoryService checkInHistoryService;
 
     /** Spec §7：GET /api/v1/care-recipients/{careRecipientId}。 */
     @GetMapping("/{careRecipientId}")
@@ -62,6 +65,18 @@ public class CareRecipientController {
             @RequestParam(defaultValue = "20") int limit) {
         log.info("查詢 care recipient recent events careRecipientId={} limit={}", careRecipientId, limit);
         return ResponseEntity.ok(service.getRecentEvents(careRecipientId, limit));
+    }
+
+    /**
+     * Spec § Master §0：被照顧者最近 N 天 check-in 歷史，給 caregiver 月曆視圖。
+     * 預設 30 天；最少 1、最多 90。
+     */
+    @GetMapping("/{careRecipientId}/check-ins")
+    public ResponseEntity<CheckInHistoryResponse> getCheckInHistory(
+            @PathVariable Long careRecipientId,
+            @RequestParam(defaultValue = "30") int days) {
+        log.info("查詢 check-in 歷史 careRecipientId={} days={}", careRecipientId, days);
+        return ResponseEntity.ok(checkInHistoryService.getHistory(careRecipientId, days));
     }
 
     /** Spec §7 / Gap C：GET observation settings；無資料時 service 層回 MVP 預設。 */

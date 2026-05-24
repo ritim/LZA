@@ -57,6 +57,20 @@ public interface ElderActivityEventRepository extends JpaRepository<ElderActivit
     /** No-activity scanner 用：取此 elder 最近一次活動，沒有任何上報則 empty。 */
     Optional<ElderActivityEvent> findFirstByElderIdOrderByOccurredAtDesc(Long elderId);
 
+    /** 取窗口內某 elder 指定 activity type 的活動（依 occurred_at 升冪），給日曆 view 聚合用。 */
+    @Query(value = """
+            SELECT * FROM elder_activity_event
+             WHERE elder_id = :elderId
+               AND activity_type = :activityType
+               AND occurred_at >= :from AND occurred_at < :to
+             ORDER BY occurred_at ASC
+            """, nativeQuery = true)
+    List<ElderActivityEvent> findByElderIdAndTypeAndOccurredAtBetween(
+            @Param("elderId") Long elderId,
+            @Param("activityType") String activityType,
+            @Param("from") OffsetDateTime from,
+            @Param("to") OffsetDateTime to);
+
     /** Dashboard latestCheckInAt：在指定 elder 集合裡找最近一筆指定型別活動。 */
     @Query(value = """
         SELECT * FROM elder_activity_event

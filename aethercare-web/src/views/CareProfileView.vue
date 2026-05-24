@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import AppHeader from '../components/AppHeader.vue';
+import CheckInCalendar from '../components/CheckInCalendar.vue';
 import {
   getElder,
   getElderContacts,
@@ -223,6 +224,8 @@ onMounted(load);
           <el-button type="primary" :loading="saving" @click="saveSettings">儲存</el-button>
         </template>
       </el-dialog>
+
+      <CheckInCalendar v-if="profile" :care-recipient-id="Number(elderId)" :days="30" />
 
       <el-row :gutter="16" class="grid">
         <el-col :xs="24" :md="12">
