@@ -122,6 +122,12 @@
   },
   "hotPaths": [
     {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/recipient/service/RecipientNotificationService.java",
+      "accessCount": 14,
+      "lastAccessed": 1779595291355,
+      "type": "file"
+    },
+    {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/rules/ClaudeLlmReplyGenerator.java",
       "accessCount": 8,
       "lastAccessed": 1779462386072,
@@ -134,9 +140,63 @@
       "type": "file"
     },
     {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/notification/line/LineMessagingClient.java",
+      "accessCount": 7,
+      "lastAccessed": 1779595502669,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/notification/service/NotificationService.java",
+      "accessCount": 7,
+      "lastAccessed": 1779595533175,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/userprofile/controller/CareRecipientController.java",
+      "accessCount": 5,
+      "lastAccessed": 1779546605311,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-web/src/views/CareProfileView.vue",
+      "accessCount": 5,
+      "lastAccessed": 1779546862368,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/recipient/controller/RecipientSelfController.java",
+      "accessCount": 5,
+      "lastAccessed": 1779547038539,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-web/src/api/caregiver.ts",
+      "accessCount": 5,
+      "lastAccessed": 1779594404989,
+      "type": "file"
+    },
+    {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/rules/TemplateLlmReplyGenerator.java",
       "accessCount": 4,
       "lastAccessed": 1779462303093,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-web/src/components/AiCareChatPanel.vue",
+      "accessCount": 4,
+      "lastAccessed": 1779543305002,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/application.yml",
+      "accessCount": 4,
+      "lastAccessed": 1779544664787,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-web/src/views/DashboardView.vue",
+      "accessCount": 4,
+      "lastAccessed": 1779594449826,
       "type": "file"
     },
     {
@@ -146,9 +206,15 @@
       "type": "file"
     },
     {
-      "path": "aethercare-api/src/main/resources/application.yml",
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/anomaly/repository/ElderActivityEventRepository.java",
       "accessCount": 3,
-      "lastAccessed": 1779462297792,
+      "lastAccessed": 1779546559837,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/resources/secrets.yml",
+      "accessCount": 3,
+      "lastAccessed": 1779552070966,
       "type": "file"
     },
     {
@@ -167,6 +233,18 @@
       "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/rules/ChatPromptBuilder.java",
       "accessCount": 2,
       "lastAccessed": 1779540356613,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/anomaly/entity/ElderActivityEvent.java",
+      "accessCount": 2,
+      "lastAccessed": 1779546451718,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/common/security/SecurityConfig.java",
+      "accessCount": 2,
+      "lastAccessed": 1779588635248,
       "type": "file"
     },
     {
@@ -197,6 +275,150 @@
       "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/rules/TaiwaneseTextNormalizer.java",
       "accessCount": 1,
       "lastAccessed": 1779540543912,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/anomaly/service/MissedCheckInScheduler.java",
+      "accessCount": 1,
+      "lastAccessed": 1779545537800,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/anomaly/service/MissedCheckInDetector.java",
+      "accessCount": 1,
+      "lastAccessed": 1779545537898,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/dashboard/controller/CaregiverDashboardController.java",
+      "accessCount": 1,
+      "lastAccessed": 1779545545507,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/dashboard/service/DashboardService.java",
+      "accessCount": 1,
+      "lastAccessed": 1779545545703,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/dashboard/dto/DashboardResponse.java",
+      "accessCount": 1,
+      "lastAccessed": 1779545545894,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/recipient/dto/RecipientCheckInRequest.java",
+      "accessCount": 1,
+      "lastAccessed": 1779545549418,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/recipient/dto/RecipientCheckInResponse.java",
+      "accessCount": 1,
+      "lastAccessed": 1779545549894,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/recipient/dto/RecipientTodayResponse.java",
+      "accessCount": 1,
+      "lastAccessed": 1779545550074,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/notification/service/StubNotificationGateway.java",
+      "accessCount": 1,
+      "lastAccessed": 1779545555624,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-web/src/views/RecipientView.vue",
+      "accessCount": 1,
+      "lastAccessed": 1779545555868,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-web/src/api/recipient.ts",
+      "accessCount": 1,
+      "lastAccessed": 1779545566694,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-web/src/api/types.ts",
+      "accessCount": 1,
+      "lastAccessed": 1779545601336,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/userprofile/service/ElderProfileService.java",
+      "accessCount": 1,
+      "lastAccessed": 1779545607700,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/userprofile/entity/RecipientObservationSettings.java",
+      "accessCount": 1,
+      "lastAccessed": 1779546468033,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/userprofile/dto/CheckInDayItem.java",
+      "accessCount": 1,
+      "lastAccessed": 1779546560140,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/userprofile/dto/CheckInHistoryResponse.java",
+      "accessCount": 1,
+      "lastAccessed": 1779546563477,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/userprofile/service/CheckInHistoryService.java",
+      "accessCount": 1,
+      "lastAccessed": 1779546583266,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-web/src/router.ts",
+      "accessCount": 1,
+      "lastAccessed": 1779546753010,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-web/src/api/care.ts",
+      "accessCount": 1,
+      "lastAccessed": 1779546754013,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-web/src/components/CheckInCalendar.vue",
+      "accessCount": 1,
+      "lastAccessed": 1779546849963,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/userprofile/entity/ElderContact.java",
+      "accessCount": 1,
+      "lastAccessed": 1779546948905,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/userprofile/enums/NotificationChannel.java",
+      "accessCount": 1,
+      "lastAccessed": 1779547159631,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/notification/line/LineProperties.java",
+      "accessCount": 1,
+      "lastAccessed": 1779551194530,
+      "type": "file"
+    },
+    {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/notification/line/LineConfig.java",
+      "accessCount": 1,
+      "lastAccessed": 1779551196631,
       "type": "file"
     }
   ],

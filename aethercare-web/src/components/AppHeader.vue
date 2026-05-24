@@ -6,6 +6,11 @@ import { useAuthStore } from '../stores/auth';
 const auth = useAuthStore();
 const router = useRouter();
 
+function goHome() {
+  if (router.currentRoute.value.path === '/dashboard') return;
+  router.push('/dashboard');
+}
+
 async function onLogout() {
   try {
     await ElMessageBox.confirm('確定要登出嗎？', '登出', {
@@ -23,7 +28,7 @@ async function onLogout() {
 
 <template>
   <header class="app-header">
-    <div class="brand">
+    <div class="brand" role="link" tabindex="0" @click="goHome" @keyup.enter="goHome">
       <el-icon size="20"><HomeFilled /></el-icon>
       <span class="title">AetherCare 照護 Dashboard</span>
     </div>
@@ -54,7 +59,14 @@ async function onLogout() {
   gap: 8px;
   font-weight: 600;
   color: #303133;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 4px;
+  padding: 2px 4px;
+  transition: background 0.15s;
 }
+.brand:hover { background: #f5f7fa; }
+.brand:focus-visible { outline: 2px solid #409eff; outline-offset: 2px; }
 
 .title {
   font-size: 16px;

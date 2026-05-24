@@ -139,6 +139,16 @@ function onChip(chip: string) {
   sendMessage(chip);
 }
 
+/**
+ * Enter 直接送出；Shift+Enter 換行（textarea 預設）。
+ * isComposing 期間（中文輸入法選詞）不送出，避免 IME 確認誤觸。
+ */
+function onInputKeydown(e: KeyboardEvent) {
+  if (e.key !== 'Enter' || e.shiftKey || e.isComposing) return;
+  e.preventDefault();
+  sendMessage();
+}
+
 function onSuggestedAction(action: AiChatSuggestedAction) {
   // Spec § AI_Care_Chat §7：suggested action 必須 emit 給父層走 workflow action confirmation。
   emit('actionSuggested', action);
@@ -205,9 +215,12 @@ onMounted(loadHistory);
     <div class="input-row">
       <el-input
         v-model="input"
-        placeholder="描述目前狀況或詢問下一步"
+        type="textarea"
+        :autosize="{ minRows: 1, maxRows: 4 }"
+        resize="none"
+        placeholder="描述目前狀況或詢問下一步（Enter 送出、Shift+Enter 換行）"
         :disabled="sending"
-        @keyup.enter="sendMessage()"
+        @keydown="onInputKeydown"
       />
       <el-button type="primary" :loading="sending" @click="sendMessage()">送出</el-button>
     </div>
@@ -257,7 +270,9 @@ onMounted(loadHistory);
 
 .quick-chips { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
 
-.input-row { margin-top: 12px; display: flex; gap: 8px; }
+.input-row { margin-top: 12px; display: flex; gap: 8px; align-items: flex-end; }
+.input-row .el-textarea { flex: 1; }
+.input-row .el-button { flex-shrink: 0; }
 
 .disclaimer { margin-top: 8px; font-size: 12px; color: #909399; font-style: italic; }
 </style>
