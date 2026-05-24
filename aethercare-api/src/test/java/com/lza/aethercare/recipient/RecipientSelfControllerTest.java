@@ -17,6 +17,7 @@ import com.lza.aethercare.event.repository.CareEventRepository;
 import com.lza.aethercare.event.service.CareEventService;
 import com.lza.aethercare.event.service.CareEventService.CareEventResult;
 import com.lza.aethercare.recipient.controller.RecipientSelfController;
+import com.lza.aethercare.recipient.service.RecipientNotificationService;
 import com.lza.aethercare.workflow.entity.CareWorkflowInstance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,6 +57,7 @@ class RecipientSelfControllerTest {
     @Mock CareEventService careEventService;
     @Mock ElderActivityEventRepository activityRepo;
     @Mock CareEventRepository careEventRepo;
+    @Mock RecipientNotificationService recipientNotificationService;
     @Mock Clock clock;
 
     MockMvc mvc;
@@ -64,7 +66,8 @@ class RecipientSelfControllerTest {
     @BeforeEach
     void setUp() {
         RecipientSelfController controller = new RecipientSelfController(
-                activityIngestionService, careEventService, activityRepo, careEventRepo, clock);
+                activityIngestionService, careEventService, activityRepo, careEventRepo,
+                recipientNotificationService, clock);
         mvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();

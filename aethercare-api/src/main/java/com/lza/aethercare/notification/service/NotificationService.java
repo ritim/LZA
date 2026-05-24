@@ -13,6 +13,8 @@ import com.lza.aethercare.notification.line.LineMessagingClient;
 import com.lza.aethercare.notification.line.repository.CaregiverLineBindingRepository;
 import com.lza.aethercare.task.entity.CareTask;
 import com.lza.aethercare.userprofile.entity.CareContactEscalation;
+import com.lza.aethercare.userprofile.entity.ElderProfile;
+import com.lza.aethercare.userprofile.repository.ElderProfileRepository;
 import com.lza.aethercare.userprofile.service.EscalationContactService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +51,7 @@ public class NotificationService {
     private final ObjectProvider<LineMessagingClient> lineClientProvider;
     private final CaregiverLineBindingRepository lineBindingRepo;
     private final CareEventRepository careEventRepo;
+    private final ElderProfileRepository elderProfileRepo;
 
     @Value("${aethercare.kafka.topics.notification-sent}")
     private String notificationSentTopic;
@@ -91,8 +94,11 @@ public class NotificationService {
                 .ifPresent(binding -> {
                     Optional<CareEvent> eventOpt = task.getEventId() == null
                             ? Optional.empty() : careEventRepo.findById(task.getEventId());
+                    Optional<ElderProfile> elderOpt = eventOpt
+                            .map(CareEvent::getElderId)
+                            .flatMap(elderProfileRepo::findById);
                     String altText = buildTaskAltText(task, eventOpt);
-                    Map<String, Object> bubble = buildTaskFlex(task, eventOpt);
+                    Map<String, Object> bubble = buildTaskFlex(task, eventOpt, elderOpt);
                     client.pushFlex(binding.getLineUserId(), altText, bubble);
                 });
     }
@@ -106,7 +112,8 @@ public class NotificationService {
     }
 
     /** 建構 LINE Flex bubble JSON（Map 結構，序列化時自動成 JSON object）。 */
-    private Map<String, Object> buildTaskFlex(CareTask task, Optional<CareEvent> eventOpt) {
+    private Map<String, Object> buildTaskFlex(CareTask task, Optional<CareEvent> eventOpt,
+                                               Optional<ElderProfile> elderOpt) {
         boolean high = isHighPriority(eventOpt);
         String typeText = eventOpt.map(e -> describeEventType(e.getEventType().name()))
                 .orElse("照護事件");
@@ -159,27 +166,60 @@ public class NotificationService {
                         "size", "sm", "color", "#909399", "wrap", true)));
         bubble.put("body", body);
 
-        // footer with postback button
+        // footer：先「📞 打給長輩」（若有 phone）→ 再「我收到了」postback
         Map<String, Object> footer = new LinkedHashMap<>();
         footer.put("type", "box");
         footer.put("layout", "vertical");
         footer.put("spacing", "xs");
         footer.put("paddingAll", "10px");
-        Map<String, Object> ackAction = new LinkedHashMap<>();
-        ackAction.put("type", "postback");
-        ackAction.put("label", "我收到了");
-        ackAction.put("data", "ack:" + task.getId());
-        ackAction.put("displayText", "我收到任務 #" + task.getId());
-        Map<String, Object> ackButton = new LinkedHashMap<>();
-        ackButton.put("type", "button");
-        ackButton.put("style", "primary");
-        ackButton.put("color", "#67C23A");
-        ackButton.put("height", "sm");
-        ackButton.put("action", ackAction);
-        footer.put("contents", List.of(ackButton));
+
+        java.util.List<Map<String, Object>> buttons = new java.util.ArrayList<>();
+        elderOpt.filter(e -> e.getPhone() != null && !e.getPhone().isBlank())
+                .ifPresent(elder -> buttons.add(buildCallElderButton(elder)));
+        buttons.add(buildAckButton(task));
+        footer.put("contents", buttons);
         bubble.put("footer", footer);
 
         return bubble;
+    }
+
+    /** 「📞 打給長輩」按鈕 — LINE 收到後直接喚起手機撥號。 */
+    private static Map<String, Object> buildCallElderButton(ElderProfile elder) {
+        String label = "📞 打給" + safeShortName(elder.getName());
+        Map<String, Object> action = new LinkedHashMap<>();
+        action.put("type", "uri");
+        action.put("label", label);
+        action.put("uri", "tel:" + elder.getPhone().replaceAll("\\s+", ""));
+        Map<String, Object> button = new LinkedHashMap<>();
+        button.put("type", "button");
+        button.put("style", "primary");
+        button.put("color", "#E6A23C");
+        button.put("height", "sm");
+        button.put("action", action);
+        return button;
+    }
+
+    /** 「我收到了」postback 按鈕 — webhook 接收後觸發 ACKNOWLEDGE。 */
+    private static Map<String, Object> buildAckButton(CareTask task) {
+        Map<String, Object> action = new LinkedHashMap<>();
+        action.put("type", "postback");
+        action.put("label", "我收到了");
+        action.put("data", "ack:" + task.getId());
+        action.put("displayText", "我收到任務 #" + task.getId());
+        Map<String, Object> button = new LinkedHashMap<>();
+        button.put("type", "button");
+        button.put("style", "primary");
+        button.put("color", "#67C23A");
+        button.put("height", "sm");
+        button.put("action", action);
+        return button;
+    }
+
+    /** Flex button label 最長 20 字（LINE 規範）；過長截斷避免 push 失敗。 */
+    private static String safeShortName(String name) {
+        if (name == null || name.isBlank()) return "長輩";
+        // 「📞 打給」3 字 + emoji，扣掉後留 17 全寬字元給名字（保守取 10 半形寬）
+        return name.length() > 10 ? name.substring(0, 10) : name;
     }
 
     private static boolean isHighPriority(Optional<CareEvent> ev) {

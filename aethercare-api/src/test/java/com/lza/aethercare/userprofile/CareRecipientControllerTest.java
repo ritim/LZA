@@ -9,6 +9,7 @@ import com.lza.aethercare.userprofile.dto.ElderEventItem;
 import com.lza.aethercare.userprofile.dto.ElderProfileResponse;
 import com.lza.aethercare.userprofile.dto.ObservationSettingsResponse;
 import com.lza.aethercare.userprofile.dto.UpdateObservationSettingsRequest;
+import com.lza.aethercare.userprofile.service.CheckInHistoryService;
 import com.lza.aethercare.userprofile.service.ElderProfileService;
 import com.lza.aethercare.userprofile.service.ObservationSettingsService;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,7 @@ class CareRecipientControllerTest {
 
     @Mock ElderProfileService elderProfileService;
     @Mock ObservationSettingsService observationSettingsService;
+    @Mock CheckInHistoryService checkInHistoryService;
 
     MockMvc mvc;
     final ObjectMapper json = new ObjectMapper()
@@ -53,7 +55,7 @@ class CareRecipientControllerTest {
     @BeforeEach
     void setUp() {
         CareRecipientController controller = new CareRecipientController(
-                elderProfileService, observationSettingsService);
+                elderProfileService, observationSettingsService, checkInHistoryService);
         // 預設 standalone setup 不註冊 JavaTimeModule，LocalTime 會被序列化成 [9,0] array；
         // 自帶 ObjectMapper 才能拿到 ISO "09:00:00"。
         mvc = MockMvcBuilders.standaloneSetup(controller)

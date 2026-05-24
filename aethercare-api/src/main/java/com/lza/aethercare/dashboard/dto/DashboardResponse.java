@@ -50,6 +50,22 @@ public record DashboardResponse(
     public record ElderRef(Long id, String name, Integer age) {
     }
 
+    /**
+     * 任務派發對象 + LINE 綁定狀態，供 dashboard 卡片顯示「目前由 XXX 處理（已綁 LINE）」。
+     *
+     * @param id               assignee 的 AppUser.id
+     * @param displayName      AppUser.display_name；查不到時 null（前端 fallback 顯示 #id）
+     * @param lineDisplayName  CaregiverLineBinding.line_display_name；未綁定為 null
+     * @param lineBound        綁定旗標 — 前端用來決定是否畫綠色「LINE 已綁」chip
+     */
+    public record AssigneeRef(
+            Long id,
+            String displayName,
+            String lineDisplayName,
+            boolean lineBound
+    ) {
+    }
+
     public record SlaInfo(
             OffsetDateTime deadlineAt,
             long remainingSeconds,
@@ -61,6 +77,7 @@ public record DashboardResponse(
             Long id,
             Long workflowId,
             ElderRef elder,
+            AssigneeRef assignee,
             CareEventType type,
             RiskLevel riskLevel,
             String status,

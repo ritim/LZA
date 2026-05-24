@@ -61,6 +61,14 @@ public class ElderProfile {
     @Column(name = "address", length = 255)
     private String address;
 
+    /**
+     * 長者本人電話。nullable（不是所有長者都會用手機 / 提供電話）。
+     * 用於 LINE Flex Message「📞 打給長輩」按鈕（tel: URI）。
+     * 注意：跟 {@link ElderContact#getPhone()} 不同 — ElderContact.phone 是家屬電話。
+     */
+    @Column(name = "phone", length = 50)
+    private String phone;
+
     @Column(name = "emergency_notes", columnDefinition = "TEXT")
     private String emergencyNotes;
 

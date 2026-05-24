@@ -11,6 +11,12 @@ const isHighRisk = computed(() =>
   props.event.riskLevel === 'HIGH' || props.event.riskLevel === 'CRITICAL',
 );
 
+const assigneeText = computed<string>(() => {
+  const a = props.event.assignee;
+  if (!a) return '';
+  return a.displayName || `#${a.id}`;
+});
+
 const eventTypeText = computed<string>(() => {
   switch (props.event.type) {
     case 'FALL_DETECTED':
@@ -60,6 +66,21 @@ function open() {
     </div>
     <div class="meta" v-if="event.location">地點：{{ event.location }}</div>
     <div class="meta">狀態：{{ event.status }}</div>
+    <div class="meta assignee" v-if="event.assignee">
+      <span>派發給：{{ assigneeText }}</span>
+      <el-tag
+        v-if="event.assignee.lineBound"
+        size="small"
+        type="success"
+        effect="plain"
+        class="line-chip"
+      >
+        📱 LINE：{{ event.assignee.lineDisplayName || event.assignee.displayName || '已綁定' }}
+      </el-tag>
+      <el-tag v-else size="small" type="info" effect="plain" class="line-chip">
+        ⚠️ 未綁 LINE
+      </el-tag>
+    </div>
     <SlaCountdownBar v-if="event.sla" :deadline-at="event.sla.deadlineAt" :status="event.status" />
     <div class="cta">
       <el-button type="primary" :size="isHighRisk ? 'large' : 'default'" @click.stop="open">
@@ -101,6 +122,17 @@ function open() {
   color: #606266;
   font-size: 13px;
   margin-bottom: 4px;
+}
+
+.assignee {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.line-chip {
+  font-weight: 500;
 }
 
 .cta {

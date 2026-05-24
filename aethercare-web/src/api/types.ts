@@ -226,10 +226,18 @@ export interface DashboardElderRef {
   age: number | null;
 }
 
+export interface DashboardAssigneeRef {
+  id: number;
+  displayName: string | null;
+  lineDisplayName: string | null;
+  lineBound: boolean;
+}
+
 export interface DashboardActiveEventItem {
   id: number;
   workflowId: number;
   elder: DashboardElderRef;
+  assignee: DashboardAssigneeRef | null;
   type: CareEventType;
   riskLevel: RiskLevel;
   status: string;

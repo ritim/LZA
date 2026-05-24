@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0024-add-elder-profile-phone
+      author: claude
+      comment: |-
+        elder_profile 新增 phone 欄位（長輩本人電話）。
+        用於 LINE Flex Message「📞 打給長輩」按鈕（tel: URI）；
+        elder_contact.phone 仍是緊急聯絡人（家屬）電話，不同語意。
+        既有兩筆 demo elder 補上 demo 號碼，方便測試 LINE Flex button。
+      changes:
+        - addColumn:
+            tableName: elder_profile
+            columns:
+              - column:
+                  name: phone
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: true
+        - update:
+            tableName: elder_profile
+            columns:
+              - column:
+                  name: phone
+                  value: "+886900000301"
+            where: "id = 301"
+        - update:
+            tableName: elder_profile
+            columns:
+              - column:
+                  name: phone
+                  value: "+886900001001"
+            where: "id = 1001"
+      rollback:
+        - dropColumn:
+            tableName: elder_profile
+            columnName: phone

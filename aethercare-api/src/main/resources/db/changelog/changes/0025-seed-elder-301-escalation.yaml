@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0025-seed-elder-301-escalation
+      author: claude
+      comment: |-
+        為 elder_id=301（王美玉，非 demo button）補 escalation 鏈，使其與 elder_id=1001
+        一致：level 1 → family01 (app_user.id=2, LINE 30s)、level 2 → family02 (id=3,
+        LINE 60s)。
+        ㄧ：channel 用 LINE（兩層皆 LINE），讓 LINE 推播鏈路在 elder=301 也跑得起來。
+        二：sla_seconds 仿 elder=1001（30 / 60）；demo 中要快速看到 escalation。
+        三：用 onMissingExisting=IGNORE 確保 0021 align 已存在的情境也安全（重跑不會壞）。
+      changes:
+        - insert:
+            tableName: care_contact_escalation
+            columns:
+              - column:
+                  name: elder_id
+                  valueNumeric: 301
+              - column:
+                  name: contact_user_id
+                  valueNumeric: 2
+              - column:
+                  name: level
+                  valueNumeric: 1
+              - column:
+                  name: channel
+                  value: LINE
+              - column:
+                  name: sla_seconds
+                  valueNumeric: 30
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: care_contact_escalation
+            columns:
+              - column:
+                  name: elder_id
+                  valueNumeric: 301
+              - column:
+                  name: contact_user_id
+                  valueNumeric: 3
+              - column:
+                  name: level
+                  valueNumeric: 2
+              - column:
+                  name: channel
+                  value: LINE
+              - column:
+                  name: sla_seconds
+                  valueNumeric: 60
+              - column:
+                  name: enabled
+                  valueBoolean: true
+      rollback:
+        - delete:
+            tableName: care_contact_escalation
+            where: "elder_id = 301 AND contact_user_id IN (2, 3)"

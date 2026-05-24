@@ -9,6 +9,7 @@ import com.lza.aethercare.audit.repository.CareAuditLogRepository;
 import com.lza.aethercare.common.time.Clock;
 import com.lza.aethercare.dashboard.dto.DashboardResponse;
 import com.lza.aethercare.dashboard.dto.DashboardResponse.ActiveEventItem;
+import com.lza.aethercare.dashboard.dto.DashboardResponse.AssigneeRef;
 import com.lza.aethercare.dashboard.dto.DashboardResponse.ElderRef;
 import com.lza.aethercare.dashboard.dto.DashboardResponse.SlaInfo;
 import com.lza.aethercare.dashboard.dto.DashboardResponse.Summary;
@@ -16,9 +17,13 @@ import com.lza.aethercare.dashboard.dto.DashboardResponse.TimelineItem;
 import com.lza.aethercare.event.entity.CareEvent;
 import com.lza.aethercare.event.enums.RiskLevel;
 import com.lza.aethercare.event.repository.CareEventRepository;
+import com.lza.aethercare.notification.line.entity.CaregiverLineBinding;
+import com.lza.aethercare.notification.line.repository.CaregiverLineBindingRepository;
 import com.lza.aethercare.task.entity.CareTask;
 import com.lza.aethercare.task.repository.CareTaskRepository;
+import com.lza.aethercare.userprofile.entity.AppUser;
 import com.lza.aethercare.userprofile.entity.ElderProfile;
+import com.lza.aethercare.userprofile.repository.AppUserRepository;
 import com.lza.aethercare.userprofile.repository.ElderProfileRepository;
 import com.lza.aethercare.workflow.entity.CareWorkflowInstance;
 import com.lza.aethercare.workflow.enums.CareWorkflowStatus;
@@ -56,6 +61,8 @@ public class DashboardService {
     private final CareWorkflowInstanceRepository workflowRepo;
     private final CareEventRepository eventRepo;
     private final ElderProfileRepository elderRepo;
+    private final AppUserRepository appUserRepo;
+    private final CaregiverLineBindingRepository lineBindingRepo;
     private final CareAuditLogRepository auditRepo;
     private final ElderActivityEventRepository activityRepo;
     private final ObjectMapper objectMapper;
@@ -86,6 +93,16 @@ public class DashboardService {
         Map<Long, ElderProfile> eldersById = elderRepo.findAllById(elderIds).stream()
                 .collect(java.util.stream.Collectors.toMap(ElderProfile::getId, e -> e));
 
+        // 預取 assignee 對應的 AppUser + LINE binding，避免每張卡都打一次 DB
+        List<Long> assigneeIds = activeTasks.stream()
+                .map(CareTask::getAssigneeId).filter(java.util.Objects::nonNull).distinct().toList();
+        Map<Long, AppUser> assigneesById = appUserRepo.findAllById(assigneeIds).stream()
+                .collect(java.util.stream.Collectors.toMap(AppUser::getId, u -> u));
+        Map<Long, CaregiverLineBinding> bindingsByCaregiverId =
+                lineBindingRepo.findByCaregiverIdIn(assigneeIds).stream()
+                        .collect(java.util.stream.Collectors.toMap(
+                                CaregiverLineBinding::getCaregiverId, b -> b));
+
         List<ActiveEventItem> active = new ArrayList<>();
         int normal = 0, attention = 0, alert = 0;
         int expiredTaskCount = 0;
@@ -102,6 +119,9 @@ public class DashboardService {
                     ? new ElderRef(ev.getElderId(), null, null)
                     : new ElderRef(elder.getId(), elder.getName(), elder.getAge());
 
+            AssigneeRef assigneeRef = buildAssigneeRef(
+                    t.getAssigneeId(), assigneesById, bindingsByCaregiverId);
+
             SlaInfo sla = buildSla(t, now);
             String location = parseLocation(ev.getMetadata());
 
@@ -109,6 +129,7 @@ public class DashboardService {
                     ev.getId(),
                     wf.getId(),
                     elderRef,
+                    assigneeRef,
                     ev.getEventType(),
                     ev.getRiskLevel(),
                     wf.getStatus().name(),
@@ -168,6 +189,22 @@ public class DashboardService {
                 .toLocalDate()
                 .atStartOfDay(DEMO_ZONE)
                 .toOffsetDateTime();
+    }
+
+    /**
+     * 組 AssigneeRef：assigneeId 為 null 時整個 record 回 null（沒派發對象，UI 不用渲染）；
+     * AppUser 查不到時 displayName=null（前端 fallback 顯示 #id）；
+     * LineBinding 缺少代表 caregiver 還沒綁 LINE — lineBound=false 讓 UI 提示「未綁 LINE」。
+     */
+    private AssigneeRef buildAssigneeRef(Long assigneeId,
+                                          Map<Long, AppUser> assigneesById,
+                                          Map<Long, CaregiverLineBinding> bindingsById) {
+        if (assigneeId == null) return null;
+        AppUser user = assigneesById.get(assigneeId);
+        CaregiverLineBinding binding = bindingsById.get(assigneeId);
+        String displayName = user == null ? null : user.getDisplayName();
+        String lineDisplayName = binding == null ? null : binding.getLineDisplayName();
+        return new AssigneeRef(assigneeId, displayName, lineDisplayName, binding != null);
     }
 
     private SlaInfo buildSla(CareTask t, OffsetDateTime now) {

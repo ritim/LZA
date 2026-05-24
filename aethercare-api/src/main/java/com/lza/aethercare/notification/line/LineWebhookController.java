@@ -2,7 +2,15 @@ package com.lza.aethercare.notification.line;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lza.aethercare.action.dto.CreateCareActionRequest;
+import com.lza.aethercare.action.enums.CareActionType;
+import com.lza.aethercare.action.service.CareActionService;
+import com.lza.aethercare.common.error.BusinessException;
+import com.lza.aethercare.common.error.ErrorCode;
+import com.lza.aethercare.notification.line.entity.CaregiverLineBinding;
+import com.lza.aethercare.notification.line.repository.CaregiverLineBindingRepository;
 import com.lza.aethercare.notification.line.service.LineBindingService;
+import com.lza.aethercare.tenant.context.TenantContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
@@ -46,6 +54,8 @@ public class LineWebhookController {
     private final ObjectMapper objectMapper;
     private final LineBindingService bindingService;
     private final ObjectProvider<LineMessagingClient> lineClientProvider;
+    private final CaregiverLineBindingRepository bindingRepo;
+    private final CareActionService careActionService;
 
     /** 健康檢查：方便瀏覽器手動測連線。LINE 本身一律 POST。 */
     @GetMapping("/webhook")
@@ -89,21 +99,79 @@ public class LineWebhookController {
     }
 
     /**
-     * Postback：目前處理 Flex Message「我收到了」按鈕（data={@code ack:<taskId>}）。
-     * MVP 只 reply 確認 + log；真實 ACKNOWLEDGE 走 dashboard 操作，後續可接 CareActionService。
+     * Postback：處理 Flex Message「我收到了」按鈕（data={@code ack:<taskId>}）。
+     *
+     * <p>實接 {@link CareActionService#handle}：以 binding 表反查 caregiverId / tenantId，
+     * 觸發 ACKNOWLEDGE 內部語意 — task 由 PENDING → ACKNOWLEDGED、寫 CareAction、audit、kafka。
+     * 不會把 workflow 結案（依 spec § Gap D「保留 workflow open」族），caregiver 仍需到 dashboard
+     * 做最後 CONFIRM_SAFE / ESCALATE。
      */
     private void handlePostback(JsonNode ev, String userId) {
         String data = ev.path("postback").path("data").asText("");
         String replyToken = ev.path("replyToken").asText(null);
         log.info("[LINE-WEBHOOK] postback userId={} data={}", userId, data);
-        if (!data.startsWith("ack:")) return;
+        if (!data.startsWith("ack:") || userId == null) return;
 
-        String taskId = data.substring(4).trim();
         LineMessagingClient client = lineClientProvider.getIfAvailable();
         if (client == null || replyToken == null) return;
-        client.replyText(replyToken,
-                "✅ 已記錄您收到任務 #" + taskId
-                        + "。請至 AetherCare Dashboard 完成後續處理動作。");
+
+        Long taskId = parseTaskId(data.substring(4).trim());
+        if (taskId == null) {
+            client.replyText(replyToken, "❌ 無法解析任務編號，請至 Dashboard 處理。");
+            return;
+        }
+
+        Optional<CaregiverLineBinding> bindingOpt = bindingRepo.findByLineUserId(userId);
+        if (bindingOpt.isEmpty()) {
+            client.replyText(replyToken,
+                    "⚠️ 您的 LINE 尚未綁定任何照護者帳號，無法回應任務。"
+                            + "請至 AetherCare Dashboard 取得綁定碼。");
+            return;
+        }
+        CaregiverLineBinding binding = bindingOpt.get();
+
+        String reply = tryAcknowledge(binding, taskId);
+        client.replyText(replyToken, reply);
+    }
+
+    /** 在綁定的 tenant scope 下執行 ACKNOWLEDGE；finally 清掉 ThreadLocal 避免污染 thread pool。 */
+    private String tryAcknowledge(CaregiverLineBinding binding, Long taskId) {
+        TenantContext.set(binding.getTenantId());
+        try {
+            CreateCareActionRequest req = CreateCareActionRequest.builder()
+                    .actionType(CareActionType.ACKNOWLEDGE)
+                    .note("LINE postback ack (caregiverId=" + binding.getCaregiverId() + ")")
+                    .build();
+            careActionService.handle(taskId, binding.getCaregiverId(), req);
+            log.info("[LINE-WEBHOOK] ACKNOWLEDGE 成功 taskId={} caregiverId={}",
+                    taskId, binding.getCaregiverId());
+            return "✅ 已收到任務 #" + taskId + "。請至 AetherCare Dashboard 完成後續處理。";
+        } catch (BusinessException e) {
+            log.info("[LINE-WEBHOOK] ACKNOWLEDGE 拒絕 taskId={} caregiverId={} code={} msg={}",
+                    taskId, binding.getCaregiverId(), e.getCode(), e.getMessage());
+            if (e.getCode() == ErrorCode.TASK_ALREADY_FINALIZED) {
+                return "ℹ️ 此任務 #" + taskId + " 已被處理，無需再回應。";
+            }
+            if (e.getCode() == ErrorCode.NOT_FOUND) {
+                return "❌ 找不到任務 #" + taskId + "，可能已被移除。";
+            }
+            return "⚠️ 系統暫時無法處理，請至 Dashboard 操作（任務 #" + taskId + "）。";
+        } catch (RuntimeException e) {
+            log.warn("[LINE-WEBHOOK] ACKNOWLEDGE 例外 taskId={} caregiverId={}",
+                    taskId, binding.getCaregiverId(), e);
+            return "⚠️ 系統異常，請至 Dashboard 操作（任務 #" + taskId + "）。";
+        } finally {
+            TenantContext.clear();
+        }
+    }
+
+    private static Long parseTaskId(String raw) {
+        if (raw == null || raw.isBlank()) return null;
+        try {
+            return Long.valueOf(raw);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     /**
