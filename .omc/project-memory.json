@@ -9,7 +9,7 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "until [ ! -d /proc/$(pgrep -f \"gradlew\" | head -1) ] 2>/dev/null && [ ! -d /proc/$(pgrep -f \"vue-tsc\" | head -1) ] 2>/dev/null; do sleep 4; done; echo \"=== gradle ===\"; rtk read /private/tmp/claude-501/-Users-yao-0-Projects-LZA/0e6870d1-2f20-4623-bf80-58173e73eb6d/tasks/bxyy8f4on.output --tail-lines 20; echo \"=== vue-tsc ===\"; rtk read /private/tmp/claude-501/-Users-yao-0-Projects-LZA/0e6870d1-2f20-4623-bf80-58173e73eb6d/tasks/b0oicbvfh.output --tail-lines 30",
+    "buildCommand": "cd /Users/yao/0.Projects/LZA/aethercare-web && rtk npx vue-tsc --noEmit 2>&1 | tail -15",
     "testCommand": null,
     "lintCommand": null,
     "devCommand": null,
@@ -122,15 +122,21 @@
   },
   "hotPaths": [
     {
+      "path": "aethercare-api/src/main/java/com/lza/aethercare/notification/service/NotificationService.java",
+      "accessCount": 18,
+      "lastAccessed": 1779631322233,
+      "type": "file"
+    },
+    {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/recipient/service/RecipientNotificationService.java",
       "accessCount": 14,
       "lastAccessed": 1779595291355,
       "type": "file"
     },
     {
-      "path": "aethercare-api/src/main/java/com/lza/aethercare/notification/service/NotificationService.java",
-      "accessCount": 13,
-      "lastAccessed": 1779624896534,
+      "path": "aethercare-web/src/views/RecipientView.vue",
+      "accessCount": 12,
+      "lastAccessed": 1779631735244,
       "type": "file"
     },
     {
@@ -158,6 +164,12 @@
       "type": "file"
     },
     {
+      "path": "aethercare-api/src/main/resources/application.yml",
+      "accessCount": 6,
+      "lastAccessed": 1779631406173,
+      "type": "file"
+    },
+    {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/userprofile/controller/CareRecipientController.java",
       "accessCount": 5,
       "lastAccessed": 1779546605311,
@@ -182,6 +194,12 @@
       "type": "file"
     },
     {
+      "path": "aethercare-web/src/views/DashboardView.vue",
+      "accessCount": 5,
+      "lastAccessed": 1779630688676,
+      "type": "file"
+    },
+    {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/aichat/rules/TemplateLlmReplyGenerator.java",
       "accessCount": 4,
       "lastAccessed": 1779462303093,
@@ -191,18 +209,6 @@
       "path": "aethercare-web/src/components/AiCareChatPanel.vue",
       "accessCount": 4,
       "lastAccessed": 1779543305002,
-      "type": "file"
-    },
-    {
-      "path": "aethercare-api/src/main/resources/application.yml",
-      "accessCount": 4,
-      "lastAccessed": 1779544664787,
-      "type": "file"
-    },
-    {
-      "path": "aethercare-web/src/views/DashboardView.vue",
-      "accessCount": 4,
-      "lastAccessed": 1779594449826,
       "type": "file"
     },
     {
@@ -278,6 +284,12 @@
       "type": "file"
     },
     {
+      "path": "aethercare-web/src/router.ts",
+      "accessCount": 2,
+      "lastAccessed": 1779630088437,
+      "type": "file"
+    },
+    {
       "path": "aethercare-api/src/main/java/com/lza/aethercare/AethercareApiApplication.java",
       "accessCount": 1,
       "lastAccessed": 1779450539169,
@@ -350,12 +362,6 @@
       "type": "file"
     },
     {
-      "path": "aethercare-web/src/views/RecipientView.vue",
-      "accessCount": 1,
-      "lastAccessed": 1779545555868,
-      "type": "file"
-    },
-    {
       "path": "aethercare-web/src/api/recipient.ts",
       "accessCount": 1,
       "lastAccessed": 1779545566694,
@@ -389,12 +395,6 @@
       "path": "aethercare-api/src/main/java/com/lza/aethercare/userprofile/service/CheckInHistoryService.java",
       "accessCount": 1,
       "lastAccessed": 1779546583266,
-      "type": "file"
-    },
-    {
-      "path": "aethercare-web/src/router.ts",
-      "accessCount": 1,
-      "lastAccessed": 1779546753010,
       "type": "file"
     },
     {

@@ -9,7 +9,10 @@ import com.lza.aethercare.common.error.ErrorCode;
 import com.lza.aethercare.notification.line.entity.CaregiverLineBinding;
 import com.lza.aethercare.notification.line.repository.CaregiverLineBindingRepository;
 import com.lza.aethercare.notification.line.service.LineBindingService;
+import com.lza.aethercare.task.entity.CareTask;
+import com.lza.aethercare.task.service.CareTaskService;
 import com.lza.aethercare.tenant.context.TenantContext;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,6 +65,7 @@ class LineWebhookControllerTest {
     @Mock LineMessagingClient lineClient;
     @Mock CaregiverLineBindingRepository bindingRepo;
     @Mock CareActionService careActionService;
+    @Mock CareTaskService careTaskService;
 
     LineWebhookController controller;
 
@@ -70,7 +74,8 @@ class LineWebhookControllerTest {
         LineProperties props = new LineProperties(true, SECRET, "token", List.of());
         controller = new LineWebhookController(
                 props, new ObjectMapper(), bindingService,
-                lineClientProvider, bindingRepo, careActionService);
+                lineClientProvider, bindingRepo, careActionService, careTaskService);
+        ReflectionTestUtils.setField(controller, "webBaseUrl", "http://test.local");
         when(lineClientProvider.getIfAvailable()).thenReturn(lineClient);
     }
 
@@ -83,6 +88,9 @@ class LineWebhookControllerTest {
     @Test
     void postback_ack_with_binding_should_invoke_acknowledge_and_reply_success() {
         givenBindingExists();
+        // task → eventId 用於 reply 中的 dashboard deep link
+        given(careTaskService.findById(555L)).willReturn(Optional.of(
+                CareTask.builder().id(555L).eventId(8888L).build()));
 
         ResponseEntity<Void> resp = postWebhook(postbackBody("ack:555"));
 
@@ -93,8 +101,15 @@ class LineWebhookControllerTest {
         assertThat(reqCap.getValue().getActionType()).isEqualTo(CareActionType.ACKNOWLEDGE);
         assertThat(reqCap.getValue().getNote()).contains(String.valueOf(CAREGIVER_ID));
 
-        verify(lineClient).replyText(eq("rt-555"),
-                org.mockito.ArgumentMatchers.contains("已收到任務 #555"));
+        ArgumentCaptor<String> replyCap = ArgumentCaptor.forClass(String.class);
+        verify(lineClient).replyText(eq("rt-555"), replyCap.capture());
+        String reply = replyCap.getValue();
+        assertThat(reply).contains("已記錄您收到任務 #555");
+        // 必須警告「收到 != 已處理」，避免家屬誤以為流程已結
+        assertThat(reply).contains("僅代表");
+        // deep link 必須帶 event id 而非 dashboard fallback
+        assertThat(reply).contains("http://test.local/caregiver/events/8888");
+
         // ThreadLocal 必須在離開 controller 後被清掉
         assertThat(TenantContext.get()).isNull();
     }

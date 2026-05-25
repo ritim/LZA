@@ -78,6 +78,9 @@ management:
       enabled: true
 
 aethercare:
+  # Caregiver dashboard 公開 URL — 用於 LINE 回覆 / 通知中引導家屬「打開 dashboard 處理」
+  web:
+    base-url: ${AETHERCARE_WEB_BASE_URL:http://localhost:5173}
   kafka:
     topics:
       event-created: care.event.created

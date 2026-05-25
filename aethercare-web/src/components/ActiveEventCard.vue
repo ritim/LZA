@@ -38,6 +38,13 @@ function open() {
     params: { eventId: String(props.event.id) },
   });
 }
+
+function openElder() {
+  router.push({
+    name: 'care-profile',
+    params: { elderId: String(props.event.elder.id) },
+  });
+}
 </script>
 
 <template>
@@ -59,10 +66,13 @@ function open() {
     </div>
     <h3 class="title">{{ eventTypeText }}</h3>
     <div class="meta">
-      <span v-if="event.elder.name"
-        >被照顧者：{{ event.elder.name }}<span v-if="event.elder.age">（{{ event.elder.age }}歲）</span></span
-      >
-      <span v-else>被照顧者：#{{ event.elder.id }}</span>
+      <span>被照顧者：</span>
+      <a class="elder-link" @click.stop="openElder">
+        <template v-if="event.elder.name">
+          {{ event.elder.name }}<span v-if="event.elder.age">（{{ event.elder.age }}歲）</span>
+        </template>
+        <template v-else>#{{ event.elder.id }}</template>
+      </a>
     </div>
     <div class="meta" v-if="event.location">地點：{{ event.location }}</div>
     <div class="meta">狀態：{{ event.status }}</div>
@@ -133,6 +143,16 @@ function open() {
 
 .line-chip {
   font-weight: 500;
+}
+
+.elder-link {
+  color: #409eff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.elder-link:hover {
+  color: #66b1ff;
 }
 
 .cta {

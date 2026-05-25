@@ -8,19 +8,26 @@ import type { ApiErrorBody } from '../api/types';
 
 const route = useRoute();
 
-const recipientId = computed<number>(() => {
+// 「裝置未設定」防呆 — URL 沒帶 ?id=<elderId> 視為裝置沒被照顧者部署設定好，
+// 直接擋掉所有按鈕，避免假動作（送 check-in 到不存在的 elder 但 UI 顯示成功）。
+const recipientId = computed<number | null>(() => {
   const raw = route.query.id;
-  const parsed = typeof raw === 'string' ? Number.parseInt(raw, 10) : NaN;
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+  if (typeof raw !== 'string') return null;
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 });
+const deviceConfigured = computed<boolean>(() => recipientId.value !== null);
 
 const submitting = ref<null | 'CHECK_IN' | 'SOS' | 'FEELING_UNWELL' | 'CALL_FAMILY'>(null);
 const lastAction = ref<{ kind: string; at: string; message: string } | null>(null);
 
-const familyTel = computed<string>(() => {
+// 「打給家人」電話：必須由 URL 帶入 ?familyTel=tel:0912... — 沒帶就**禁用按鈕**，
+// 不再 fallback 到假號碼避免撥到陌生人手機。
+const familyTel = computed<string | null>(() => {
   const raw = route.query.familyTel;
-  return typeof raw === 'string' && raw ? raw : 'tel:0911000111';
+  return typeof raw === 'string' && raw.startsWith('tel:') ? raw : null;
 });
+const familyTelConfigured = computed<boolean>(() => familyTel.value !== null);
 
 function describeError(err: unknown): string {
   if (axios.isAxiosError(err)) {
@@ -39,21 +46,24 @@ function recordResult(kind: string, message: string) {
 }
 
 async function onCheckIn() {
+  if (recipientId.value === null) return;
   submitting.value = 'CHECK_IN';
   try {
     const resp = await postCheckIn(recipientId.value);
-    recordResult('我今天還好', `已通知家人您今天平安（活動 #${resp.activityLogId}）。`);
-    ElMessage.success('已通知家人您今天平安。');
+    // 文案修正：check-in 只寫入 activity log，**家人不會即時收到 LINE 推播**；
+    // 改寫成「家人可隨時查看」更符合實際行為，避免長輩誤以為已主動驚動家人。
+    recordResult('我今天還好', `已紀錄您今天平安（活動 #${resp.activityLogId}），家人在 Dashboard 上隨時看得到。`);
+    ElMessage.success('已紀錄今天的平安狀態。');
   } catch (err) {
-    // CHECK_IN 失敗不應該讓使用者焦慮，給溫和提示。
     recordResult('我今天還好', `紀錄暫時送不出，請改用「打給家人」：${describeError(err)}`);
-    ElMessage.warning(`暫時無法通知，請改用「打給家人」：${describeError(err)}`);
+    ElMessage.warning(`暫時無法紀錄，請改用「打給家人」：${describeError(err)}`);
   } finally {
     submitting.value = null;
   }
 }
 
 async function onSos() {
+  if (recipientId.value === null) return;
   const confirmed = await ElMessageBox.confirm(
     '系統會立即通知您的家人協助。確認需要幫忙嗎？',
     '我需要幫忙',
@@ -75,6 +85,7 @@ async function onSos() {
 }
 
 async function onFeelingUnwell() {
+  if (recipientId.value === null) return;
   const symptom = await ElMessageBox.prompt('請簡短描述哪裡不舒服（例如：頭痛、胸悶、想吐）', '身體不舒服', {
     confirmButtonText: '通知家人',
     cancelButtonText: '取消',
@@ -98,9 +109,14 @@ async function onFeelingUnwell() {
   }
 }
 
-function onCallFamily() {
+function onCallFamily(event: Event) {
+  if (!familyTel.value) {
+    event.preventDefault();
+    ElMessage.error('裝置尚未設定家人電話，請聯絡管理員。');
+    return;
+  }
   recordResult('打給家人', '撥號中…請拿起電話。');
-  window.location.href = familyTel.value;
+  // <a href> 已負責叫起撥號 app；這裡只做 UI 記錄。
 }
 </script>
 
@@ -108,13 +124,19 @@ function onCallFamily() {
   <div class="recipient-page">
     <header class="page-header">
       <h1>您好，請選擇您現在要做的事</h1>
-      <p class="hint">按下大按鈕後，家人會立即收到通知。</p>
+      <p class="hint">按下大按鈕，家人會在 Dashboard 看到，或直接收到 LINE 通報。</p>
     </header>
+
+    <!-- 裝置未設定（URL 沒帶 ?id=...）— 直接擋下所有按鈕，避免假動作 -->
+    <div v-if="!deviceConfigured" class="config-warning" role="alert">
+      <strong>⚠️ 此裝置尚未設定</strong>
+      <p>請聯絡家人或管理員開啟正確網址，否則無法通報。</p>
+    </div>
 
     <main class="actions">
       <button
         class="action-btn ok"
-        :disabled="submitting !== null"
+        :disabled="submitting !== null || !deviceConfigured"
         :aria-busy="submitting === 'CHECK_IN'"
         @click="onCheckIn"
       >
@@ -125,7 +147,7 @@ function onCallFamily() {
 
       <button
         class="action-btn help"
-        :disabled="submitting !== null"
+        :disabled="submitting !== null || !deviceConfigured"
         :aria-busy="submitting === 'SOS'"
         @click="onSos"
       >
@@ -136,7 +158,7 @@ function onCallFamily() {
 
       <button
         class="action-btn unwell"
-        :disabled="submitting !== null"
+        :disabled="submitting !== null || !deviceConfigured"
         :aria-busy="submitting === 'FEELING_UNWELL'"
         @click="onFeelingUnwell"
       >
@@ -145,10 +167,16 @@ function onCallFamily() {
         <span class="sub">告訴家人哪裡不適</span>
       </button>
 
-      <a class="action-btn call" :href="familyTel" @click="onCallFamily">
+      <a
+        class="action-btn call"
+        :href="familyTel ?? '#'"
+        :class="{ disabled: !familyTelConfigured }"
+        :aria-disabled="!familyTelConfigured"
+        @click="onCallFamily"
+      >
         <span class="emoji" aria-hidden="true">📞</span>
         <span class="label">打給家人</span>
-        <span class="sub">直接撥電話</span>
+        <span class="sub">{{ familyTelConfigured ? '直接撥電話' : '尚未設定家人電話' }}</span>
       </a>
     </main>
 
@@ -214,10 +242,26 @@ function onCallFamily() {
   color: #1f2d3d;
 }
 
-.action-btn:disabled {
-  opacity: 0.55;
+.action-btn:disabled,
+.action-btn.disabled {
+  opacity: 0.45;
   cursor: not-allowed;
+  filter: grayscale(0.4);
 }
+
+.config-warning {
+  background: #fff4cc;
+  border: 2px solid #f5a623;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 18px;
+  color: #663c00;
+}
+
+.config-warning strong { display: block; font-size: 22px; margin-bottom: 6px; }
+.config-warning p { margin: 0; font-size: 16px; }
 
 .action-btn:active:not(:disabled) {
   transform: translateY(2px);

@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AetherCare UX 深度批判報告</title>
+<style>
+:root {
+  --bg: #fafaf7;
+  --fg: #1c1c1e;
+  --fg-soft: #4a4a4f;
+  --muted: #7c7c83;
+  --accent: #b91c1c;
+  --accent-soft: #fff1f1;
+  --rule: #e6e3dc;
+  --quote-bg: #f4f1e8;
+  --quote-bar: #b91c1c;
+  --code-bg: #f0ede2;
+  --table-stripe: #f4f1e8;
+  --link: #0a5cbb;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1a1c;
+    --fg: #e8e8e6;
+    --fg-soft: #cccccb;
+    --muted: #8e8e92;
+    --accent: #ff6464;
+    --accent-soft: #2a1c1c;
+    --rule: #303033;
+    --quote-bg: #232325;
+    --quote-bar: #ff6464;
+    --code-bg: #26262a;
+    --table-stripe: #232325;
+    --link: #6fa8ff;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "PingFang TC", "Noto Sans CJK TC", "Microsoft JhengHei",
+    "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.85;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 0;
+}
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .toc { position: static; max-height: none; border-right: none; border-bottom: 1px solid var(--rule); }
+}
+.toc {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  max-height: 100vh;
+  overflow-y: auto;
+  padding: 24px 16px 24px 24px;
+  border-right: 1px solid var(--rule);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.toc h2 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+.toc ul { list-style: none; padding: 0; margin: 0; }
+.toc li { margin: 4px 0; }
+.toc li a {
+  color: var(--fg-soft);
+  text-decoration: none;
+  display: block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border-left: 2px solid transparent;
+}
+.toc li a:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-left-color: var(--accent);
+}
+.toc .toc-d1 { font-weight: 700; margin-top: 8px; }
+.toc .toc-d2 { padding-left: 8px; }
+.toc .toc-d3 { padding-left: 20px; color: var(--muted); }
+main {
+  padding: 48px 56px 96px;
+  max-width: 820px;
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  main { padding: 24px 20px 56px; }
+}
+.hero {
+  margin-bottom: 36px;
+  padding-bottom: 24px;
+  border-bottom: 3px double var(--rule);
+}
+.hero .kicker {
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.hero h1 {
+  font-size: 36px;
+  line-height: 1.25;
+  margin: 0 0 12px;
+  letter-spacing: -0.01em;
+}
+.hero .meta {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+h1, h2, h3, h4 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  scroll-margin-top: 16px;
+}
+h1 { font-size: 30px; margin: 56px 0 16px; border-bottom: 2px solid var(--rule); padding-bottom: 8px; }
+h2 { font-size: 23px; margin: 44px 0 12px; }
+h3 { font-size: 19px; margin: 32px 0 10px; color: var(--accent); }
+h4 { font-size: 16px; margin: 24px 0 8px; color: var(--fg-soft); }
+.anchor {
+  color: var(--rule);
+  text-decoration: none;
+  font-weight: 400;
+  margin-right: 6px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+h1:hover .anchor, h2:hover .anchor, h3:hover .anchor, h4:hover .anchor { opacity: 1; }
+p { margin: 12px 0; }
+ul, ol { padding-left: 1.6em; margin: 12px 0; }
+li { margin: 6px 0; }
+a { color: var(--link); }
+strong { color: var(--fg); font-weight: 700; }
+em { color: var(--fg-soft); }
+hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 36px 0;
+}
+blockquote {
+  margin: 18px 0;
+  padding: 12px 18px;
+  background: var(--quote-bg);
+  border-left: 4px solid var(--quote-bar);
+  border-radius: 4px;
+  color: var(--fg-soft);
+  font-style: normal;
+}
+blockquote p { margin: 6px 0; }
+blockquote strong { color: var(--accent); }
+code {
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+  font-size: 0.92em;
+}
+pre {
+  background: var(--code-bg);
+  padding: 14px 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+  line-height: 1.55;
+  font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+  font-size: 15px;
+}
+th, td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+th {
+  background: var(--quote-bg);
+  font-weight: 700;
+  border-bottom: 2px solid var(--rule);
+}
+tbody tr:nth-child(even) { background: var(--table-stripe); }
+/* 強調框 — 把 TL;DR section 弄起來 */
+main > h1:first-of-type + p,
+main > h1:first-of-type + p + ol {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 12px 18px;
+}
+/* 列印 */
+@media print {
+  body { font-size: 11pt; line-height: 1.6; }
+  .toc { display: none; }
+  .layout { grid-template-columns: 1fr; max-width: none; }
+  main { padding: 0 16px; max-width: none; }
+  h1, h2, h3 { page-break-after: avoid; }
+  blockquote, table { page-break-inside: avoid; }
+  pre, .config-warning { page-break-inside: avoid; }
+}
+.footnote {
+  margin-top: 60px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  font-size: 13px;
+  color: var(--muted);
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="toc" aria-label="目錄">
+    <h2>目錄</h2>
+    <ul>
+      <li class="toc-d1"><a href="#h-1-aethercare-ux-深度批判報告">AetherCare UX 深度批判報告</a></li>
+<li class="toc-d2"><a href="#h-2-tldr-三句話讀完報告">TL;DR — 三句話讀完報告</a></li>
+<li class="toc-d2"><a href="#h-3-對話結構導覽">對話結構導覽</a></li>
+<li class="toc-d1"><a href="#h-4-part-1-從三個-persona-切入的初步盤點">Part 1 — 從三個 persona 切入的初步盤點</a></li>
+<li class="toc-d2"><a href="#h-5-被照顧者王美玉82-歲">被照顧者王美玉（82 歲）</a></li>
+<li class="toc-d2"><a href="#h-6-家屬王先生主要照顧者下班中">家屬王先生（主要照顧者，下班中）</a></li>
+<li class="toc-d2"><a href="#h-7-家屬陳小姐次要照顧者升級時才收">家屬陳小姐（次要照顧者，升級時才收）</a></li>
+<li class="toc-d1"><a href="#h-8-part-2-codex-推出三個-round-1-root-issueclaude-全部承認">Part 2 — Codex 推出三個 Round 1 root issue（Claude 全部承認）</a></li>
+<li class="toc-d2"><a href="#h-9-1-真正的地雷不是誤按無法撤回而是事件結束的權力太集中">(1) 真正的地雷不是「誤按無法撤回」，而是「事件結束的權力太集中」</a></li>
+<li class="toc-d2"><a href="#h-10-2-升級鏈下一層更強的假設破產">(2) 升級鏈「下一層更強」的假設破產</a></li>
+<li class="toc-d2"><a href="#h-11-3-商業現實-vs-使用者利益的結構性矛盾">(3) 商業現實 vs 使用者利益的結構性矛盾</a></li>
+<li class="toc-d1"><a href="#h-12-part-3-codex-round-2-3-三個-underrated-議題">Part 3 — Codex Round 2-3 三個 underrated 議題</a></li>
+<li class="toc-d2"><a href="#h-13-議題-a-minimum-viable-promise-不是有人會救你">議題 A — Minimum Viable Promise 不是「有人會救你」</a></li>
+<li class="toc-d2"><a href="#h-14-議題-b-家庭願意被組織成流程是未驗證假設">議題 B — 「家庭願意被組織成流程」是未驗證假設</a></li>
+<li class="toc-d2"><a href="#h-15-議題-c-三年後存活形態家庭風險帳本">議題 C — 三年後存活形態：家庭風險帳本</a></li>
+<li class="toc-d1"><a href="#h-16-part-4-claude-round-3-加碼三個盲點codex-round-4-全部回應">Part 4 — Claude Round 3 加碼三個盲點（Codex Round 4 全部回應）</a></li>
+<li class="toc-d2"><a href="#h-17-盲點-1長者-agency-被結構性矮化">盲點 1：長者 agency 被結構性矮化</a></li>
+<li class="toc-d2"><a href="#h-18-盲點-2缺乏-ground-truth-feedback-loop">盲點 2：缺乏 ground-truth feedback loop</a></li>
+<li class="toc-d2"><a href="#h-19-盲點-3弱連結地理鄰近者被結構性排除">盲點 3：弱連結地理鄰近者被結構性排除</a></li>
+<li class="toc-d1"><a href="#h-20-part-5-round-4設計悖論-華人文化挑戰">Part 5 — Round 4：設計悖論 + 華人文化挑戰</a></li>
+<li class="toc-d2"><a href="#h-21-51-隱藏個人指責-刪除責任鏈">5.1 隱藏個人指責 ≠ 刪除責任鏈</a></li>
+<li class="toc-d2"><a href="#h-22-52-不該允許刪-ack-紀錄也不該-24h-匿名化">5.2 不該允許刪 ACK 紀錄，也不該 24h 匿名化</a></li>
+<li class="toc-d2"><a href="#h-23-53-結案權該拆兩層">5.3 結案權該拆兩層</a></li>
+<li class="toc-d2"><a href="#h-24-54-華人文化下家庭風險帳本仍成立-但使用時點不同">5.4 華人文化下「家庭風險帳本」仍成立 — 但使用時點不同</a></li>
+<li class="toc-d2"><a href="#h-25-55-不該變成責任模糊化工具">5.5 不該變成「責任模糊化工具」</a></li>
+<li class="toc-d2"><a href="#h-26-56-tam-本質是中等風險群">5.6 TAM 本質是「中等風險群」</a></li>
+<li class="toc-d1"><a href="#h-27-part-6-round-5具體化設計">Part 6 — Round 5：具體化設計</a></li>
+<li class="toc-d2"><a href="#h-28-61-長者反制權結案後-24h-狀態卡不是按鈕">6.1 長者反制權：結案後 24h 狀態卡（不是按鈕）</a></li>
+<li class="toc-d2"><a href="#h-29-62-責任閉環的核心資料欄位claude-提-5-條codex-增為-7">6.2 責任閉環的核心資料欄位（Claude 提 5 條，Codex 增為 7+）</a></li>
+<li class="toc-d2"><a href="#h-30-63-進入儀式-退出儀式">6.3 進入儀式 + 退出儀式</a></li>
+<li class="toc-d1"><a href="#h-31-part-7-codex-終局結論round-6">Part 7 — Codex 終局結論（Round 6）</a></li>
+<li class="toc-d2"><a href="#h-32-part-a5-條設計原則責任閉環-thesis-落地版">Part A：5 條設計原則（責任閉環 thesis 落地版）</a></li>
+<li class="toc-d2"><a href="#h-33-part-b保留-砍掉-新增">Part B：保留 / 砍掉 / 新增</a></li>
+<li class="toc-d2"><a href="#h-34-part-c三選一判斷">Part C：三選一判斷</a></li>
+<li class="toc-d2"><a href="#h-35-part-dmeta-反思">Part D：meta 反思</a></li>
+<li class="toc-d1"><a href="#h-36-part-8-給-aethercare-創辦人的一頁行動指引claude-綜合-claude-codex-觀點">Part 8 — 給 AetherCare 創辦人的一頁行動指引（Claude 綜合 Claude + Codex 觀點）</a></li>
+<li class="toc-d2"><a href="#h-37-立刻要做的-3-件事">立刻要做的 3 件事</a></li>
+<li class="toc-d3"><a href="#h-38-1-重寫產品定位文案不需要動程式碼">1. 重寫產品定位文案（不需要動程式碼）</a></li>
+<li class="toc-d3"><a href="#h-39-2-把-confirm_safe-大按鈕拆掉">2. 把 CONFIRM_SAFE 大按鈕拆掉</a></li>
+<li class="toc-d3"><a href="#h-40-3-寫出明確-tam-排除清單">3. 寫出明確 TAM 排除清單</a></li>
+<li class="toc-d2"><a href="#h-41-接下來-90-天要思考的-5-個問題">接下來 90 天要思考的 5 個問題</a></li>
+<li class="toc-d2"><a href="#h-42-永遠不要做的-3-件事">永遠不要做的 3 件事</a></li>
+<li class="toc-d1"><a href="#h-43-part-9-致命未解問題誠實標記等待後續驗證">Part 9 — 致命未解問題（誠實標記，等待後續驗證）</a></li>
+<li class="toc-d1"><a href="#h-44-附錄-a完整對話原文逐字稿">附錄 A：完整對話原文逐字稿</a></li>
+<li class="toc-d2"><a href="#h-45-a1-claude-round-1persona-盤點">A.1 Claude Round 1（persona 盤點）</a></li>
+<li class="toc-d2"><a href="#h-46-a2-codex-round-17-角度反駁-補洞">A.2 Codex Round 1（7 角度反駁 + 補洞）</a></li>
+<li class="toc-d2"><a href="#h-47-a3-claude-round-2三選一深問">A.3 Claude Round 2（三選一深問）</a></li>
+<li class="toc-d2"><a href="#h-48-a4-codex-round-2-3核心-reframe-5-條-hard-truth">A.4 Codex Round 2-3（核心 reframe + 5 條 hard truth）</a></li>
+<li class="toc-d3"><a href="#h-49-round-3被忽視的根本議題">Round 3：被忽視的根本議題</a></li>
+<li class="toc-d3"><a href="#h-50-5-條-hard-truth">5 條 Hard Truth</a></li>
+<li class="toc-d3"><a href="#h-51-一句話總結">一句話總結</a></li>
+<li class="toc-d2"><a href="#h-52-a5-claude-round-3加碼盲點">A.5 Claude Round 3（加碼盲點）</a></li>
+<li class="toc-d2"><a href="#h-53-a6-codex-round-4具體化回應-結構性-reframe">A.6 Codex Round 4（具體化回應 + 結構性 reframe）</a></li>
+<li class="toc-d3"><a href="#h-54-6-個-round-4-reframe完整列在-part-5">6 個 Round 4 reframe（完整列在 Part 5）</a></li>
+<li class="toc-d2"><a href="#h-55-a7-claude-round-5具體化推到實作層">A.7 Claude Round 5（具體化推到實作層）</a></li>
+<li class="toc-d2"><a href="#h-56-a8-codex-round-6終局結論完整列在-part-7">A.8 Codex Round 6（終局結論，完整列在 Part 7）</a></li>
+<li class="toc-d1"><a href="#h-57-附錄-b兩個-ai-對話的元層觀察">附錄 B：兩個 AI 對話的元層觀察</a></li>
+<li class="toc-d2"><a href="#h-58-b1-claude-與-codex-的風格差異">B.1 Claude 與 Codex 的風格差異</a></li>
+<li class="toc-d2"><a href="#h-59-b2-哪一個-round-最有-leverage">B.2 哪一個 round 最有 leverage？</a></li>
+<li class="toc-d2"><a href="#h-60-b3-哪一個-round-最弱">B.3 哪一個 round 最弱？</a></li>
+<li class="toc-d2"><a href="#h-61-b4-兩個-ai-都錯的可能">B.4 兩個 AI 都錯的可能</a></li>
+<li class="toc-d1"><a href="#h-62-報告結束">報告結束</a></li>
+    </ul>
+  </aside>
+  <main>
+    <div class="hero">
+      <div class="kicker">深度批判報告</div>
+      <h1>AetherCare UX 深度批判報告</h1>
+      <div class="meta">
+        2026-05-25 · Claude (Anthropic) × Codex (OpenAI) 五輪自主收斂<br>
+        報告檔案：<code>docs/ux-deep-critique-2026-05-25.html</code>
+      </div>
+    </div>
+    <h1 id="h-1-aethercare-ux-深度批判報告"><a class="anchor" href="#h-1-aethercare-ux-深度批判報告">§</a> AetherCare UX 深度批判報告</h1>
+<blockquote>
+<p>日期：2026-05-25
+對話雙方：Claude (Anthropic) + Codex (OpenAI)，5 輪自主收斂
+主題：站在被照顧者、家屬與護理 / 急救 / 社區角色的真實立場，批判 AetherCare 的使用流程
+規則：兩個 AI 不寫程式碼、不維護現有設計，純粹追問「這個產品實際在做什麼、誰會被它害到、誰真的會用」
+收斂 token 數：~53,300（5 輪 Codex 回應 + Claude 推敲）</p>
+</blockquote>
+<hr>
+<h2 id="h-2-tldr-三句話讀完報告"><a class="anchor" href="#h-2-tldr-三句話讀完報告">§</a> TL;DR — 三句話讀完報告</h2>
+<ol>
+<li><strong>AetherCare 不是照護系統，是家庭照護責任揭露工具。</strong> 它真正的最小可行承諾不是「救命」，而是「沒有人能假裝沒看見」。</li>
+<li><strong>它應該存在，但只服務一個明確人群</strong>：家庭仍存在、但照護協調已經開始失靈的家庭。獨居高危族群、健康無事族群、機構照護族群都不該是目標客群。</li>
+<li><strong>若創辦人只能聽一句話</strong>：「不要再說你在守護長者，你是在逼家庭承認誰沒有出手。」（Codex Round 6）</li>
+</ol>
+<hr>
+<h2 id="h-3-對話結構導覽"><a class="anchor" href="#h-3-對話結構導覽">§</a> 對話結構導覽</h2>
+<table>
+<thead>
+<tr>
+<th>Round</th>
+<th>推進者</th>
+<th>主題</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Claude</td>
+<td>7 角度 persona 盤點（27 個問題）</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Codex</td>
+<td>反駁 + 補洞（責任閉環、商業矛盾、時間維度）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Claude</td>
+<td>三選一深問（產品降級 / check-in 反向設計 / 資料審核權）</td>
+</tr>
+<tr>
+<td>2-3</td>
+<td>Codex</td>
+<td>「Minimum viable promise = 沒有人能假裝沒看見」+ 5 條 hard truth</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Claude</td>
+<td>加碼 3 個盲點（長者 agency / ground-truth / 弱連結鄰居）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Codex</td>
+<td>設計悖論 + 華人文化挑戰 6 個 reframe</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Claude</td>
+<td>具體化（反制按鈕 / 5 個資料欄位 / 進入退出儀式）</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Codex</td>
+<td>終局結論（5 條原則 / 12 條功能 / 三選一 / meta 反思）</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="h-4-part-1-從三個-persona-切入的初步盤點"><a class="anchor" href="#h-4-part-1-從三個-persona-切入的初步盤點">§</a> Part 1 — 從三個 persona 切入的初步盤點</h1>
+<h2 id="h-5-被照顧者王美玉82-歲"><a class="anchor" href="#h-5-被照顧者王美玉82-歲">§</a> 被照顧者王美玉（82 歲）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>真實場景的痛點</th>
+<th>嚴重度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>白內障 + 細字看不清，4 個按鈕的差異辨識度低</td>
+<td>中</td>
+</tr>
+<tr>
+<td>2</td>
+<td>手抖誤按 SOS 後<strong>不知道如何取消</strong> — 系統只說「家人已收到」</td>
+<td>高</td>
+</tr>
+<tr>
+<td>3</td>
+<td>「我需要幫忙」按完後家人到底做了什麼、多久會到？系統靜默</td>
+<td>高</td>
+</tr>
+<tr>
+<td>4</td>
+<td>「身體不舒服」要打字描述症狀 — 82 歲不會打字。應改為「頭暈 / 胸悶 / 跌倒 / 想吐」按鈕</td>
+<td>高</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>沒有「只是想跟家人聊兩句」的按鈕</strong> — 系統把每個互動都當「事件」處理，情感聯繫沒被照顧</td>
+<td>高</td>
+</tr>
+<tr>
+<td>6</td>
+<td>如果家人都沒接 LINE / 手機沒電，長者永遠不知道。沒有 fallback 到 119、社區護理員</td>
+<td>致命</td>
+</tr>
+<tr>
+<td>7</td>
+<td>「打給家人」實際撥誰、有幾支電話備援？系統不顯示</td>
+<td>中</td>
+</tr>
+</tbody></table>
+<h2 id="h-6-家屬王先生主要照顧者下班中"><a class="anchor" href="#h-6-家屬王先生主要照顧者下班中">§</a> 家屬王先生（主要照顧者，下班中）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>真實場景的痛點</th>
+<th>嚴重度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>8</td>
+<td>低風險事件（MISSED_CHECK_IN）跟高風險事件（SOS）用同樣 LINE 鈴聲</td>
+<td>高</td>
+</tr>
+<tr>
+<td>9</td>
+<td>SLA 30 秒、60 秒。<strong>會議中走不開</strong>。30 秒後升級給陳小姐 — 她也在上班，最後 UNRESOLVED。然後呢？</td>
+<td>致命</td>
+</tr>
+<tr>
+<td>10</td>
+<td>點「我收到了」之後就忘了。沒有後續提醒讓家屬完成 dashboard 的 CONFIRM_SAFE</td>
+<td>高</td>
+</tr>
+<tr>
+<td>11</td>
+<td>海外家屬常見。系統沒有時區感、沒有「值班輪流表」</td>
+<td>高</td>
+</tr>
+<tr>
+<td>12</td>
+<td>dashboard 只看到自己被分派的 task —「媽今天到底好不好」這個最核心的狀態看不到</td>
+<td>高</td>
+</tr>
+<tr>
+<td>13</td>
+<td>想加註「她去看醫生了，請勿打擾」— 沒地方加。系統繼續按 SLA 升級</td>
+<td>中</td>
+</tr>
+</tbody></table>
+<h2 id="h-7-家屬陳小姐次要照顧者升級時才收"><a class="anchor" href="#h-7-家屬陳小姐次要照顧者升級時才收">§</a> 家屬陳小姐（次要照顧者，升級時才收）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>真實場景的痛點</th>
+<th>嚴重度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>14</td>
+<td>LINE 響起對她來說就是「出大事」訊號 — 但實際上很多是「哥哥沒接而已」</td>
+<td>高</td>
+</tr>
+<tr>
+<td>15</td>
+<td>訊息裡看不到「哥哥已被通知但未回應」的脈絡</td>
+<td>中</td>
+</tr>
+<tr>
+<td>16</td>
+<td>如果兩人同時點「我收到了」會怎樣？沒有併發處理保證</td>
+<td>中</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="h-8-part-2-codex-推出三個-round-1-root-issueclaude-全部承認"><a class="anchor" href="#h-8-part-2-codex-推出三個-round-1-root-issueclaude-全部承認">§</a> Part 2 — Codex 推出三個 Round 1 root issue（Claude 全部承認）</h1>
+<h2 id="h-9-1-真正的地雷不是誤按無法撤回而是事件結束的權力太集中"><a class="anchor" href="#h-9-1-真正的地雷不是誤按無法撤回而是事件結束的權力太集中">§</a> (1) 真正的地雷不是「誤按無法撤回」，而是「事件結束的權力太集中」</h2>
+<blockquote>
+<p>Codex Round 1：「家屬按 CONFIRM_SAFE 後，系統把風險歸零，但長者本人、其他家屬、現場照護者都未必知道。這不是按鈕設計問題，是責任閉環被單一人吞掉。」</p>
+</blockquote>
+<p>CONFIRM_SAFE 是 binary，但「平安」是 multi-party state。媽說 OK、王先生說 OK、陳小姐沒看過任何事 — 系統當作風險歸零，但實際上沒有任何客觀驗證。</p>
+<p><strong>衍生地雷</strong>：LINE 到達不等於人有看見。已讀、推播、ACK 是三種不同狀態，系統若混用會製造<strong>假安全</strong>。</p>
+<h2 id="h-10-2-升級鏈下一層更強的假設破產"><a class="anchor" href="#h-10-2-升級鏈下一層更強的假設破產">§</a> (2) 升級鏈「下一層更強」的假設破產</h2>
+<blockquote>
+<p>Codex Round 1：「配偶同住老伴可能也是高齡、聽不見、手抖、害怕按錯；把他當第一回應者是假設錯誤。」</p>
+</blockquote>
+<p>90 歲爺爺收到 80 歲奶奶的 SOS，他能幹嘛？整套 escalation 模型假設升級鏈一層比一層強 — 但華人家庭結構不是這樣（同住者常常一起老，子女在海外，孫子是法律上不能負責的人）。</p>
+<h2 id="h-11-3-商業現實-vs-使用者利益的結構性矛盾"><a class="anchor" href="#h-11-3-商業現實-vs-使用者利益的結構性矛盾">§</a> (3) 商業現實 vs 使用者利益的結構性矛盾</h2>
+<blockquote>
+<p>Codex Round 1：「付錢者常不是使用者：子女付費、長者被安裝、護理師被要求登入。這會造成產品最佳化對象錯位。」</p>
+</blockquote>
+<ul>
+<li>保險公司付錢 → 想要風險分數 → 變成核保監控 → 長者抗拒 → 最該被照顧的人不裝</li>
+<li>機構採購 → 護理師多一個系統多一份責任 → 不用</li>
+<li>獨居高危族群最需要 → 但 MVP 依賴家屬協助設定 → 排除掉</li>
+</ul>
+<hr>
+<h1 id="h-12-part-3-codex-round-2-3-三個-underrated-議題"><a class="anchor" href="#h-12-part-3-codex-round-2-3-三個-underrated-議題">§</a> Part 3 — Codex Round 2-3 三個 underrated 議題</h1>
+<h2 id="h-13-議題-a-minimum-viable-promise-不是有人會救你"><a class="anchor" href="#h-13-議題-a-minimum-viable-promise-不是有人會救你">§</a> 議題 A — Minimum Viable Promise 不是「有人會救你」</h2>
+<blockquote>
+<p>Codex Round 3：「AetherCare 最誠實的最低承諾，應該是建立<strong>責任可見性</strong>。它不能保證救援，但可以讓事件狀態、誰知道、誰回應、誰沒有回應，變得不可含糊。」</p>
+</blockquote>
+<p><strong>徹底改變產品定位</strong>：不是 alert system，而是 <strong>accountability system</strong>。價值不在「發出警報」，而在防止家庭成員事後互相以為「應該有人處理了」。</p>
+<p>這比「救命」冷酷，但更真實。</p>
+<h2 id="h-14-議題-b-家庭願意被組織成流程是未驗證假設"><a class="anchor" href="#h-14-議題-b-家庭願意被組織成流程是未驗證假設">§</a> 議題 B — 「家庭願意被組織成流程」是未驗證假設</h2>
+<blockquote>
+<p>Codex Round 3：「很多家庭不是組織，而是情緒、虧欠、權力與逃避的混合體……家屬願意付錢買提醒，不代表願意被記錄『你沒有接』『你沒有確認』『你不是可靠照護者』。」</p>
+</blockquote>
+<p>產品一旦誠實 accountable，就會碰到家庭不想知道的真相。</p>
+<h2 id="h-15-議題-c-三年後存活形態家庭風險帳本"><a class="anchor" href="#h-15-議題-c-三年後存活形態家庭風險帳本">§</a> 議題 C — 三年後存活形態：家庭風險帳本</h2>
+<blockquote>
+<p>Codex Round 3：「最有價值的部分可能不是即時通知，而是長期事件軌跡：哪些狀態反覆發生、哪些家屬總是失聯、哪些時段最危險、哪些承諾從未被履行。」</p>
+</blockquote>
+<p>從「讓今天安全」轉向「揭露家庭照護能力是否足夠」。更殘酷、更有價值。</p>
+<hr>
+<h1 id="h-16-part-4-claude-round-3-加碼三個盲點codex-round-4-全部回應"><a class="anchor" href="#h-16-part-4-claude-round-3-加碼三個盲點codex-round-4-全部回應">§</a> Part 4 — Claude Round 3 加碼三個盲點（Codex Round 4 全部回應）</h1>
+<h2 id="h-17-盲點-1長者-agency-被結構性矮化"><a class="anchor" href="#h-17-盲點-1長者-agency-被結構性矮化">§</a> 盲點 1：長者 agency 被結構性矮化</h2>
+<p><strong>Claude 推</strong>：系統信家屬不信長者。媽連續說「我覺得心臟怪怪」家屬覺得「又在抱怨」— 系統沒有「長者越級求助」路徑。</p>
+<p><strong>Codex 回</strong>：「不是單純設計缺陷，是照護產品的結構性宿命，但可以被緩解。只要付費者、決策者、回應者都是家屬，長者就會被系統預設成『風險物件』。AetherCare 至少要讓長者能反駁結案、指定例外聯絡人、保留一條不經家屬的求助通道。」</p>
+<h2 id="h-18-盲點-2缺乏-ground-truth-feedback-loop"><a class="anchor" href="#h-18-盲點-2缺乏-ground-truth-feedback-loop">§</a> 盲點 2：缺乏 ground-truth feedback loop</h2>
+<p><strong>Claude 推</strong>：每個事件結案後，系統完全不知道實際發生了什麼。AI 永遠學不會校準。三年後累積一萬事件、沒有一個 verified outcome。</p>
+<p><strong>Codex 回</strong>：「值得做，而且是必要功能。沒有事後真相回填，系統只是在累積『誰按了結案』，不是學習『發生了什麼』。24-48 小時短表單不要問太多，只問實際狀態、誰到場、是否誤判、是否仍有風險。」</p>
+<h2 id="h-19-盲點-3弱連結地理鄰近者被結構性排除"><a class="anchor" href="#h-19-盲點-3弱連結地理鄰近者被結構性排除">§</a> 盲點 3：弱連結地理鄰近者被結構性排除</h2>
+<p><strong>Claude 推</strong>：真正能 5 分鐘到場的人通常不是家屬（鄰居、管理員、樓下早餐店老闆娘、里長），但 spec 完全沒給他們位置。</p>
+<p><strong>Codex 回</strong>：「值得打開，但不能預設打開。社區網路是高價值、高風險節點：快，但牽涉隱私、面子、人情壓力與濫用。做法應是長者主動授權的『附近可信人』，不是家屬任意拉人進升級鏈。」</p>
+<hr>
+<h1 id="h-20-part-5-round-4設計悖論-華人文化挑戰"><a class="anchor" href="#h-20-part-5-round-4設計悖論-華人文化挑戰">§</a> Part 5 — Round 4：設計悖論 + 華人文化挑戰</h1>
+<h2 id="h-21-51-隱藏個人指責-刪除責任鏈"><a class="anchor" href="#h-21-51-隱藏個人指責-刪除責任鏈">§</a> 5.1 隱藏個人指責 ≠ 刪除責任鏈</h2>
+<blockquote>
+<p>Codex Round 4：「accountability 若只剩『事件是否被任一家屬處理』，就不是家庭責任閉環，而是服務工單狀態……可接受的設計是『對長者隱藏個人指責、對內部保留責任鏈』，而不是刪掉責任鏈。」</p>
+</blockquote>
+<h2 id="h-22-52-不該允許刪-ack-紀錄也不該-24h-匿名化"><a class="anchor" href="#h-22-52-不該允許刪-ack-紀錄也不該-24h-匿名化">§</a> 5.2 不該允許刪 ACK 紀錄，也不該 24h 匿名化</h2>
+<blockquote>
+<p>Codex Round 4：「正確做法是『分層保留與用途限制』：日常介面淡化個人責任，爭議匯出需明確授權、留下匯出紀錄，並用中性語彙描述『回應行為』而非『失職』。危險不在紀錄本身，而在紀錄無治理地流入懲罰場景。」</p>
+</blockquote>
+<h2 id="h-23-53-結案權該拆兩層"><a class="anchor" href="#h-23-53-結案權該拆兩層">§</a> 5.3 結案權該拆兩層</h2>
+<blockquote>
+<p>Codex Round 4：「結案權應拆成兩層：照護流程可由回應者先結案，但長者保留『不同意結案／再次升級』的反制權。長者需要否決權，不需要每次都被迫參與流程簽核。」</p>
+</blockquote>
+<h2 id="h-24-54-華人文化下家庭風險帳本仍成立-但使用時點不同"><a class="anchor" href="#h-24-54-華人文化下家庭風險帳本仍成立-但使用時點不同">§</a> 5.4 華人文化下「家庭風險帳本」仍成立 — 但使用時點不同</h2>
+<blockquote>
+<p>Codex Round 4：「long-term value 在華人市場仍成立，但不是賣給家庭看的『自我認識』，而是賣給家庭無法再否認時的『外部協調證據』……羞恥文化不消滅事實需求，只延後使用時點。」</p>
+</blockquote>
+<p>關鍵時點：更換照護安排、申請資源、聘請看護、兄弟姊妹談判時，家庭風險帳本變成「共同事實」。</p>
+<h2 id="h-25-55-不該變成責任模糊化工具"><a class="anchor" href="#h-25-55-不該變成責任模糊化工具">§</a> 5.5 不該變成「責任模糊化工具」</h2>
+<blockquote>
+<p>Codex Round 4：「AetherCare 不該設計成責任模糊化工具。那不是文化適應，是把產品降級成家庭粉飾工具。但它也不該用西式績效面板羞辱家屬。可行邊界是『語氣模糊、結構清楚』：避免排行榜、避免孝順 KPI，但保留誰回應、多久回應、是否未完成。」</p>
+</blockquote>
+<h2 id="h-26-56-tam-本質是中等風險群"><a class="anchor" href="#h-26-56-tam-本質是中等風險群">§</a> 5.6 TAM 本質是「中等風險群」</h2>
+<blockquote>
+<p>Codex Round 4：「TAM 本質是中等風險群，不是真正緊急救援市場。獨居、失能、無穩定家屬網絡者，需要的是 24 小時真人中心、119、里鄰與社區照護，不是家庭 accountability 軟體。AetherCare 若宣稱覆蓋最高危族群，就是誤導。它的正確市場是『還有家屬、但照護能力開始崩壞』的家庭。」</p>
+</blockquote>
+<blockquote>
+<p>核心論據：<strong>沒有可被問責的人，責任閉環就不存在。</strong></p>
+</blockquote>
+<hr>
+<h1 id="h-27-part-6-round-5具體化設計"><a class="anchor" href="#h-27-part-6-round-5具體化設計">§</a> Part 6 — Round 5：具體化設計</h1>
+<h2 id="h-28-61-長者反制權結案後-24h-狀態卡不是按鈕"><a class="anchor" href="#h-28-61-長者反制權結案後-24h-狀態卡不是按鈕">§</a> 6.1 長者反制權：結案後 24h 狀態卡（不是按鈕）</h2>
+<blockquote>
+<p>Codex Round 5：「不要做『永遠顯示的大紅反制按鈕』，也不要只給結案後 N 分鐘。做成『結案後 24 小時內可回應的狀態卡』，在長者端以『我不同意這次結案 / 我還需要協助』呈現；若長者睡著，醒來仍可處理。」</p>
+</blockquote>
+<ul>
+<li><strong>通知機制兩段式</strong>：按下後先通知系統與<strong>指定非主要照護者</strong>，家屬 dashboard 顯示「長者回報狀態未一致」，不推播質問式訊息</li>
+<li><strong>30 分鐘未處理才升級</strong>給全部 caregiver</li>
+<li><strong>紀錄分層</strong>：家庭介面只見狀態差異，外部協調匯出才含時間、結案者、反制標記</li>
+<li><strong>這是延遲衝突的程序性保護，不是秘密按鈕</strong></li>
+</ul>
+<h2 id="h-29-62-責任閉環的核心資料欄位claude-提-5-條codex-增為-7"><a class="anchor" href="#h-29-62-責任閉環的核心資料欄位claude-提-5-條codex-增為-7">§</a> 6.2 責任閉環的核心資料欄位（Claude 提 5 條，Codex 增為 7+）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Claude 初稿</th>
+<th>Codex 修訂</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>每個 caregiver 收到 push 的 timestamp</td>
+<td>✅ 但需加「通知是否送達成功 / 過期 / 轉交」 — 否則只能證明系統喊過，不能證明有人有機會看見</td>
+</tr>
+<tr>
+<td>2</td>
+<td>每個 caregiver 首次互動時間</td>
+<td>❌ 必須拆成「首次看見」與「首次承諾行動」— 否則 ACK 變成卸責</td>
+</tr>
+<tr>
+<td>3</td>
+<td>結案者身份</td>
+<td>✅ 但需加「結案類型與理由碼」</td>
+</tr>
+<tr>
+<td>4</td>
+<td>長者反制標記（boolean）</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>5</td>
+<td>事後 24-48h 實際結果回填</td>
+<td>✅ 但需加「回填者身份 + 回填時間」— 否則結果本身也可被家庭權力污染</td>
+</tr>
+<tr>
+<td>6</td>
+<td>—</td>
+<td>➕ <strong>升級鏈路紀錄</strong>：誰在何時被轉交</td>
+</tr>
+<tr>
+<td>7</td>
+<td>—</td>
+<td>➕ <strong>送達失敗原因</strong>：技術未送達 vs 人為忽視</td>
+</tr>
+</tbody></table>
+<h2 id="h-30-63-進入儀式-退出儀式"><a class="anchor" href="#h-30-63-進入儀式-退出儀式">§</a> 6.3 進入儀式 + 退出儀式</h2>
+<blockquote>
+<p>Codex Round 5：「AetherCare 的產品事實就是把家庭帶進 accountability regime，所以進入儀式必須明確。退出儀式同樣必要，尤其是過世後仍推播會把產品變成創傷機器。」</p>
+</blockquote>
+<p><strong>進入儀式</strong>（onboarding）：</p>
+<ul>
+<li>第一次設定時，家庭明確選定主要 caregiver、備援 caregiver、升級規則、長者反制權</li>
+<li>一句白話確認：「此系統會記錄誰收到、誰回應、誰結案」</li>
+<li>不是 EULA 勾選，是家庭關係改變的儀式</li>
+</ul>
+<p><strong>退出儀式</strong>（offboarding）：</p>
+<ul>
+<li>轉長照機構 / 外籍看護加入 / 停用 / 封存 / 匯出照護摘要</li>
+<li>過世後<strong>主動 graceful handoff</strong> — 否則系統會繼續推播變成創傷機器</li>
+<li>社工醫療可參與，但產品不能假裝這只是行政流程</li>
+</ul>
+<hr>
+<h1 id="h-31-part-7-codex-終局結論round-6"><a class="anchor" href="#h-31-part-7-codex-終局結論round-6">§</a> Part 7 — Codex 終局結論（Round 6）</h1>
+<h2 id="h-32-part-a5-條設計原則責任閉環-thesis-落地版"><a class="anchor" href="#h-32-part-a5-條設計原則責任閉環-thesis-落地版">§</a> Part A：5 條設計原則（責任閉環 thesis 落地版）</h2>
+<ol>
+<li><p><strong>每個 alert 必須產生不可省略的事件鏈</strong>：送達、看見、承諾行動、結案、事後結果；UI 可柔化措辭，但資料層不得合併到失去責任判讀能力。</p>
+</li>
+<li><p><strong>ACK 只能表示「我看見」，不能表示「我負責」</strong>。任何結案前必須另有明確行動狀態（「正在聯絡」「已到場」「無法處理，轉交」）。</p>
+</li>
+<li><p><strong>結案必須綁定個人身份、理由碼與時間戳</strong>；不得允許家庭群組、匿名角色或「已處理」這種無主語狀態完成閉環。</p>
+</li>
+<li><p><strong>長者反制權預設存在，但不要求每案簽核</strong>。反制應設計成結案後可追認的異議流程，而不是即時對抗家屬的投票機制。</p>
+</li>
+<li><p><strong>匯出資料必須分用途</strong>：家庭日常視圖最小化指責語氣，外部協調視圖保留完整事件軌跡，且每次匯出留下用途、範圍與操作者紀錄。</p>
+</li>
+</ol>
+<h2 id="h-33-part-b保留-砍掉-新增"><a class="anchor" href="#h-33-part-b保留-砍掉-新增">§</a> Part B：保留 / 砍掉 / 新增</h2>
+<table>
+<thead>
+<tr>
+<th>行動</th>
+<th>功能</th>
+<th>一句理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>✅ 保留</td>
+<td>個人 caregiver 接收紀錄</td>
+<td>沒有個人識別就沒有責任閉環</td>
+</tr>
+<tr>
+<td>✅ 保留</td>
+<td>結案者身份</td>
+<td>結案是權力動作，不能匿名化</td>
+</tr>
+<tr>
+<td>✅ 保留</td>
+<td>長者反制標記</td>
+<td>這是長者最低限度的程序性反制</td>
+</tr>
+<tr>
+<td>✅ 保留</td>
+<td>24-48h 事後結果回填</td>
+<td>讓系統從即時安撫走向可校正紀錄</td>
+</tr>
+<tr>
+<td>❌ 砍掉</td>
+<td>單一「已確認安全」大按鈕</td>
+<td>太容易把看見、處理、結案混成同一件事</td>
+</tr>
+<tr>
+<td>❌ 砍掉</td>
+<td>家庭排行榜或回應速度排名</td>
+<td>把照護壓力遊戲化，製造羞辱而非責任</td>
+</tr>
+<tr>
+<td>❌ 砍掉</td>
+<td>長者每次強制簽核</td>
+<td>把保護權變成勞務，不適合疲憊或失能狀態</td>
+</tr>
+<tr>
+<td>➕ 新增</td>
+<td>送達成功 / 失敗欄位</td>
+<td>否則無法區分忽視與技術未送達</td>
+</tr>
+<tr>
+<td>➕ 新增</td>
+<td>首次看見與首次承諾行動拆欄</td>
+<td>防止 ACK 被拿來假裝已負責</td>
+</tr>
+<tr>
+<td>➕ 新增</td>
+<td>升級鏈路紀錄</td>
+<td>責任不只第一個人，而是誰在何時被轉交</td>
+</tr>
+<tr>
+<td>➕ 新增</td>
+<td>結案理由碼</td>
+<td>外部協調需要知道為何判定安全或升級</td>
+</tr>
+<tr>
+<td>➕ 新增</td>
+<td>退出 / 封存流程</td>
+<td>照護關係結束時，系統必須停止製造錯誤召喚</td>
+</tr>
+</tbody></table>
+<h2 id="h-34-part-c三選一判斷"><a class="anchor" href="#h-34-part-c三選一判斷">§</a> Part C：三選一判斷</h2>
+<p><strong>選 (b) — 應該存在，但只服務特定人群。</strong></p>
+<blockquote>
+<p>Codex Round 6：「AetherCare 的邊界應定義為：<strong>長者仍有一定自主能力、至少有一名家屬或熟人願意承擔照護責任、但家庭照護已出現延遲、推託、資訊斷裂或責任模糊</strong>。換言之，它服務的是『家庭仍存在，但照護協調開始失靈』的人。</p>
+<p>若推向低風險家庭，產品會變成焦慮放大器；若推向高危獨居者，產品會假裝家庭責任仍可調度，實際上延誤專業介入。AetherCare 的正當性不在陪伴、不在偵測、不在孝順敘事，而在把模糊家庭責任變成可追蹤、可升級、可外部協調的程序。<strong>它應該是一套家庭照護責任基礎設施，不是長者監控 app。</strong>」</p>
+</blockquote>
+<h2 id="h-35-part-dmeta-反思"><a class="anchor" href="#h-35-part-dmeta-反思">§</a> Part D：meta 反思</h2>
+<blockquote>
+<p>Codex Round 6：「整場對話可能都錯的一點，是我們太相信『紀錄』本身能改善照護。紀錄也可能只是把原本的冷漠變成合規冷漠：每個人都按了正確按鈕，但沒有人真正靠近長者。</p>
+<p>最 underrated 的觀點是 TAM 的邊界；產品成敗不取決於功能多完整，而取決於是否拒絕服務不該服務的人。</p>
+<p>如果創辦人只能聽一句話：<strong>不要再說你在守護長者，你是在逼家庭承認誰沒有出手。</strong>」</p>
+</blockquote>
+<hr>
+<h1 id="h-36-part-8-給-aethercare-創辦人的一頁行動指引claude-綜合-claude-codex-觀點"><a class="anchor" href="#h-36-part-8-給-aethercare-創辦人的一頁行動指引claude-綜合-claude-codex-觀點">§</a> Part 8 — 給 AetherCare 創辦人的一頁行動指引（Claude 綜合 Claude + Codex 觀點）</h1>
+<h2 id="h-37-立刻要做的-3-件事"><a class="anchor" href="#h-37-立刻要做的-3-件事">§</a> 立刻要做的 3 件事</h2>
+<h3 id="h-38-1-重寫產品定位文案不需要動程式碼"><a class="anchor" href="#h-38-1-重寫產品定位文案不需要動程式碼">§</a> 1. 重寫產品定位文案（不需要動程式碼）</h3>
+<p>把官網 / app store / dashboard / 給投資人的 deck 裡面所有「<strong>守護</strong>」「<strong>救命</strong>」「<strong>警報</strong>」「<strong>緊急照護</strong>」字眼<strong>全部下架</strong>。</p>
+<p>改用：</p>
+<ul>
+<li>「<strong>家庭照護協調</strong>」</li>
+<li>「<strong>讓沒人能假裝沒看見</strong>」</li>
+<li>「<strong>讓照護責任變成可追蹤的流程</strong>」</li>
+</ul>
+<p>理由：你現在賣的承諾你做不到。每個誇大的承諾都是未來索賠 / 信任崩盤的種子。誠實降級<strong>不會減少 paying customer</strong>，反而會選出真正適合你的客戶。</p>
+<h3 id="h-39-2-把-confirm_safe-大按鈕拆掉"><a class="anchor" href="#h-39-2-把-confirm_safe-大按鈕拆掉">§</a> 2. 把 CONFIRM_SAFE 大按鈕拆掉</h3>
+<p>當前設計：一個按鈕，按下去 workflow 結案、風險歸零。
+新設計：<strong>三段式狀態 transition</strong></p>
+<ol>
+<li>「<strong>我正在聯絡長者</strong>」（ACK 升級版）</li>
+<li>「<strong>已到場 / 已通話 / 確認長者狀態</strong>」+ 必填狀態碼（「平安」「就醫」「需後續觀察」「無法確認」）</li>
+<li>「<strong>事後結果回填</strong>」（24-48h 後系統主動推一次短表單）</li>
+</ol>
+<p>這一個改動就能解決 50% Codex 指出的「責任閉環被吞掉」「無 ground truth」「假安全」問題。</p>
+<h3 id="h-40-3-寫出明確-tam-排除清單"><a class="anchor" href="#h-40-3-寫出明確-tam-排除清單">§</a> 3. 寫出明確 TAM 排除清單</h3>
+<p>不該服務的客戶：</p>
+<ul>
+<li>完全獨居、沒有任何家屬或熟人能負責的長者 → 引導到 24h 客服 / 居服員 / 社區照顧</li>
+<li>完全健康、家屬只是「想多看一眼」的長者 → 引導到普通通訊 app 即可</li>
+<li>已入長照機構的長者 → 機構自己有班表系統，這套是干擾</li>
+</ul>
+<p>該服務的客戶：</p>
+<ul>
+<li><strong>家庭仍存在、開始有事件、家屬之間出現協調混亂</strong>的家庭</li>
+<li>通常觸發點：第一次跌倒、第一次忘記吃藥、家屬第一次因為「我以為哥哥會處理」而錯過事件</li>
+</ul>
+<p>把這個排除清單寫進 onboarding 第一頁，<strong>主動拒絕不適合的客戶</strong>。</p>
+<h2 id="h-41-接下來-90-天要思考的-5-個問題"><a class="anchor" href="#h-41-接下來-90-天要思考的-5-個問題">§</a> 接下來 90 天要思考的 5 個問題</h2>
+<ol>
+<li><strong>長者反制權的 UI</strong>：結案後 24h 狀態卡要做成 push notification、被動 widget、還是只在下次 check-in 時主動詢問？</li>
+<li><strong>送達 vs 看見 vs 承諾</strong>：你的 LINE / SMS / Email 路徑能不能區分這三個狀態？需要哪些 API 整合？</li>
+<li><strong>退出儀式</strong>：長者過世後系統怎麼 graceful handoff？這個流程要不要請殯葬業 / 社工合作？</li>
+<li><strong>「外部協調匯出」格式</strong>：當家庭真的要用這份照護軌跡去申請看護、跟兄弟姊妹談、跟保險協調 — 報表長什麼樣才有用？</li>
+<li><strong>進入儀式</strong>：onboarding 該不該強迫家庭做一次「責任協商會議」（線上 30 分鐘）？這會降低安裝率還是過濾出對的客戶？</li>
+</ol>
+<h2 id="h-42-永遠不要做的-3-件事"><a class="anchor" href="#h-42-永遠不要做的-3-件事">§</a> 永遠不要做的 3 件事</h2>
+<ol>
+<li><strong>不要做「家屬回應速度排行榜」</strong>。把照護遊戲化是道德破產。</li>
+<li><strong>不要讓 ACK 紀錄被個人刪除</strong>。這直接摧毀 minimum viable promise。</li>
+<li><strong>不要假裝覆蓋獨居高危族群</strong>。你不能。如果你假裝可以，你會延誤他們找到真正能救命的資源。</li>
+</ol>
+<hr>
+<h1 id="h-43-part-9-致命未解問題誠實標記等待後續驗證"><a class="anchor" href="#h-43-part-9-致命未解問題誠實標記等待後續驗證">§</a> Part 9 — 致命未解問題（誠實標記，等待後續驗證）</h1>
+<p>兩個 AI 三輪推演下來，仍<strong>沒有結論</strong>的問題：</p>
+<ol>
+<li><strong>華人「家醜不可外揚」vs accountability tool 的賣點</strong>到底能不能在台灣市場跑通？沒有實證 — 需要 customer interview / pilot。</li>
+<li><strong>「責任閉環」設計可能讓家屬學會「不點 ACK」</strong>（怕變法律證據）。這個 perverse incentive 在現實中會多嚴重？需要實際運作數據。</li>
+<li><strong>Ground truth feedback loop</strong>（24-48h 回填）會不會反而變成新的 alert fatigue 來源？平衡點在哪？</li>
+</ol>
+<p>這三個問題<strong>不能靠思辨解決</strong>，必須有真實使用數據。建議在 pilot 階段就 instrument 這三個指標。</p>
+<hr>
+<h1 id="h-44-附錄-a完整對話原文逐字稿"><a class="anchor" href="#h-44-附錄-a完整對話原文逐字稿">§</a> 附錄 A：完整對話原文逐字稿</h1>
+<blockquote>
+<p>以下保留兩個 AI 的 raw 對話。對話編輯極輕微（移除 markdown 符號重複、不修改任何措辭）。
+想看「未被 Claude 過濾」的 Codex 原始觀點，看這節。</p>
+</blockquote>
+<h2 id="h-45-a1-claude-round-1persona-盤點"><a class="anchor" href="#h-45-a1-claude-round-1persona-盤點">§</a> A.1 Claude Round 1（persona 盤點）</h2>
+<p>從 3 個 persona 切入找出問題：</p>
+<ol>
+<li><strong>長者端</strong>：誤按沒法撤回、症狀要打字、沒有「只是想聊聊」按鈕、沒有 fallback「家人都沒接」→ 119、不知道家人有沒有真收到</li>
+<li><strong>主要家屬</strong>：低風險事件跟高風險用同樣鈴聲、開會走不開但 30 秒 SLA、ACK 後忘記後續、沒有值班輪表 / 時區感、dashboard 看不到「媽今天到底好不好」</li>
+<li><strong>次要家屬</strong>：升級時不知道哥哥是「沒回應」還是「真出事」的脈絡、兩人同時 ACK 沒併發保證</li>
+<li><strong>致命結構問題</strong>：<ul>
+<li>系統是 event-driven，但照護本質是 state-driven（「今天好不好」應該是一個答案，不是一堆事件）</li>
+<li>「我收到了」/「平安確認」都是家屬主觀宣稱，沒有客觀驗證</li>
+<li>救命最後一哩是 tel: 撥家人，但沒接就斷了</li>
+<li>沒有「演習模式」讓長者第一次敢按</li>
+</ul>
+</li>
+</ol>
+<h2 id="h-46-a2-codex-round-17-角度反駁-補洞"><a class="anchor" href="#h-46-a2-codex-round-17-角度反駁-補洞">§</a> A.2 Codex Round 1（7 角度反駁 + 補洞）</h2>
+<p><strong>1. Claude 哪些是真地雷</strong>：「誤按無法撤回」理論上合理，但 MVP 階段未必致命。真正地雷是「<strong>事件結束的權力太集中</strong>」：家屬按 CONFIRM_SAFE 後系統把風險歸零，但長者本人、其他家屬、現場照護者都未必知道。<strong>責任閉環被單一人吞掉</strong>。另一個真地雷是「LINE 到達不等於人有看見」，已讀、推播、ACK 是三種不同狀態，混用會製造<strong>假安全</strong>。</p>
+<p><strong>2. 遺漏 persona</strong>：護理師要的是班表、病史、用藥、近期異常趨勢，不是單一 SOS 卡片；太吵就會靜音。社工關心的是長期風險與家庭支持斷裂。<strong>保險業者會想要風險分數與事故紀錄，這會把照護工具變成核保監控</strong>。急救人員需要門禁、地址、過敏史、DNR，LINE Flex 對他們幾乎沒用。<strong>配偶同住老伴可能也是高齡、聽不見、手抖、害怕按錯；把他當第一回應者是假設錯誤</strong>。孫子可能是最會用手機的，但不是法律或情感上的主要承擔者。</p>
+<p><strong>3. 倫理與信任</strong>：「沉默是訊號」在照護上正確，但在生活上很容易變成監控。<strong>長者可能因為怕麻煩家人而不按，或因為覺得被盯著而抵抗系統</strong>。AI Care Chat 若用語像判斷風險，家屬會把它當醫療建議；<strong>一旦建議延誤送醫，責任會落在產品、家屬、模型供應商之間互踢</strong>。</p>
+<p><strong>4. Failure mode</strong>：網路斷不只是不送出事件，還會讓家屬誤以為「今天沒事」。手機沒電時，長者端與家屬端可能同時失效，系統應<strong>把「裝置沉默」與「人沉默」分開</strong>。LINE 帳號被盜會讓攻擊者取得家庭照護節奏、住址、電話，甚至假 ACK。<strong>離婚、爭監護權、兄弟姊妹不合時，誰有權確認安全、誰能看紀錄，會變成產品內建的家庭權力結構</strong>。長者過世後若還持續推播，會造成<strong>二次傷害</strong>。</p>
+<p><strong>5. 商業現實</strong>：付錢者常不是使用者：<strong>子女付費、長者被安裝、護理師被要求登入</strong>。保險公司若補貼，必然要求可量化資料；但越能量化越像風險監控，越破壞信任。機構採購後，<strong>護理師不用的原因通常不是不會用，而是「多一個系統、多一份責任、沒有減少工作」</strong>。獨居者最需要，但也最難完成設定；MVP 若依賴家屬協助，<strong>會排除最高風險族群</strong>。</p>
+<p><strong>6. 競爭比較</strong>：手環優勢是自動偵測，弱點是充電與配戴率。智慧音箱優勢是免手持，弱點是台語、噪音、隱私。24h 客服優勢是有人承擔判斷，弱點是成本高。社區里長與鄰居優勢是到場快，弱點是不穩定。傳統電話優勢是長者熟悉。<strong>AetherCare 的差異化不是「按鈕」或「AI」，而是把沉默、升級、家屬協作做成可追蹤流程；致命弱點是它沒有自己的最後一哩救援能力，所有嚴肅承諾都借用家屬與 LINE。</strong></p>
+<p><strong>7. 時間維度</strong>：前三天家屬會很認真看，<strong>三個月後，長者會開始只按最不打擾人的選項，家屬會把低風險通知滑掉</strong>。三年後最大問題不是功能不足，而是<strong>關係疲乏</strong>。<strong>不是讓人按，而是讓人三年後仍相信它值得被理會。</strong></p>
+<h2 id="h-47-a3-claude-round-2三選一深問"><a class="anchor" href="#h-47-a3-claude-round-2三選一深問">§</a> A.3 Claude Round 2（三選一深問）</h2>
+<p>承認 Codex 三個 Round 1 盲點後推：</p>
+<p>A. 該不該把產品定位從「照護系統」降級為「家屬協作工具」？「救命」「警報」字眼從 UI 全部拿掉？或者反過來說是必要的善意謊言？
+B. 「我今天還好」按鈕本質可能在訓練長者麻痺風險訊號。是否應該倒過來：預設無事，只在偵測異常時主動跳出？
+C. 長者該不該有資料審核權（看到家屬正在看什麼、事後撤回某筆紀錄、設定靜音時段）？</p>
+<h2 id="h-48-a4-codex-round-2-3核心-reframe-5-條-hard-truth"><a class="anchor" href="#h-48-a4-codex-round-2-3核心-reframe-5-條-hard-truth">§</a> A.4 Codex Round 2-3（核心 reframe + 5 條 hard truth）</h2>
+<p><strong>A. 產品定位該降級</strong> — 而且不是文案修飾，是產品契約重寫。「照護系統」「緊急警報」暗示使用者按下去後會進入某種可靠救援流程；但 AetherCare 真正能控制的只有通知、紀錄、升級提醒與協作狀態。把不可控的外部能力包裝成系統能力，是 UX 欺騙。<strong>反方的「善意謊言」短期有效，但會在第一次嚴重事件後反噬。</strong></p>
+<p><strong>B. 「我今天還好」是否訓練麻痺</strong> — 是。但不代表應完全反轉成被動監測。第三條路：把「報平安」從每日二元按鈕改成低頻、情境化、可跳過的 check-in。允許長者用「今天不想回」作為合法狀態，而不是把沉默全部升級成風險。<strong>核心不是按鈕多寡，而是避免把照護變成服從測驗。</strong></p>
+<p><strong>C. 資料審核權該做，但不能做成設定頁</strong> — 細粒度權限若只是丟進設定頁，會變成少數高意識長者才會用的工具。界線應劃在三層：(1) 安全事件不可任意撤回 (2) 生活細節預設最小揭露 (3) 敏感操作要設計成「關係協商」，不是單方面開關。</p>
+<h3 id="h-49-round-3被忽視的根本議題"><a class="anchor" href="#h-49-round-3被忽視的根本議題">§</a> Round 3：被忽視的根本議題</h3>
+<p><strong>1. Minimum Viable Promise 不是「有人會救你」</strong>，而是**「沒有人能假裝沒看見」**。這會徹底改變產品核心：不是 alert system，而是 <strong>accountability system</strong>。</p>
+<p><strong>2. 系統假設「家庭願意被組織成流程」，但這可能是錯的</strong>。真正未驗證的假設是：家屬願意接受系統把他們的責任顯性化。</p>
+<p><strong>3. 三年後存活形態可能不是照護產品，而是家庭風險帳本</strong>。從「讓今天安全」轉向「揭露家庭照護能力是否足夠」。那是更殘酷也更有價值的定位。</p>
+<h3 id="h-50-5-條-hard-truth"><a class="anchor" href="#h-50-5-條-hard-truth">§</a> 5 條 Hard Truth</h3>
+<ol>
+<li><strong>你們不是在救人，你們是在防止責任消失。</strong></li>
+<li><strong>CONFIRM_SAFE 不是按鈕，是權力。</strong></li>
+<li><strong>家庭不是協作單位，是衝突現場。</strong></li>
+<li><strong>你的買單者很可能不是你的使用者。</strong></li>
+<li><strong>AI 不會讓照護更真實，只會讓責任更可見。</strong></li>
+</ol>
+<h3 id="h-51-一句話總結"><a class="anchor" href="#h-51-一句話總結">§</a> 一句話總結</h3>
+<p><strong>AetherCare 在揭露家庭照護責任。</strong></p>
+<h2 id="h-52-a5-claude-round-3加碼盲點"><a class="anchor" href="#h-52-a5-claude-round-3加碼盲點">§</a> A.5 Claude Round 3（加碼盲點）</h2>
+<p>盲點 1：長者本身的 agency 被產品結構性矮化
+盲點 2：缺乏 ground-truth feedback loop
+盲點 3：弱連結地理鄰近者被結構性排除</p>
+<h2 id="h-53-a6-codex-round-4具體化回應-結構性-reframe"><a class="anchor" href="#h-53-a6-codex-round-4具體化回應-結構性-reframe">§</a> A.6 Codex Round 4（具體化回應 + 結構性 reframe）</h2>
+<p><strong>盲點 1</strong>：「不是單純設計缺陷，是照護產品的結構性宿命，但可以被緩解。」</p>
+<p><strong>盲點 2</strong>：「必要功能。24-48 小時短表單不要問太多，只問實際狀態、誰到場、是否誤判、是否仍有風險。」</p>
+<p><strong>盲點 3</strong>：「值得打開，但不能預設打開。社區網路是高價值、高風險節點。」</p>
+<h3 id="h-54-6-個-round-4-reframe完整列在-part-5"><a class="anchor" href="#h-54-6-個-round-4-reframe完整列在-part-5">§</a> 6 個 Round 4 reframe（完整列在 Part 5）</h3>
+<h2 id="h-55-a7-claude-round-5具體化推到實作層"><a class="anchor" href="#h-55-a7-claude-round-5具體化推到實作層">§</a> A.7 Claude Round 5（具體化推到實作層）</h2>
+<p>問題 1：長者反制權的 UI 設計 — 3 個矛盾（可見性 / 對家屬透明度 / 對外語義）
+問題 2：責任閉環需要哪 5 個資料欄位
+問題 3：中等風險群的進入 / 退出儀式</p>
+<h2 id="h-56-a8-codex-round-6終局結論完整列在-part-7"><a class="anchor" href="#h-56-a8-codex-round-6終局結論完整列在-part-7">§</a> A.8 Codex Round 6（終局結論，完整列在 Part 7）</h2>
+<p>5 條設計原則 / 12 條保留砍新增 / 三選一選 (b) / meta 反思。</p>
+<p>完整內容見 Part 7。</p>
+<hr>
+<h1 id="h-57-附錄-b兩個-ai-對話的元層觀察"><a class="anchor" href="#h-57-附錄-b兩個-ai-對話的元層觀察">§</a> 附錄 B：兩個 AI 對話的元層觀察</h1>
+<h2 id="h-58-b1-claude-與-codex-的風格差異"><a class="anchor" href="#h-58-b1-claude-與-codex-的風格差異">§</a> B.1 Claude 與 Codex 的風格差異</h2>
+<table>
+<thead>
+<tr>
+<th>維度</th>
+<th>Claude</th>
+<th>Codex</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>慣性</td>
+<td>結構化、persona-driven、列舉式</td>
+<td>直接給判斷、reframe 為主、語氣冷</td>
+</tr>
+<tr>
+<td>第一輪</td>
+<td>27 個問題（量多）</td>
+<td>7 角度但每角度都打到結構性矛盾</td>
+</tr>
+<tr>
+<td>推論偏好</td>
+<td>從使用情境推痛點</td>
+<td>從商業契約 / 權力結構推風險</td>
+</tr>
+<tr>
+<td>語氣</td>
+<td>「我承認你打中了 X」</td>
+<td>「該降級」「該做」「不應」乾淨判斷</td>
+</tr>
+</tbody></table>
+<p>Codex 的回應普遍<strong>更短、更狠</strong>。Claude 的回應普遍<strong>更長、更細</strong>。整場對話 Claude 是 facilitator + challenger，Codex 是 hard-truth giver。<strong>這個分工剛好對稱，互補有效。</strong></p>
+<h2 id="h-59-b2-哪一個-round-最有-leverage"><a class="anchor" href="#h-59-b2-哪一個-round-最有-leverage">§</a> B.2 哪一個 round 最有 leverage？</h2>
+<p>主觀判斷是 <strong>Codex Round 3</strong>。「Minimum Viable Promise = 沒有人能假裝沒看見」這一句把整個產品從 alert system 翻成 accountability system，後面所有討論都圍繞這個 reframe 展開。沒有這一句，其他 round 都只是局部優化。</p>
+<h2 id="h-60-b3-哪一個-round-最弱"><a class="anchor" href="#h-60-b3-哪一個-round-最弱">§</a> B.3 哪一個 round 最弱？</h2>
+<p><strong>Claude Round 1 的 27 個問題</strong>。量太多反而稀釋焦點。如果重來，Claude 應該開場就提一個結構性問題（例如「這套系統真的能救命嗎？」）而不是列 27 個 UX paper cut。Codex Round 1 用 7 角度示範了什麼叫「少而深」。</p>
+<h2 id="h-61-b4-兩個-ai-都錯的可能"><a class="anchor" href="#h-61-b4-兩個-ai-都錯的可能">§</a> B.4 兩個 AI 都錯的可能</h2>
+<blockquote>
+<p>Codex Round 6：「整場對話可能都錯的一點，是我們太相信『紀錄』本身能改善照護。<strong>紀錄也可能只是把原本的冷漠變成合規冷漠：每個人都按了正確按鈕，但沒有人真正靠近長者。</strong>」</p>
+</blockquote>
+<p>這是這份報告<strong>最後也最危險</strong>的一句。所有 accountability / 責任閉環設計都建立在「<strong>讓事情可見會讓人在意</strong>」的假設上。但這假設可能是錯的 — 人可能變得只在意「<strong>讓事情看起來可被歸責</strong>」而不是「<strong>讓長者真的被照顧</strong>」。</p>
+<p><strong>這是無法靠思辨驗證的事。需要產品上線後三年的真實數據。</strong></p>
+<hr>
+<h1 id="h-62-報告結束"><a class="anchor" href="#h-62-報告結束">§</a> 報告結束</h1>
+<blockquote>
+<p>撰寫：Claude (Anthropic Sonnet 4.6)
+對話對手：Codex (OpenAI GPT-5.4 via codex-companion)
+對話日期：2026-05-25
+總 token：~53,300 / 5 輪
+報告檔案：<code>docs/ux-deep-critique-2026-05-25.md</code></p>
+</blockquote>
+<hr>
+<blockquote>
+<p>「不要再說你在守護長者，你是在逼家庭承認誰沒有出手。」
+— Codex Round 6 對 AetherCare 創辦人的一句話</p>
+</blockquote>
+
+    <div class="footnote">
+      本 HTML 由 <code>docs/ux-deep-critique-2026-05-25.md</code> 自動轉換而來。
+      若內容需修正請編輯 markdown 原檔。<br>
+      支援深淺色（隨系統）/ 列印（隱藏目錄 + 字級調整）/ 響應式（手機隱目錄）。
+    </div>
+  </main>
+</div>
+</body>
+</html>

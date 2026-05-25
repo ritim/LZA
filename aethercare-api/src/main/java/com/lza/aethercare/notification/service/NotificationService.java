@@ -111,30 +111,52 @@ public class NotificationService {
                 typeText, task.getId(), task.getLevel());
     }
 
+    /** 從 CareEvent.metadata JSON 解出 location；解析失敗 / 無欄位回 null。 */
+    private String parseLocation(String metadataJson) {
+        if (metadataJson == null || metadataJson.isBlank()) return null;
+        try {
+            com.fasterxml.jackson.databind.JsonNode root = METADATA_PARSER.readTree(metadataJson);
+            com.fasterxml.jackson.databind.JsonNode loc = root.get("location");
+            return (loc == null || loc.isNull()) ? null : loc.asText();
+        } catch (java.io.IOException e) {
+            return null;
+        }
+    }
+
+    /** Jackson ObjectMapper thread-safe，作 static 共享避免每次 new。 */
+    private static final com.fasterxml.jackson.databind.ObjectMapper METADATA_PARSER =
+            new com.fasterxml.jackson.databind.ObjectMapper();
+
     /** 建構 LINE Flex bubble JSON（Map 結構，序列化時自動成 JSON object）。 */
     private Map<String, Object> buildTaskFlex(CareTask task, Optional<CareEvent> eventOpt,
                                                Optional<ElderProfile> elderOpt) {
         boolean high = isHighPriority(eventOpt);
         String typeText = eventOpt.map(e -> describeEventType(e.getEventType().name()))
                 .orElse("照護事件");
-        String riskText = eventOpt.map(e -> e.getRiskLevel().name()).orElse("?");
+        String riskText = describeRisk(eventOpt.map(e -> e.getRiskLevel().name()).orElse(""));
         String deadlineText = task.getDeadlineAt() == null
                 ? "—"
                 : DEADLINE_FMT.format(task.getDeadlineAt());
         long remainingSec = task.getDeadlineAt() == null
                 ? -1
                 : Duration.between(OffsetDateTime.now(), task.getDeadlineAt()).getSeconds();
+        // 「推送時剩 N 秒」明示這是 snapshot，避免家屬 10 分鐘後翻 LINE 仍以為有時間
         String remainingText = remainingSec < 0
                 ? "已過期"
-                : "剩約 " + remainingSec + " 秒";
+                : "推送時剩 " + remainingSec + " 秒";
         String headerEmoji = high ? "🚨" : "🔔";
         String headerBg = high ? "#F56C6C" : "#409EFF";
         String urgencyTag = high ? "緊急" : "通知";
+        String elderHeaderLine = elderOpt
+                .map(e -> e.getName() + (e.getAge() > 0 ? "（" + e.getAge() + "歲）" : ""))
+                .orElse("AetherCare " + urgencyTag + "通報");
+        String location = eventOpt.map(e -> parseLocation(e.getMetadata())).orElse(null);
+        String pushedAtText = "推送 " + DEADLINE_FMT.format(OffsetDateTime.now());
 
         Map<String, Object> bubble = new LinkedHashMap<>();
         bubble.put("type", "bubble");
 
-        // header
+        // header：第一行事件 type；第二行被照顧者名字（讓家屬一眼看到是誰）
         Map<String, Object> header = new LinkedHashMap<>();
         header.put("type", "box");
         header.put("layout", "vertical");
@@ -145,25 +167,34 @@ public class NotificationService {
                         "text", headerEmoji + " " + typeText,
                         "color", "#FFFFFF", "weight", "bold", "size", "lg"),
                 Map.of("type", "text",
-                        "text", "AetherCare " + urgencyTag + "通報",
-                        "color", "#FFFFFFCC", "size", "xs", "margin", "xs")));
+                        "text", elderHeaderLine,
+                        "color", "#FFFFFFEE", "size", "sm", "margin", "xs", "wrap", true)));
         bubble.put("header", header);
 
-        // body
+        // body：聚焦「家屬要做決策需要看到的資訊」— 風險、地點、SLA、任務識別
+        java.util.List<Map<String, Object>> bodyContents = new java.util.ArrayList<>();
+        bodyContents.add(Map.of("type", "text",
+                "text", "🩺 風險：" + riskText,
+                "size", "sm", "color", high ? "#B71C1C" : "#606266", "weight", "bold"));
+        if (location != null && !location.isBlank()) {
+            bodyContents.add(Map.of("type", "text",
+                    "text", "📍 地點：" + location,
+                    "size", "sm", "color", "#606266", "wrap", true));
+        }
+        bodyContents.add(Map.of("type", "text",
+                "text", "⏱ SLA " + deadlineText + "（" + remainingText + "）",
+                "size", "sm", "color", "#909399", "wrap", true));
+        bodyContents.add(Map.of("type", "text",
+                "text", "任務 #" + task.getId() + " · level " + task.getLevel()
+                        + " · " + pushedAtText,
+                "size", "xs", "color", "#C0C4CC"));
+
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("type", "box");
         body.put("layout", "vertical");
         body.put("spacing", "sm");
         body.put("paddingAll", "14px");
-        body.put("contents", List.of(
-                Map.of("type", "text", "text", "風險等級：" + riskText,
-                        "size", "sm", "color", "#606266"),
-                Map.of("type", "text",
-                        "text", "任務 #" + task.getId() + " · level " + task.getLevel(),
-                        "size", "sm", "color", "#606266"),
-                Map.of("type", "text",
-                        "text", "SLA " + deadlineText + "（" + remainingText + "）",
-                        "size", "sm", "color", "#909399", "wrap", true)));
+        body.put("contents", bodyContents);
         bubble.put("body", body);
 
         // footer：先「📞 打給長輩」（若有 phone）→ 再「我收到了」postback
@@ -183,13 +214,18 @@ public class NotificationService {
         return bubble;
     }
 
-    /** 「📞 打給長輩」按鈕 — LINE 收到後直接喚起手機撥號。 */
+    /**
+     * 「📞 打給長輩」按鈕 — LINE 收到後直接喚起手機撥號。
+     * label 額外帶尾 4 碼，讓家屬點之前能確認撥的是哪支號碼，避免按錯。
+     */
     private static Map<String, Object> buildCallElderButton(ElderProfile elder) {
-        String label = "📞 打給" + safeShortName(elder.getName());
+        String phone = elder.getPhone().replaceAll("\\s+", "");
+        String tail4 = phone.length() >= 4 ? phone.substring(phone.length() - 4) : phone;
+        String label = "📞 打給" + safeShortName(elder.getName()) + " · " + tail4;
         Map<String, Object> action = new LinkedHashMap<>();
         action.put("type", "uri");
         action.put("label", label);
-        action.put("uri", "tel:" + elder.getPhone().replaceAll("\\s+", ""));
+        action.put("uri", "tel:" + phone);
         Map<String, Object> button = new LinkedHashMap<>();
         button.put("type", "button");
         button.put("style", "primary");
@@ -197,6 +233,17 @@ public class NotificationService {
         button.put("height", "sm");
         button.put("action", action);
         return button;
+    }
+
+    /** 風險等級中文化，避免家屬要記 HIGH/MEDIUM/LOW 的英文。 */
+    private static String describeRisk(String risk) {
+        return switch (risk) {
+            case "CRITICAL" -> "極高（CRITICAL）";
+            case "HIGH" -> "高（HIGH）";
+            case "MEDIUM" -> "中（MEDIUM）";
+            case "LOW" -> "低（LOW）";
+            default -> "未知";
+        };
     }
 
     /** 「我收到了」postback 按鈕 — webhook 接收後觸發 ACKNOWLEDGE。 */

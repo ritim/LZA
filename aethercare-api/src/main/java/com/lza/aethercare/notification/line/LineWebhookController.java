@@ -11,9 +11,12 @@ import com.lza.aethercare.notification.line.entity.CaregiverLineBinding;
 import com.lza.aethercare.notification.line.repository.CaregiverLineBindingRepository;
 import com.lza.aethercare.notification.line.service.LineBindingService;
 import com.lza.aethercare.tenant.context.TenantContext;
+import com.lza.aethercare.task.entity.CareTask;
+import com.lza.aethercare.task.service.CareTaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,6 +59,11 @@ public class LineWebhookController {
     private final ObjectProvider<LineMessagingClient> lineClientProvider;
     private final CaregiverLineBindingRepository bindingRepo;
     private final CareActionService careActionService;
+    private final CareTaskService careTaskService;
+
+    /** Dashboard 對外 URL — 用來在 ACK reply 給家屬 deep link 「打開 dashboard 完成後續」。 */
+    @Value("${aethercare.web.base-url:http://localhost:5173}")
+    private String webBaseUrl;
 
     /** 健康檢查：方便瀏覽器手動測連線。LINE 本身一律 POST。 */
     @GetMapping("/webhook")
@@ -145,7 +153,7 @@ public class LineWebhookController {
             careActionService.handle(taskId, binding.getCaregiverId(), req);
             log.info("[LINE-WEBHOOK] ACKNOWLEDGE 成功 taskId={} caregiverId={}",
                     taskId, binding.getCaregiverId());
-            return "✅ 已收到任務 #" + taskId + "。請至 AetherCare Dashboard 完成後續處理。";
+            return buildAckSuccessReply(taskId);
         } catch (BusinessException e) {
             log.info("[LINE-WEBHOOK] ACKNOWLEDGE 拒絕 taskId={} caregiverId={} code={} msg={}",
                     taskId, binding.getCaregiverId(), e.getCode(), e.getMessage());
@@ -163,6 +171,20 @@ public class LineWebhookController {
         } finally {
             TenantContext.clear();
         }
+    }
+
+    /**
+     * 成功 ACK 後給家屬的 reply：點明「收到 ≠ 已處理」，附 dashboard 連結。
+     * 若能查到 eventId 就直接連 event detail，否則連 dashboard 首頁。
+     */
+    private String buildAckSuccessReply(Long taskId) {
+        String deepLink = careTaskService.findById(taskId)
+                .map(CareTask::getEventId)
+                .map(eid -> webBaseUrl + "/caregiver/events/" + eid)
+                .orElse(webBaseUrl + "/dashboard");
+        return "✅ 已記錄您收到任務 #" + taskId + "。\n\n"
+                + "⚠️ 此僅代表「已收到」— 仍需進入 Dashboard 確認長輩平安或升級給其他家屬：\n"
+                + deepLink;
     }
 
     private static Long parseTaskId(String raw) {

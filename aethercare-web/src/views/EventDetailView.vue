@@ -171,6 +171,11 @@ function stopPolling() {
   }
 }
 
+function openElderProfile() {
+  if (!event.value) return;
+  router.push({ name: 'care-profile', params: { elderId: String(event.value.elderId) } });
+}
+
 async function onAssessmentSubmit(answers: AssessmentAnswerItem[]) {
   if (!workflow.value) return;
   assessmentSubmitting.value = true;
@@ -297,7 +302,11 @@ watch(isActive, async (active) => {
           </el-tag>
         </div>
         <el-descriptions :column="2" border size="small" class="head-meta">
-          <el-descriptions-item label="被照顧者 ID">{{ event.elderId }}</el-descriptions-item>
+          <el-descriptions-item label="被照顧者">
+            <a class="elder-link" @click="openElderProfile">
+              #{{ event.elderId }} · 查看完整檔案 →
+            </a>
+          </el-descriptions-item>
           <el-descriptions-item label="地點">{{ event.location || '—' }}</el-descriptions-item>
           <el-descriptions-item label="發生時間">{{ detectedAtText }}</el-descriptions-item>
           <el-descriptions-item label="目前狀態">{{ workflow?.status || event.status }}</el-descriptions-item>
@@ -401,4 +410,6 @@ watch(isActive, async (active) => {
 .msg { color: #606266; font-size: 13px; margin-top: 4px; white-space: pre-wrap; }
 .ended { margin-bottom: 16px; }
 .grid { margin-top: 4px; }
+.elder-link { color: #409eff; cursor: pointer; text-decoration: underline; }
+.elder-link:hover { color: #66b1ff; }
 </style>

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /** 照護事件 repository。 */
 @Repository
@@ -20,4 +21,11 @@ public interface CareEventRepository extends JpaRepository<CareEvent, Long> {
      */
     boolean existsByElderIdAndEventTypeAndOccurredAtAfter(
             Long elderId, CareEventType eventType, OffsetDateTime occurredAt);
+
+    /**
+     * 短時窗 dedupe 用：給長輩 self-service「我需要幫忙 / 身體不舒服」防呆。
+     * 抓 since 之後同 elder 同 type 最新一筆；存在代表是手抖連按。
+     */
+    Optional<CareEvent> findFirstByElderIdAndEventTypeAndCreatedAtAfterOrderByCreatedAtDesc(
+            Long elderId, CareEventType eventType, OffsetDateTime since);
 }
